@@ -4,17 +4,46 @@
   "description": "Library for rendering GML documents.",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "node_modules/.bin/babel src --out-dir lib",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/.bin/jest test",
+    "lint": "node_modules/.bin/eslint .",
+    "build": "node_modules/.bin/babel src --out-dir lib",
+    "prepublish": "npm run build"
   },
   "author": "Gustav Peterz <gpeterz@gmail.com>",
   "license": "MIT",
   "babel": {
-    "presets": ["env"]
+    "presets": [
+      "env"
+    ],
+    "plugins": [
+      "transform-object-rest-spread",
+      [
+        "babel-plugin-inline-import",
+        {
+          "extensions": [
+            ".xml",
+            ".gml"
+          ]
+        }
+      ]
+    ]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.0"
+    "babel-jest": "^21.2.0",
+    "babel-plugin-inline-import": "^2.0.6",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "canvas-prebuilt": "^1.6.5-prerelease.1",
+    "eslint": "^4.8.0",
+    "eslint-plugin-react": "^7.4.0",
+    "jest": "^21.2.1",
+    "regenerator-runtime": "^0.11.0"
+  },
+  "dependencies": {
+    "eventemitter3": "^2.0.3",
+    "gl-matrix": "^2.4.0",
+    "gmljs": "^1.0.1"
   }
 }

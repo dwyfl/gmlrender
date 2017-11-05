@@ -1,2 +1,2 @@
-export {default as ClientEnvironment} from './client';
-export {default as TagEnvironment} from './tag';
+export { default as ClientEnvironment } from './client';
+export { default as TagEnvironment } from './tag';
