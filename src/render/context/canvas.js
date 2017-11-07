@@ -84,6 +84,9 @@ export default class RenderContextCanvas extends RenderContextBase {
   fill() {
     this._canvasContext().fill();
   }
+  stroke() {
+    this._canvasContext().stroke();
+  }
   clear(color) {
     const canvas = this._canvas();
     if (color === undefined) {

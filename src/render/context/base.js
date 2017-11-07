@@ -14,6 +14,7 @@ export default class RenderContextBase extends EventEmitter {
   moveTo() {}
   lineTo() {}
   fill() {}
+  stroke() {}
   clear() {}
   setRenderProps(renderProps) {} // eslint-disable-line no-unused-vars
 }
