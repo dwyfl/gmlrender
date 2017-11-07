@@ -41,4 +41,7 @@ export default class Renderer {
   setOffset(x, y){
     this.clientEnvironment.setOffsetValues(x, y);
   }
+  setLineWidth(value){
+    this.renderState.setRenderOption('lineWidth', Math.min(Math.max(parseFloat(value), 0), 1));
+  }
 }

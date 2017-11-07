@@ -2,6 +2,7 @@ import { vec3 } from 'gl-matrix';
 import RenderItem from './base';
 import ForegroundRenderProps from '../props/foreground';
 
+const DEFAULT_LINE_WIDTH = 0.005;
 const p = vec3.create();
 const q = vec3.create();
 
@@ -9,6 +10,7 @@ export default class RenderItemTags extends RenderItem {
   constructor(gml) {
     super(gml);
     this.renderProps = new ForegroundRenderProps();
+    this.lineWidth = DEFAULT_LINE_WIDTH;
   }
   getType() {
     return 'tags';
@@ -19,6 +21,9 @@ export default class RenderItemTags extends RenderItem {
     const tagLimit = this._useStateLimit(state)
       ? state.frame.tag
       : tags.length - 1;
+    if (renderState.hasRenderOption('lineWidth')) {
+      this.lineWidth = parseFloat(renderState.getRenderOption('lineWidth'));
+    }
     for (let i = 0; i <= tagLimit; ++i) {
       if (!this.gml.getDrawings(i).length) {
         continue;
@@ -64,7 +69,7 @@ export default class RenderItemTags extends RenderItem {
       : points.length - 1;
     renderContext.beginPath();
     renderContext.setRenderProps({
-      lineWidth: 0.005 * this.projectionEnvs.clientScreenScale
+      lineWidth: this.lineWidth * this.projectionEnvs.clientScreenScale
     });
     for (let i = 0; i <= pointLimit; ++i) {
       this.projectPoint(p, points[i]);
