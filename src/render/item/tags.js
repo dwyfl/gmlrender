@@ -4,9 +4,6 @@ import ForegroundRenderProps from '../props/foreground';
 
 const p = vec3.create();
 const q = vec3.create();
-const pDir = vec3.create();
-const pWidth = vec3.create();
-const pPartial = vec3.create();
 
 export default class RenderItemTags extends RenderItem {
   constructor(gml) {

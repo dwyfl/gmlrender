@@ -13,15 +13,15 @@ export default class TagEnvironment extends Environment {
     this.tag = tag;
     this.tagEnvironment = this._getEnvironmentFromTag(tag);
     this.setScreenBoundsValues(
-      this.tagEnvironment.screenBounds.x,
-      this.tagEnvironment.screenBounds.y
+      this.tagEnvironment.screenbounds[0].x,
+      this.tagEnvironment.screenbounds[0].y
     );
     this.setOffset(this._getOffsetFromEnvironment(this.tagEnvironment));
     this.setTransform(this._getTransformFromEnvironment(this.tagEnvironment));
   }
   _getEnvironmentFromTag(tag) {
     let env = {
-      screenBounds: { x: this.screenBounds[0], y: this.screenBounds[1] }
+      screenbounds: [{ x: this.screenBounds[0], y: this.screenBounds[1] }]
     };
     let clientEnv = tag.getEnvironment();
     if (clientEnv === null) {
@@ -43,8 +43,8 @@ export default class TagEnvironment extends Environment {
     if (!env) {
       return m;
     }
-    if (env.up) {
-      const upTransform = this._getUpTransformFromEnvironment(env);
+    if (env.up && env.up.length) {
+      const upTransform = this._getUpTransform(env.up[0]);
       mat3.multiply(m, m, upTransform);
     }
     if (env.rotation) {
@@ -53,19 +53,16 @@ export default class TagEnvironment extends Environment {
     }
     return m;
   }
-  _getUpTransformFromEnvironment(env) {
+  _getUpTransform(up) {
     const m = mat3.create();
-    if (!env.up) {
-      return m;
-    }
     // Some GML documents have (0,0,0) as up vector
-    if (Math.abs(env.up.x) + Math.abs(env.up.y) + Math.abs(env.up.z) === 0) {
+    if (Math.abs(up.x) + Math.abs(up.y) + Math.abs(up.z) === 0) {
       return m;
     }
-    // We use (0,-1,0) as up vector.
+    // We use (0,1,0) as up vector.
     // Find angle between this and up vector and create rotation matrix.
-    const a = vec3.fromValues(env.up.x, env.up.y, env.up.z);
-    const b = vec3.fromValues(0, -1, 0);
+    const a = vec3.fromValues(up.x, up.y, up.z);
+    const b = vec3.fromValues(0, 1, 0);
     const r = this._getRotationMatrixToAlignVectors(a, b);
     mat3.copy(m, r);
     mat3.str(m);
