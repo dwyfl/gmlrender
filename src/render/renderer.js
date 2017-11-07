@@ -41,20 +41,4 @@ export default class Renderer {
   setOffset(x, y){
     this.clientEnvironment.setOffsetValues(x, y);
   }
-
-
-  /* setCanvas(canvas) {
-    if (this.canvas) {
-      this.canvas.unload();
-    }
-    this.canvas = new Canvas(canvas);
-    this.canvas.on(Canvas.EVENT_RESIZE, this._onResize, this);
-    this.clientEnvironment = new ClientEnvironment(this.canvas.width, this.canvas.height);
-  }
-  _onResize(bounds){
-    // ClientEnvironment is shared with so many objects inside renderer
-    // it's easier to just create a new object. Probably not so efficient.
-    this.clientEnvironment.setScreenBoundsValues(bounds.width, bounds.height);
-    this.renderer.setClientEnvironment(this.clientEnvironment);
-  } */
 }

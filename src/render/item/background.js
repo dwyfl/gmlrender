@@ -14,29 +14,32 @@ export default class RenderItemBackground extends RenderItem {
   constructor(gml) {
     super(gml);
     this.renderProps = new BackgroundRenderProps();
+    this.tagEnvironments.forEach(env => {
+      env.setOffsetValues(0, 0); // Don't offset the background
+    });
   }
   getType() {
     return 'background';
   }
   render(renderContext, renderState) {
-    const tagIndex = renderState.timelineState.frame.tag;
-    const tagEnvironment = this.getTagEnvironment(tagIndex);
-    const clientEnvironment = renderState.clientEnvironment;
-    // const screenBoundsTransform = this.getScreenBoundsTransform(
-    //   tagEnvironment.screenBounds,
-    //   clientEnvironment.screenBounds
-    // );
+    for (let i = 0; i < this.gml.getTags().length; ++i) {
+      this.initProjectionTransforms(
+        this.getTagEnvironment(i),
+        renderState.clientEnvironment
+      );
+      this._renderBackground(renderContext);
+    }
+  }
+  _renderBackground(renderContext) {
     renderContext.beginPath();
-    CORNER_POINTS.forEach((point, index) => {
-      this._projectPoint(p, point, tagEnvironment, clientEnvironment);
-      // TODO:
-      // Use screenBoundsTransform
-      if (index === 0) {
+    for (let i = 0; i < CORNER_POINTS.length; ++i) {
+      this.projectPoint(p, CORNER_POINTS[i]);
+      if (i === 0) {
         renderContext.moveTo(p[0], p[1]);
       } else {
         renderContext.lineTo(p[0], p[1]);
       }
-    });
+    }
     renderContext.closePath();
     renderContext.fill();
   }

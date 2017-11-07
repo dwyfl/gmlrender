@@ -19,12 +19,6 @@ export default class TagEnvironment extends Environment {
     this.setOffset(this._getOffsetFromEnvironment(this.tagEnvironment));
     this.setTransform(this._getTransformFromEnvironment(this.tagEnvironment));
   }
-  setClientScreenBounds(bounds) {
-    vec3.copy(this.clientScreenBounds, bounds);
-  }
-  setClientScreenBoundsValues(width, height) {
-    vec3.set(this.clientScreenBounds, width, height, 0);
-  }
   _getEnvironmentFromTag(tag) {
     let env = {
       screenBounds: { x: this.screenBounds[0], y: this.screenBounds[1] }

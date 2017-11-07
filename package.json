@@ -4,9 +4,11 @@
   "description": "Library for rendering GML documents.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "node_modules/.bin/jest test",
-    "lint": "node_modules/.bin/eslint .",
-    "build": "node_modules/.bin/babel src --out-dir lib",
+    "clean": "rm -rf lib",
+    "test": "npx jest test",
+    "lint": "npx eslint .",
+    "build": "npx babel src --out-dir lib",
+    "develop": "npx babel --watch src --out-dir lib --source-maps inline",
     "prepublish": "npm run build"
   },
   "author": "Gustav Peterz <gpeterz@gmail.com>",
@@ -42,6 +44,7 @@
     "regenerator-runtime": "^0.11.0"
   },
   "dependencies": {
+    "commander": "^2.11.0",
     "eventemitter3": "^2.0.3",
     "gl-matrix": "^2.4.0",
     "gmljs": "^1.0.1"

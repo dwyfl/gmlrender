@@ -17,7 +17,7 @@ export default class View {
     }
   }
   setGml(gml){
-    if (typeof gml == 'string') {
+    if (typeof gml === 'string') {
       this.gml = new GML(gml);
     } else if (gml && gml instanceof GML) {
       this.gml = gml;

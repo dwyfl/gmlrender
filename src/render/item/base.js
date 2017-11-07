@@ -8,6 +8,7 @@ export default class RenderItem {
   constructor(gml) {
     this.gml = gml;
     this.renderProps = new DefaultRenderProps();
+    this.projectionEnvs = {};
     this.tagEnvironments = this.gml.getTags().map(
       item => new TagEnvironment(item)
     );
@@ -22,45 +23,49 @@ export default class RenderItem {
     return this.renderProps.toObject();
   }
   getTagEnvironment(tag) {
-    return this.getTagEnvironment[tag];
+    return this.tagEnvironments[tag];
   }
-  getRenderEnvironments(renderState, tagIndex) {
-    const tagEnvironment = this.getTagEnvironment(tagIndex);
-    const clientEnvironment = renderState.clientEnvironment;
-    const screenBoundsTransform = this.getScreenBoundsTransform(
-      tagEnvironment.screenBounds,
-      clientEnvironment.screenBounds
+  initProjectionTransforms(tagEnvironment, clientEnvironment) {
+    const clientScreenBounds = vec3.create();
+    const screenRatioTransform = RenderItem._getScreenRatioTransform(
+      tagEnvironment.getScreenBounds(),
+      clientEnvironment.getScreenBounds()
     );
-    return {
+    vec3.transformMat3(
+      clientScreenBounds,
+      clientEnvironment.getScreenBounds(),
+      screenRatioTransform
+    );
+    this.projectionEnvs = {
       tagEnvironment,
       clientEnvironment,
-      screenBoundsTransform,
+      clientScreenBounds,
+      clientScreenScale: vec3.length(clientScreenBounds),
     };
   }
-  static centerPoint(p) {
-    vec3.sub(p, p, CENTER_POINT);
-  }
-  static applyTransform(p, m) {
-    vec3.transformMat3(p, p, m);
-  }
-  static _projectPoint(p, point, tagEnvironment, clientEnvironment) {
-    // Center in tag space
+  projectPoint(p, point) {
+    const tEnv = this.projectionEnvs.tagEnvironment;
+    const cEnv = this.projectionEnvs.clientEnvironment;
+    p[0] = point.x;
+    p[1] = point.y;
+    p[2] = point.z;
+    // Center on origin
     vec3.sub(p, p, CENTER_POINT);
     // Apply tag transform
-    vec3.transformMat3(p, p, tagEnvironment.getTransform());
-    // Apply user transform
-    vec3.transformMat3(p, p, clientEnvironment.getTransform());
-    // Transform to screen space
-    vec3.mul(p, p, this.clientEnvironment.getScreenBounds());
+    vec3.transformMat3(p, p, tEnv.getTransform());
     // Apply tag offset
-    // vec3.add(p, p, tagEnvironment.getOffset());
-    // Center in screen space
-    vec3.add(p, p, clientEnvironment.getScreenCenter());
-    // Apply user offset
-    vec3.add(p, p, clientEnvironment.getOffset());
+    vec3.add(p, p, tEnv.getOffset());
+    // Apply user transform
+    vec3.transformMat3(p, p, cEnv.getTransform());
+    // Transform to screen space
+    vec3.mul(p, p, this.projectionEnvs.clientScreenBounds);
+    // Offset to center in screen space
+    vec3.add(p, p, cEnv.getScreenCenter());
+    // Apply client offset
+    vec3.add(p, p, cEnv.getOffset());
   }
-  static _getScreenBoundsTransform(innerScreenBounds, outerScreenBounds) {
-    let m = mat3.create();
+  static _getScreenRatioTransform(innerScreenBounds, outerScreenBounds) {
+    const m = mat3.create();
     let boundsWidth = parseFloat(innerScreenBounds[0]);
     let boundsHeight = parseFloat(innerScreenBounds[1]);
     if (isNaN(boundsWidth) || boundsWidth <= 0)
@@ -69,9 +74,10 @@ export default class RenderItem {
       boundsHeight = outerScreenBounds[1];
     let dx = boundsWidth / outerScreenBounds[0];
     let dy = boundsHeight / outerScreenBounds[1];
-    let s = dx > 1 || dy > 1
-      ? 1.0 / Math.max(dy, dx)
-      : 1.0 / Math.min(dy, dx);
+    let s = 1;
+    if (dx > 1 || dy > 1 || (dx < 1 && dy < 1)) {
+      s = 1.0 / Math.max(dy, dx);
+    }
     dx *= s;
     dy *= s;
     return mat3.fromScaling(m, [dx, dy]);

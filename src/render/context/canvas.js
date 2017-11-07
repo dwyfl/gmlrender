@@ -21,16 +21,16 @@ export default class RenderContextCanvas extends RenderContextBase {
     throw new Error('Canvas context is not initialized.');
   }
   init(canvas){
-    if (canvas instanceof Element) {
-      this.canvas = canvas;
-    } else if (typeof canvas === 'string') {
+    if (typeof canvas === 'string') {
       this.canvas = GML_DOCUMENT.getElementById(canvas);
+    } else if (canvas) { // canvas instanceof Element
+      this.canvas = canvas;
     } else {
       this.canvas = GML_DOCUMENT.createElement('canvas');
       this.canvas.width = 1024;
       this.canvas.height = 768;
     }
-    if (!this.canvas || !(this.canvas instanceof Element)) {
+    if (!this.canvas) { // !(canvas instanceof Element)
       throw new Error('Unable to init canvas.');
     }
     this.canvasContext = this.canvas.getContext('2d');
@@ -84,8 +84,20 @@ export default class RenderContextCanvas extends RenderContextBase {
   fill() {
     this._canvasContext().fill();
   }
-  clear() {
+  clear(color) {
     const canvas = this._canvas();
-    this._canvasContext().clearRect(0, 0, canvas.width, canvas.height);
+    if (color === undefined) {
+      this._canvasContext().clearRect(0, 0, canvas.width, canvas.height);
+    }
+    else {
+      this._canvasContext().lineWidth = 0;
+      this._canvasContext().fillStyle = color;
+      this._canvasContext().fillRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  setRenderProps(renderProps) {
+    Object.keys(renderProps).forEach(key => {
+      this._canvasContext()[key] = renderProps[key];
+    });
   }
 }
