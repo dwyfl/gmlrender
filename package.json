@@ -1,6 +1,6 @@
 {
   "name": "gmlrender",
-  "version": "1.0.0",
+  "version": "1.0.0-beta-1",
   "description": "Library for rendering GML documents.",
   "main": "lib/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "lint": "npx eslint .",
     "build": "npx babel src --out-dir lib",
     "develop": "npx babel --watch src --out-dir lib --source-maps inline",
-    "prepublish": "npm run build"
+    "prepublishOnly:": "rm -rf lib && npm run build"
   },
   "author": "Gustav Peterz <gpeterz@gmail.com>",
   "license": "MIT",
@@ -37,7 +37,6 @@
     "babel-plugin-inline-import": "^2.0.6",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.0",
-    "canvas-prebuilt": "^1.6.5-prerelease.1",
     "eslint": "^4.8.0",
     "eslint-plugin-react": "^7.4.0",
     "jest": "^21.2.1",

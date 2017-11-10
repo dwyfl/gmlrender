@@ -1,13 +1,11 @@
-import Canvas from 'canvas-prebuilt';
-
 const noop = () => {};
 const GML_DOCUMENT = (() => {
-  return typeof document  === 'object'
-    ? document
-    : {
+  return document === undefined
+    ? {
       getElementById: noop,
-      createElement: (nodeName) => nodeName === 'canvas' ? new Canvas() : null,
-    };
+      createElement: noop,
+    }
+    : document;
 })();
 
 export default GML_DOCUMENT;
