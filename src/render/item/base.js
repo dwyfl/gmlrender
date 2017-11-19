@@ -46,9 +46,9 @@ export default class RenderItem {
   projectPoint(p, point) {
     const tEnv = this.projectionEnvs.tagEnvironment;
     const cEnv = this.projectionEnvs.clientEnvironment;
-    p[0] = point.x;
-    p[1] = point.y;
-    p[2] = point.z;
+    p[0] = point.values.x;
+    p[1] = point.values.y;
+    p[2] = point.values.z;
     // Center on origin
     vec3.sub(p, p, CENTER_POINT);
     // Apply tag transform

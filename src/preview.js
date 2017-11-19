@@ -1,6 +1,6 @@
 import View from './view';
 import Renderer from './render';
-import RenderContextCanvas from './render/context';
+import { RenderContextCanvas } from './render/context';
 import { GML_DOCUMENT } from './util/isomorphic';
 
 const DEFAULT_BACKGROUND_COLOR = null;
@@ -12,23 +12,23 @@ export default class Preview {
     this.canvas = GML_DOCUMENT.createElement('canvas');
     this.canvas.width = width;
     this.canvas.height = height;
-    this.imageData = null;
+    this.imageData = {};
     this.jpegQuality = DEFAULT_JPEG_QUALITY;
     this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
   }
   setBackgroundColor(value) {
     this.backgroundColor = value;
-    this.imageData = null;
+    this.imageData = {};
   }
   setJpegQuality(value) {
     this.jpegQuality = Math.min(Math.max(parseFloat(value), 0), 1);
-    this.imageData = null;
+    delete this.imageData['image/jpeg'];
   }
   getPreview(imageType = 'image/jpeg'){
-    if (!this.imageData) {
-      this.imageData = this._render(imageType);
+    if (!this.imageData[imageType]) {
+      this.imageData[imageType] = this._render(imageType);
     }
-    return this.imageData;
+    return this.imageData[imageType];
   }
   _render(imageType){
     const renderContext = new RenderContextCanvas(this.canvas);

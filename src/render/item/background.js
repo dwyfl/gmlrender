@@ -4,10 +4,10 @@ import BackgroundRenderProps from '../props/background';
 
 const p = vec3.create();
 const CORNER_POINTS = [
-  { x: 0, y: 0, z: 0 },
-  { x: 0, y: 1, z: 0 },
-  { x: 1, y: 1, z: 0 },
-  { x: 1, y: 0, z: 0 }
+  { values: { x: 0, y: 0, z: 0 }},
+  { values: { x: 0, y: 1, z: 0 }},
+  { values: { x: 1, y: 1, z: 0 }},
+  { values: { x: 1, y: 0, z: 0 }},
 ];
 
 export default class RenderItemBackground extends RenderItem {

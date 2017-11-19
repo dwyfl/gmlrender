@@ -59,14 +59,18 @@ export default class GMLTimeline {
       );
       let dx, dy, dz, dt, len, speed, direction;
       if (previousPoint) {
+        const v = point.getVector();
+        const pv = previousPoint.getVector();
         dt = currentPointTime - previousPointTime;
-        dx = point.x - previousPoint.x;
-        dy = point.y - previousPoint.y;
-        dz = !isNaN(point.z) && !isNaN(previousPoint.z)
-          ? point.z - previousPoint.z
-          : 0;
+        dx = v[0] - pv[0];
+        dy = v[1] - pv[1];
+        dz = v[2] - pv[2];
         len = Math.sqrt((dx * dx) + (dy * dy));
-        direction = { x: dx / len, y: dy / len, z: dz };
+        direction = {
+          x: len > 0 ? dx / len : 0,
+          y: len > 0 ? dy / len : 0,
+          z: dz,
+        };
         speed = dt > 0 ? len * 1000 / dt : 0;
       } else {
         direction = { x: 0, y: 0, z: 0 };

@@ -17,12 +17,13 @@ export default class View {
     }
   }
   setGml(gml){
+    if (!gml) {
+      throw new Error('Not a GML object.');
+    }
     if (typeof gml === 'string') {
       this.gml = new GML(gml);
-    } else if (gml && gml instanceof GML) {
-      this.gml = gml;
     } else {
-      throw new Error('Not a GML object.');
+      this.gml = gml;
     }
     if (this.timeline) {
       this.timeline.unload();
