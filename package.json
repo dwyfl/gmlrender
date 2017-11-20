@@ -1,6 +1,6 @@
 {
   "name": "gmlrender",
-  "version": "1.0.0-beta-1",
+  "version": "1.0.0-beta-3",
   "description": "Library for rendering GML documents.",
   "main": "lib/index.js",
   "scripts": {

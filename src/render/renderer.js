@@ -9,6 +9,15 @@ export default class Renderer {
     this.renderState = new RenderState();
     this.renderState.clientEnvironment = this.clientEnvironment;
   }
+  unload() {
+    if (this.renderContext) {
+      this.renderContext.unload();
+    }
+    this.renderContext = null;
+    this.renderItems = [];
+    this.renderState = null;
+    this.clientEnvironment = null;
+  }
   addRenderItem(item, index = null, visible = true) {
     this.renderItems.splice(
       index === null ? this.renderItems.length : index,

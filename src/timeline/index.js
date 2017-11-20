@@ -48,6 +48,8 @@ export default class Timeline extends EventEmitter {
     this.gmlTimeline = null;
     this.timelines = null;
     this.removeAllListeners();
+    this._cancelStep();
+    this._cancelRestart();
   }
   getState() {
     return {

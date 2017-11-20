@@ -14,7 +14,7 @@ export default class GMLTimeline {
     this.gml = gml;
   }
   getTimeline(userOptions) {
-    if (!(this.gml && this.gml instanceof GML)) {
+    if (!this.gml) {
       return [];
     }
     const options = Object.assign(TIMELINE_OPTIONS, userOptions);
