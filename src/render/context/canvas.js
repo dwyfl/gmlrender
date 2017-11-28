@@ -27,8 +27,8 @@ export default class RenderContextCanvas extends RenderContextBase {
       this.canvas = canvas;
     } else {
       this.canvas = GML_DOCUMENT.createElement('canvas');
-      this.canvas.width = 1024;
-      this.canvas.height = 768;
+      this.canvas.width = 640;
+      this.canvas.height = 480;
     }
     if (!this.canvas) { // !(canvas instanceof Element)
       throw new Error('Unable to init canvas.');

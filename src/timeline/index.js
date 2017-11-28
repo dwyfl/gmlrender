@@ -81,7 +81,7 @@ export default class Timeline extends EventEmitter {
       index = this.currentIndex;
     }
     index = Math.max(0, Math.min(this.getLastIndex(), index));
-    return this.isEmpty() ? null : this._timeline[index];
+    return this.isEmpty() ? 0 : this._timeline[index];
   }
   getTime(index) {
     if (index === undefined) {
@@ -132,22 +132,30 @@ export default class Timeline extends EventEmitter {
   start() {
     this._run();
   }
+  pause() {
+    this._cancelStep();
+  }
   stop() {
-    this._runComplete(false);
+    this._runComplete();
   }
   _cancelRestart() {
-    if (this.scheduledRestart)
+    if (this.scheduledRestart) {
       clearTimeout(this.scheduledRestart);
+    }
     this.scheduledRestart = null;
   }
   _cancelStep() {
-    if (this.animationRequest)
+    if (this.animationRequest) {
       GML_WINDOW.cancelAnimationFrame(this.animationRequest);
+    }
     this.animationRequest = null;
+    this.running = false;
+    this.emit(EVENT_STOP, this.getState());
   }
   _run() {
-    if (this.isEmpty())
+    if (this.isEmpty()) {
       return;
+    }
     this._cancelRestart();
     this.lastStepTime = GML_TIME();
     this.running = true;
@@ -178,18 +186,14 @@ export default class Timeline extends EventEmitter {
       this.animationRequest = GML_WINDOW.requestAnimationFrame(this._runStep.bind(this));
     }
   }
-  _runComplete(scheduleRestart) {
-    if (scheduleRestart === undefined)
-      scheduleRestart = true;
+  _runComplete(scheduleRestart = false) {
     this._cancelStep();
-    this.running = false;
-    if (this.loop && scheduleRestart) {
+    if (scheduleRestart) {
       this.scheduledRestart = setTimeout(() => {
         this.currentIndex = 0;
         this.currentTime = 0;
         this.start();
       }, GML_RESTART_DELAY);
     }
-    this.emit(EVENT_STOP, this.getState());
   }
 }

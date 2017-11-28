@@ -1,10 +1,15 @@
 import GML from 'gmljs';
+import { EventEmitter } from 'eventemitter3';
 import Timeline from './timeline';
 import { GML_WINDOW } from './util/isomorphic';
 import { RenderItemBackground, RenderItemTags, RenderItemDrips } from './render/item';
 
-export default class View {
+const EVENT_START = 'event_start';
+const EVENT_STOP = 'event_stop';
+
+export default class View extends EventEmitter {
   constructor(gml, renderer){
+    super();
     this.gml = null;
     this.renderer = null;
     this.timeline = null;
@@ -15,6 +20,12 @@ export default class View {
     if (renderer !== undefined) {
       this.setRenderer(renderer);
     }
+  }
+  static get EVENT_START() {
+    return EVENT_START;
+  }
+  static get EVENT_STOP() {
+    return EVENT_STOP;
   }
   setGml(gml){
     if (!gml) {
@@ -29,6 +40,8 @@ export default class View {
       this.timeline.unload();
     }
     this.timeline = new Timeline(this.gml);
+    this.timeline.on(Timeline.EVENT_START, (event) => this.emit(EVENT_START, event));
+    this.timeline.on(Timeline.EVENT_STOP, (event) => this.emit(EVENT_STOP, event));
   }
   setRenderer(renderer) {
     this.renderer = renderer;
@@ -37,6 +50,18 @@ export default class View {
       new RenderItemTags(this.gml),
       new RenderItemDrips(this.gml),
     ]);
+  }
+  getRenderer() {
+    return this.renderer;
+  }
+  getRenderContext() {
+    return this.renderer ? this.renderer.renderContext : null;
+  }
+  getRenderItems() {
+    return this.renderer ? this.renderer.renderItems : [];
+  }
+  getState() {
+    return this.timeline.getState();
   }
   setIndex(index, time){
     this.timeline.setIndex(index, time);
@@ -47,8 +72,11 @@ export default class View {
     const index = this.timeline.getIndex(time);
     this.timeline.setIndex(index, time);
   }
+  isPlaying(){
+    return this.timeline.isRunning();
+  }
   togglePlay(){
-    if (this.timeline.isRunning()) {
+    if (this.isPlaying()) {
       this.stop();
     } else if (this.currentIndex >= this.timeline.getLastIndex()) {
       this.restart();
@@ -70,6 +98,7 @@ export default class View {
   }
   unload(){
     this._cancelAnimationFrame();
+    this.removeAllListeners();
     this.gml = null;
     if (this.timeline) {
       this.timeline.unload();
