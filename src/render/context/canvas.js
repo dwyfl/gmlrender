@@ -47,15 +47,16 @@ export default class RenderContextCanvas extends RenderContextBase {
     if (!this.canvas) {
       return false;
     }
+    let dirty = false;
     if (this.canvas.width != this.canvas.clientWidth) {
       this.canvas.width = this.canvas.clientWidth;
-      return true;
+      dirty = true;
     }
     if (this.canvas.height != this.canvas.clientHeight) {
       this.canvas.height = this.canvas.clientHeight;
-      return true;
+      dirty = true;
     }
-    return false;
+    return dirty;
   }
   get width() {
     return this._canvas().width;
