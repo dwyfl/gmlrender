@@ -80,9 +80,10 @@ export default class RenderItemTags extends RenderItem {
       }
       if (i == pointLimit && i < points.length - 1) {
         this.projectPoint(q, points[i + 1]);
-        const ct = points[i].t;
-        const nt = points[i + 1].t;
-        const dt = ct >= nt ? 0 : (state.time - ct) / (nt - ct);
+        const ct = Math.max(points[i].values.t, 0);
+        const nt = Math.max(points[i + 1].values.t, ct);
+        const tt = Math.min(Math.max(state.time, ct), nt);
+        const dt = ct >= nt ? 0 : (tt - ct) / (nt - ct);
         const dx = p[0] + ((q[0] - p[0]) * dt);
         const dy = p[1] + ((q[1] - p[1]) * dt);
         renderContext.lineTo(dx, dy);
