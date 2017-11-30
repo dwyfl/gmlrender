@@ -1,1 +1,8 @@
 /src
+.eslintignore
+.eslintrc.json
+.gitignore
+.npmignore
+yarn.lock
+yarn-debug.log*
+yarn-error.log*
