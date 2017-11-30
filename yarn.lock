@@ -1539,9 +1539,9 @@ globby@^5.0.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
-gmljs@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/gmljs/-/gmljs-2.0.0.tgz#d826cc1c5ef7e732a1ce787227d6593877c044c5"
+gmljs@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/gmljs/-/gmljs-2.0.1.tgz#f3784824b59d61af0c270a931437694c0a58abf5"
   dependencies:
     xmldom "^0.1.27"
 
