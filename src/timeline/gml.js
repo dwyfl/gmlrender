@@ -55,7 +55,7 @@ export default class GMLTimeline {
     return strokeNode.getPoints().map((point, index) => {
       const currentPointTime = Math.max(
         previousPointTime,
-        isNaN(point.t) ? customTimeOffset : point.t
+        isNaN(point.values.t) ? customTimeOffset : point.values.t
       );
       let dx, dy, dz, dt, len, speed, direction;
       if (previousPoint) {

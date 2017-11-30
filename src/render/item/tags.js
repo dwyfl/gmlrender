@@ -78,7 +78,7 @@ export default class RenderItemTags extends RenderItem {
       } else {
         renderContext.lineTo(p[0], p[1]);
       }
-      if (i == pointLimit && i < points.length - 1) {
+      if (i == pointLimit && i < points.length - 1 && state.time > 0) {
         this.projectPoint(q, points[i + 1]);
         const ct = Math.max(points[i].values.t, 0);
         const nt = Math.max(points[i + 1].values.t, ct);
