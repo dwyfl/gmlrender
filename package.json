@@ -13,6 +13,10 @@
   },
   "author": "Gustav Peterz <gpeterz@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwyfl/gmlrender.git"
+  },
   "babel": {
     "presets": [
       "env"
