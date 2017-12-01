@@ -1,6 +1,6 @@
 {
   "name": "gmlrender",
-  "version": "1.0.0-beta-5",
+  "version": "1.0.0-beta-6",
   "description": "Library for rendering GML documents.",
   "main": "lib/index.js",
   "scripts": {
@@ -46,6 +46,6 @@
     "commander": "^2.11.0",
     "eventemitter3": "^2.0.3",
     "gl-matrix": "^2.4.0",
-    "gmljs": "^2.0.1"
+    "gmljs": "^2.0.3"
   }
 }
