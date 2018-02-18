@@ -1,4 +1,4 @@
-import { vec3 } from 'gl-matrix';
+import { vec3 } from '../../vendor/gl-matrix';
 import RenderItem from './base';
 import ForegroundRenderProps from '../props/foreground';
 

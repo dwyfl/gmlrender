@@ -1,4 +1,4 @@
-import { mat3 } from 'gl-matrix';
+import { mat3 } from '../vendor/gl-matrix';
 import Environment from './base';
 
 export default class ClientEnvironment extends Environment {

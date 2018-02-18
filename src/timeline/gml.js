@@ -1,5 +1,3 @@
-import GML from 'gmljs';
-
 const TIMELINE_OPTIONS = {
   useCustomFps: false,
   customFps: 1/60,

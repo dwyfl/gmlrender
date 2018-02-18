@@ -1,4 +1,4 @@
-import { mat3, vec3 } from 'gl-matrix';
+import { mat3, vec3 } from '../vendor/gl-matrix';
 
 // Most older apps have a 4:3 screen format, so use this as default.
 const DEFAULT_SCREEN_BOUNDS = vec3.fromValues(1024, 768, 0);

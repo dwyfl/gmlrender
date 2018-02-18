@@ -1,4 +1,4 @@
-import { vec3, mat3 } from 'gl-matrix';
+import { vec3, mat3 } from '../../vendor/gl-matrix';
 import { TagEnvironment } from '../../environment';
 import { DefaultRenderProps } from '../props';
 

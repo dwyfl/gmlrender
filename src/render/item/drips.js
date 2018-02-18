@@ -1,4 +1,3 @@
-import { vec3 } from 'gl-matrix';
 import RenderItem from './base';
 import ForegroundRenderProps from '../props/foreground';
 import GMLTimeline from '../../timeline/gml';
@@ -75,8 +74,8 @@ export default class RenderItemDrips extends RenderItem {
   getDripSpeed() {
     return getRandomRatio(this.options.dripSpeed, 0.5);
   }
+  /*
   render(renderContext, renderState) {
-    /*
     if (!this.dripPoints.length)
       return;
 
@@ -103,6 +102,6 @@ export default class RenderItemDrips extends RenderItem {
       }
     }
     context.stroke();
-    */
   }
+  */
 }

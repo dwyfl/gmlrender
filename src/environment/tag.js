@@ -1,4 +1,4 @@
-import { mat3, vec3 } from 'gl-matrix';
+import { mat3, vec3 } from '../vendor/gl-matrix';
 import Environment from './base';
 
 const DEFAULT_CLIENT_ENVS = {

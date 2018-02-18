@@ -49,7 +49,6 @@
   "dependencies": {
     "commander": "^2.11.0",
     "eventemitter3": "^2.0.3",
-    "gl-matrix": "^2.4.0",
     "gmljs": "^2.0.3"
   }
 }
