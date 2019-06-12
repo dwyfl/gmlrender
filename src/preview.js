@@ -7,7 +7,7 @@ const DEFAULT_BACKGROUND_COLOR = null;
 const DEFAULT_JPEG_QUALITY = 0.6;
 
 export default class Preview {
-  constructor(gml, width, height){
+  constructor(gml, width, height, progress) {
     this.gml = gml;
     this.canvas = GML_DOCUMENT.createElement('canvas');
     this.canvas.width = width;
@@ -15,9 +15,14 @@ export default class Preview {
     this.imageData = {};
     this.jpegQuality = DEFAULT_JPEG_QUALITY;
     this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
+    this.progress = progress === undefined ? 1 : Math.min(Math.max(parseFloat(progress), 0), 1);
   }
   setBackgroundColor(value) {
     this.backgroundColor = value;
+    this.imageData = {};
+  }
+  setProgress(value) {
+    this.progress = Math.min(Math.max(parseFloat(value), 0), 1);
     this.imageData = {};
   }
   setJpegQuality(value) {
@@ -34,7 +39,7 @@ export default class Preview {
     const renderContext = new RenderContextCanvas(this.canvas);
     const renderer = new Renderer(renderContext);
     const gmlView = new View(this.gml, renderer);
-    gmlView.setProgress(1);
+    gmlView.setProgress(this.progress);
     gmlView._draw();
     if (this.backgroundColor) {
       const context = this.canvas.getContext('2d');
