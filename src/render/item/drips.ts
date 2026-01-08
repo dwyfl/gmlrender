@@ -1,54 +1,65 @@
 import { RenderItem } from "./base";
 import { ForegroundRenderProps } from "../props/foreground";
+import { GML } from "gmljs";
+import { GMLTimeline } from "../../animation/timeline";
+import { RenderContextBase } from "../context/base";
+import { RenderState } from "../state";
 
 const DEFAULT_DRIP_FACTOR = 0.2;
 const DEFAULT_DRIP_LENGTH = 0.2; // GML virtual units
 const DEFAULT_DRIP_SPEED = 4; // Seconds to reach full length
-const DEFAULT_DRIP_EASING = (t) => 2 - 2 / (Math.min(1, Math.max(0, t)) + 1);
-const DEFAULT_OPTIONS = {
+const DEFAULT_DRIP_EASING = (t: number) => 2 - 2 / (Math.min(1, Math.max(0, t)) + 1);
+
+interface DripOptions {
+  dripFactor: number;
+  dripLength: number;
+  dripSpeed: number;
+  dripEasing: (t: number) => number;
+}
+
+const DEFAULT_OPTIONS: DripOptions = {
   dripFactor: DEFAULT_DRIP_FACTOR,
   dripLength: DEFAULT_DRIP_LENGTH,
   dripSpeed: DEFAULT_DRIP_SPEED,
   dripEasing: DEFAULT_DRIP_EASING,
 };
-const getRandomRatio = (value, ratio) => {
+
+const getRandomRatio = (value: number, ratio: number) => {
   ratio = Math.max(0, Math.min(1, ratio));
   return value * (1 - ratio) + value * ratio * Math.random();
 };
 
 export class RenderItemDrips extends RenderItem {
-  constructor(gml) {
+  type = "drips" as const;
+  private timelines: GMLTimeline;
+  private dripPoints: any[] | null;
+  private options: DripOptions;
+
+  constructor(gml: GML) {
     super(gml);
     this.renderProps = new ForegroundRenderProps();
     this.timelines = new GMLTimeline(gml);
     this.dripPoints = null;
-    this.options = {};
-    Object.keys(DEFAULT_OPTIONS).forEach(
-      (key) => (this.options[key] = DEFAULT_OPTIONS[key])
-    );
+    this.options = { ...DEFAULT_OPTIONS };
   }
-  getType() {
-    return "drips";
-  }
-  setOptions(options) {
-    const opts =
-      options === undefined || typeof options.hasOwnProperty !== "function"
-        ? {}
-        : options;
-    if (opts.hasOwnProperty("dripFactor") && !isNaN(opts.dripFactor))
-      this.options.dripFactor = Math.min(1, Math.max(0, opts.dripFactor));
-    if (opts.hasOwnProperty("dripLength") && !isNaN(opts.dripLength))
-      this.options.dripLength = Math.min(10, Math.max(0, opts.dripLength));
-    if (opts.hasOwnProperty("dripSpeed") && !isNaN(opts.dripSpeed))
-      this.options.dripSpeed = Math.min(3600, Math.max(0, opts.dripSpeed));
-    if (
-      opts.hasOwnProperty("dripEasing") &&
-      typeof opts.dripEasing === "function"
-    )
-      this.options.dripEasing = opts.dripEasing;
+
+  setOptions(options: Partial<DripOptions>) {
+    if (options.dripFactor !== undefined && !isNaN(options.dripFactor)) {
+      this.options.dripFactor = Math.min(1, Math.max(0, options.dripFactor));
+    }
+    if (options.dripLength !== undefined && !isNaN(options.dripLength)) {
+      this.options.dripLength = Math.min(10, Math.max(0, options.dripLength));
+    }
+    if (options.dripSpeed !== undefined && !isNaN(options.dripSpeed)) {
+      this.options.dripSpeed = Math.min(3600, Math.max(0, options.dripSpeed));
+    }
+    if (options.dripEasing !== undefined && typeof options.dripEasing === "function") {
+      this.options.dripEasing = options.dripEasing;
+    }
     this.dripPoints = this.calculateDripPoints();
   }
-  calculateDripPoints() {
+
+  calculateDripPoints(): any[] | null {
     /* var tags = this.gml.getTags();
     var dripFactor = this.getDripFactor();
     var dripPoints = [];
@@ -69,6 +80,7 @@ export class RenderItemDrips extends RenderItem {
       }
     }
     return dripPoints; */
+    return null;
   }
   getDripFactor() {
     return getRandomRatio(this.options.dripFactor, 0.1);
@@ -79,8 +91,14 @@ export class RenderItemDrips extends RenderItem {
   getDripSpeed() {
     return getRandomRatio(this.options.dripSpeed, 0.5);
   }
+
+  render(_renderContext: RenderContextBase, _renderState: RenderState): void {
+    // Currently disabled - drips rendering is not implemented
+    return;
+  }
+
   /*
-  render(renderContext, renderState) {
+  _renderOld(renderContext, renderState) {
     if (!this.dripPoints.length)
       return;
 

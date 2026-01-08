@@ -1,52 +1,59 @@
-import View from "./view";
-import Renderer from "./render";
+import { GMLView } from "./view";
+import { GMLRenderer } from "./render";
 import { RenderContextCanvas } from "./render/context";
-import { GML_DOCUMENT } from "./isomorphic/time";
+import { createCanvas, getCanvasContext, GMLCanvas } from "./isomorphic/canvas";
 import { GML } from "gmljs";
 
-const DEFAULT_BACKGROUND_COLOR = null;
+const DEFAULT_BACKGROUND_COLOR: string | null = null;
 const DEFAULT_JPEG_QUALITY = 0.6;
 
 export class Preview {
+  private gml: GML;
+  private canvas: GMLCanvas;
+  private imageData: Record<string, string>;
+  private jpegQuality: number;
+  private backgroundColor: string | null;
+  private progress: number;
+
   constructor(gml: GML, width: number, height: number, progress: number = 1) {
     this.gml = gml;
-    this.canvas = GML_DOCUMENT.createElement("canvas");
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas = createCanvas(width, height);
     this.imageData = {};
     this.jpegQuality = DEFAULT_JPEG_QUALITY;
     this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
     this.progress = Math.min(Math.max(progress, 0), 1);
   }
-  setBackgroundColor(value) {
+  setBackgroundColor(value: string | null) {
     this.backgroundColor = value;
     this.imageData = {};
   }
-  setProgress(value) {
-    this.progress = Math.min(Math.max(parseFloat(value), 0), 1);
+  setProgress(value: number) {
+    this.progress = Math.min(Math.max(parseFloat(String(value)), 0), 1);
     this.imageData = {};
   }
-  setJpegQuality(value) {
-    this.jpegQuality = Math.min(Math.max(parseFloat(value), 0), 1);
+  setJpegQuality(value: number) {
+    this.jpegQuality = Math.min(Math.max(parseFloat(String(value)), 0), 1);
     delete this.imageData["image/jpeg"];
   }
-  getPreview(imageType = "image/jpeg") {
+  getPreview(imageType: string = "image/jpeg"): string {
     if (!this.imageData[imageType]) {
       this.imageData[imageType] = this._render(imageType);
     }
     return this.imageData[imageType];
   }
-  _render(imageType) {
-    const renderContext = new RenderContextCanvas(this.canvas);
-    const renderer = new Renderer(renderContext);
-    const gmlView = new View(this.gml, renderer);
+  _render(imageType: string): string {
+    const renderContext = new RenderContextCanvas(this.canvas.width, this.canvas.height);
+    const renderer = new GMLRenderer(renderContext);
+    const gmlView = new GMLView(this.gml, renderer);
     gmlView.setProgress(this.progress);
     gmlView._draw();
     if (this.backgroundColor) {
-      const context = this.canvas.getContext("2d");
-      context.globalCompositeOperation = "destination-over";
-      context.fillStyle = `#${this.backgroundColor}`;
-      context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      const context = getCanvasContext(this.canvas);
+      if (context) {
+        context.globalCompositeOperation = "destination-over";
+        context.fillStyle = `#${this.backgroundColor}`;
+        context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      }
     }
     return this.canvas.toDataURL(imageType, this.jpegQuality);
   }

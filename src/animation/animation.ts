@@ -57,12 +57,17 @@ export class GMLAnimation extends EventTarget {
     this.loop = true;
   }
 
-  private get timeline() {
-    return this.timelines[this.currentTag];
+  private get timeline(): GMLTagTimeline {
+    const timeline = this.timelines[this.currentTag];
+    if (!timeline) {
+      throw new Error(
+        `Invalid GML Animation: No timeline found for tag index ${this.currentTag}.`
+      );
+    }
+    return timeline;
   }
 
-  unload() {
-    this.timelines = [];
+  reset() {
     this.currentTag = 0;
     this.currentIndex = 0;
     this.currentTime = 0;

@@ -17,6 +17,7 @@ export interface GMLCanvasContext {
   fill: (fillRule?: NodeCanvasFillRule) => void;
   fillStyle: string | NodeCanvasGradient | NodeCanvasPattern;
   fillRect: (x: number, y: number, w: number, h: number) => void;
+  globalCompositeOperation: string;
   lineCap: NodeCanvasLineCap;
   lineJoin: NodeCanvasLineJoin;
   lineTo: (x: number, y: number) => void;

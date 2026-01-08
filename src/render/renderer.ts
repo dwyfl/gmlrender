@@ -1,7 +1,20 @@
 import { ClientEnvironment } from "../environment";
 import { RenderContextBase } from "./context/base";
+import { RenderState } from "./state";
+import { RenderItem } from "./item/base";
+import { GMLAnimationState } from "../animation/animation";
+
+export interface RenderItemEntry {
+  item: RenderItem;
+  visible: boolean;
+}
 
 export class GMLRenderer {
+  clientEnvironment: ClientEnvironment;
+  renderContext: RenderContextBase;
+  renderItems: RenderItemEntry[];
+  private renderState: RenderState;
+
   constructor(context: RenderContextBase) {
     this.clientEnvironment = new ClientEnvironment(
       context.width,
@@ -9,33 +22,37 @@ export class GMLRenderer {
     );
     this.renderContext = context;
     this.renderItems = [];
-    this.renderState = new RenderState();
-    this.renderState.clientEnvironment = this.clientEnvironment;
+    this.renderState = new RenderState(
+      this.clientEnvironment,
+      {
+        timeline: { length: 0, tag: 0 } as any,
+        frame: undefined,
+        frameIndex: 0,
+        time: 0,
+        totalFrames: 0,
+        totalTime: 0,
+      }
+    );
   }
   unload() {
-    if (this.renderContext) {
-      this.renderContext.unload();
-    }
-    this.renderContext = null;
+    this.renderContext.unload();
     this.renderItems = [];
-    this.renderState = null;
-    this.clientEnvironment = null;
   }
-  addRenderItem(item, index = null, visible = true) {
+  addRenderItem(item: RenderItem, index: number | null = null, visible: boolean = true) {
     this.renderItems.splice(
       index === null ? this.renderItems.length : index,
       0,
       { item, visible }
     );
   }
-  addRenderItems(items) {
+  addRenderItems(items: RenderItem[]) {
     items.forEach((item) => this.addRenderItem(item));
   }
-  removeRenderItem(index) {
+  removeRenderItem(index: number) {
     this.renderItems.splice(index, 1);
   }
-  render(state) {
-    this.renderState.timelineState = state;
+  render(state: GMLAnimationState) {
+    this.renderState.animationState = state;
     this.renderContext.clear();
     this.renderItems.forEach((renderItem) => {
       if (renderItem.visible) {
@@ -44,19 +61,19 @@ export class GMLRenderer {
       }
     });
   }
-  setRotation(value) {
+  setRotation(value: number) {
     this.clientEnvironment.setRotation(value);
   }
-  setScale(value) {
+  setScale(value: number) {
     this.clientEnvironment.setScale(value);
   }
-  setOffset(x, y) {
+  setOffset(x: number, y: number) {
     this.clientEnvironment.setOffsetValues(x, y);
   }
-  setLineWidth(value) {
+  setLineWidth(value: number) {
     this.renderState.setRenderOption(
       "lineWidth",
-      Math.min(Math.max(parseFloat(value), 0), 1)
+      Math.min(Math.max(parseFloat(String(value)), 0), 1)
     );
   }
 }
