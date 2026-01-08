@@ -2,14 +2,15 @@
   "name": "gmlrender",
   "version": "1.0.0-beta-6",
   "description": "Library for rendering GML documents.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "clean": "rm -rf lib && rm -rf node_modules",
-    "test": "npx jest test",
-    "lint": "npx eslint .",
-    "build": "npx babel src --out-dir lib",
-    "develop": "npx babel --watch src --out-dir lib --source-maps inline",
-    "prepublishOnly:": "rm -rf lib && npm run build"
+    "build": "tsc",
+    "dev": "tsc -W",
+    "test": "node --test --experimental-strip-types",
+    "test:watch": "node --test --watch --experimental-strip-types",
+    "format": "prettier --write .",
+    "clean": "rm -rf dist",
+    "prepublishOnly:": "npm run clean && npm run build"
   },
   "author": "Gustav Peterz <gpeterz@gmail.com>",
   "license": "MIT",
@@ -17,38 +18,16 @@
     "type": "git",
     "url": "https://github.com/dwyfl/gmlrender.git"
   },
-  "babel": {
-    "presets": [
-      "env"
-    ],
-    "plugins": [
-      "transform-object-rest-spread",
-      [
-        "babel-plugin-inline-import",
-        {
-          "extensions": [
-            ".xml",
-            ".gml"
-          ]
-        }
-      ]
-    ]
-  },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-jest": "^21.2.0",
-    "babel-plugin-inline-import": "^2.0.6",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "eslint": "^4.8.0",
-    "eslint-plugin-react": "^7.4.0",
-    "jest": "^21.2.1",
-    "regenerator-runtime": "^0.11.0"
+    "@types/node": "^24.10.0",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "commander": "^2.11.0",
-    "eventemitter3": "^2.0.3",
-    "gmljs": "^2.0.3"
+    "canvas": "^3.2.0",
+    "commander": "^14.0.2",
+    "eventemitter3": "5.0.1",
+    "gl-matrix": "^3.4.4",
+    "gmljs": "latest"
   }
 }
