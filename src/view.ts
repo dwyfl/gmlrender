@@ -23,14 +23,14 @@ export type GMLViewEventType =
 export class GMLView extends EventEmitter {
   private _gml: GML | undefined;
   private _renderer: GMLRenderer | undefined;
-  private _timeline: GMLAnimation | undefined;
+  private _animation: GMLAnimation | undefined;
   private animationRequest: number | null = null;
 
   constructor(gml?: GML, renderer?: GMLRenderer) {
     super();
     this._gml = undefined;
     this._renderer = undefined;
-    this._timeline = undefined;
+    this._animation = undefined;
     this.animationRequest = null;
     if (gml !== undefined) {
       this.setGml(gml);
@@ -56,14 +56,14 @@ export class GMLView extends EventEmitter {
     } else {
       this._gml = gml;
     }
-    if (this._timeline) {
-      this._timeline.unload();
+    if (this._animation) {
+      this._animation.unload();
     }
-    this._timeline = new GMLAnimation(this._gml);
-    this._timeline.addEventListener(GMLAnimation.EVENT_START, (event) =>
+    this._animation = new GMLAnimation(this._gml);
+    this._animation.addEventListener(GMLAnimation.EVENT_START, (event) =>
       this.emit(GMLViewEvents.START, event)
     );
-    this._timeline.addEventListener(GMLAnimation.EVENT_STOP, (event) =>
+    this._animation.addEventListener(GMLAnimation.EVENT_STOP, (event) =>
       this.emit(GMLViewEvents.STOP, event)
     );
   }
@@ -92,38 +92,38 @@ export class GMLView extends EventEmitter {
   }
 
   getState() {
-    if (!this._timeline) {
+    if (!this._animation) {
       throw new Error("Timeline not initialized");
     }
-    return this._timeline.getState();
+    return this._animation.getState();
   }
 
   setIndex(index: number, time?: number) {
-    if (!this._timeline) {
+    if (!this._animation) {
       throw new Error("Timeline not initialized");
     }
-    this._timeline.setIndex(index, time);
+    this._animation.setIndex(index, time);
   }
 
   setProgress(value: number) {
-    if (!this._timeline) {
+    if (!this._animation) {
       throw new Error("Timeline not initialized");
     }
     value = Math.min(1, Math.max(0, value));
-    const time = this._timeline.totalTime * value;
-    const index = this._timeline.getIndex(time);
-    this._timeline.setIndex(index, time);
+    const time = this._animation.totalTime * value;
+    const index = this._animation.getIndex(time);
+    this._animation.setIndex(index, time);
   }
 
   isPlaying() {
-    return this._timeline ? this._timeline.isRunning : false;
+    return this._animation ? this._animation.isRunning : false;
   }
 
   togglePlay() {
-    if (!this._timeline) return;
+    if (!this._animation) return;
     if (this.isPlaying()) {
       this.stop();
-    } else if (this._timeline.currentIndex >= this._timeline.lastIndex) {
+    } else if (this._animation.currentIndex >= this._animation.lastIndex) {
       this.restart();
     } else {
       this.start();
@@ -131,20 +131,20 @@ export class GMLView extends EventEmitter {
   }
 
   restart() {
-    if (!this._timeline) return;
-    this._timeline.setIndex(0, 0);
-    this._timeline.start();
+    if (!this._animation) return;
+    this._animation.setIndex(0, 0);
+    this._animation.start();
   }
 
   start() {
-    if (!this._timeline) return;
-    this._timeline.start();
+    if (!this._animation) return;
+    this._animation.start();
     this._requestAnimationFrame();
   }
 
   stop() {
-    if (!this._timeline) return;
-    this._timeline.stop();
+    if (!this._animation) return;
+    this._animation.stop();
     this._cancelAnimationFrame();
   }
 
@@ -152,9 +152,9 @@ export class GMLView extends EventEmitter {
     this._cancelAnimationFrame();
     this.removeAllListeners();
     this._gml = undefined;
-    if (this._timeline) {
-      this._timeline.unload();
-      this._timeline = undefined;
+    if (this._animation) {
+      this._animation.unload();
+      this._animation = undefined;
     }
     if (this._renderer) {
       this._renderer.unload();
@@ -163,13 +163,13 @@ export class GMLView extends EventEmitter {
   }
 
   setLoop(value: boolean) {
-    if (!this._timeline) return;
-    this._timeline.setLoop(value);
+    if (!this._animation) return;
+    this._animation.setLoop(value);
   }
 
   setSpeed(value: number) {
-    if (!this._timeline) return;
-    this._timeline.setSpeed(value);
+    if (!this._animation) return;
+    this._animation.setSpeed(value);
   }
 
   setRotation(value: number) {
@@ -188,8 +188,8 @@ export class GMLView extends EventEmitter {
   }
 
   _draw() {
-    if (!this._renderer || !this._timeline) return;
-    this._renderer.render(this._timeline.getState());
+    if (!this._renderer || !this._animation) return;
+    this._renderer.render(this._animation.getState());
   }
 
   _requestAnimationFrame() {
@@ -200,8 +200,7 @@ export class GMLView extends EventEmitter {
   }
 
   _cancelAnimationFrame() {
-    if (this.animationRequest)
-      GML_cancelAnimationFrame(this.animationRequest);
+    if (this.animationRequest) GML_cancelAnimationFrame(this.animationRequest);
     this.animationRequest = null;
   }
 }

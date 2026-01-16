@@ -67,7 +67,7 @@ export class GMLAnimation extends EventTarget {
     return timeline;
   }
 
-  reset() {
+  unload() {
     this.currentTag = 0;
     this.currentIndex = 0;
     this.currentTime = 0;
