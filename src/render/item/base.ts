@@ -68,8 +68,8 @@ export abstract class RenderItem {
     vec3.sub(p, point, RenderItem.GML_ORIGIN);
     // Apply tag transform
     vec3.transformMat3(p, p, this.tagEnvironment.getTransform());
-    // Apply tag offset
-    vec3.add(p, p, this.tagEnvironment.getOffset());
+    // Note: Tag environment offset describes physical position in world space,
+    // not rendering offset. It is not applied here.
     // Apply user transform
     vec3.transformMat3(p, p, this.clientEnvironment.getTransform());
     // Transform to screen space

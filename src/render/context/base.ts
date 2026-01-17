@@ -14,5 +14,4 @@ export abstract class RenderContextBase extends EventTarget {
   abstract stroke(): void;
   abstract clear(color?: string): void;
   abstract setRenderProps(props: Partial<RenderProps>): void;
-  abstract unload(): void;
 }

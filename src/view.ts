@@ -187,14 +187,14 @@ export class GMLView extends EventEmitter {
     this._renderer.setOffset(x, y);
   }
 
-  _draw() {
+  draw() {
     if (!this._renderer || !this._animation) return;
     this._renderer.render(this._animation.getState());
   }
 
   _requestAnimationFrame() {
     this.animationRequest = GML_requestAnimationFrame(() => {
-      this._draw();
+      this.draw();
       this._requestAnimationFrame();
     });
   }

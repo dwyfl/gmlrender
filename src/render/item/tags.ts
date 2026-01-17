@@ -6,7 +6,7 @@ import { RenderState } from "../state";
 import { RenderContextBase } from "../context/base";
 
 export class RenderItemTags extends RenderItem {
-  private static readonly DEFAULT_LINE_WIDTH = 0.005;
+  private static readonly DEFAULT_LINE_WIDTH = 2;
   private p1: vec3;
   private p2: vec3;
 

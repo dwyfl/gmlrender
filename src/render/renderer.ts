@@ -22,23 +22,23 @@ export class GMLRenderer {
     );
     this.renderContext = context;
     this.renderItems = [];
-    this.renderState = new RenderState(
-      this.clientEnvironment,
-      {
-        timeline: { length: 0, tag: 0 } as any,
-        frame: undefined,
-        frameIndex: 0,
-        time: 0,
-        totalFrames: 0,
-        totalTime: 0,
-      }
-    );
+    this.renderState = new RenderState(this.clientEnvironment, {
+      timeline: { length: 0, tag: 0 } as any,
+      frame: undefined,
+      frameIndex: 0,
+      time: 0,
+      totalFrames: 0,
+      totalTime: 0,
+    });
   }
   unload() {
-    this.renderContext.unload();
     this.renderItems = [];
   }
-  addRenderItem(item: RenderItem, index: number | null = null, visible: boolean = true) {
+  addRenderItem(
+    item: RenderItem,
+    index: number | null = null,
+    visible: boolean = true
+  ) {
     this.renderItems.splice(
       index === null ? this.renderItems.length : index,
       0,

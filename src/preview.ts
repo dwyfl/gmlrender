@@ -1,7 +1,7 @@
 import { GMLView } from "./view";
 import { GMLRenderer } from "./render";
 import { RenderContextCanvas } from "./render/context";
-import { createCanvas, getCanvasContext, GMLCanvas } from "./isomorphic/canvas";
+import { getCanvasContext } from "./isomorphic/canvas";
 import { GML } from "gmljs";
 
 const DEFAULT_BACKGROUND_COLOR: string | null = null;
@@ -9,19 +9,21 @@ const DEFAULT_JPEG_QUALITY = 0.6;
 
 export class Preview {
   private gml: GML;
-  private canvas: GMLCanvas;
   private imageData: Record<string, string>;
   private jpegQuality: number;
   private backgroundColor: string | null;
   private progress: number;
+  private width: number;
+  private height: number;
 
   constructor(gml: GML, width: number, height: number, progress: number = 1) {
     this.gml = gml;
-    this.canvas = createCanvas(width, height);
     this.imageData = {};
     this.jpegQuality = DEFAULT_JPEG_QUALITY;
     this.backgroundColor = DEFAULT_BACKGROUND_COLOR;
     this.progress = Math.min(Math.max(progress, 0), 1);
+    this.width = width;
+    this.height = height;
   }
   setBackgroundColor(value: string | null) {
     this.backgroundColor = value;
@@ -42,19 +44,19 @@ export class Preview {
     return this.imageData[imageType];
   }
   _render(imageType: string): string {
-    const renderContext = new RenderContextCanvas(this.canvas.width, this.canvas.height);
+    const renderContext = new RenderContextCanvas(this.width, this.height);
     const renderer = new GMLRenderer(renderContext);
     const gmlView = new GMLView(this.gml, renderer);
     gmlView.setProgress(this.progress);
-    gmlView._draw();
-    if (this.backgroundColor) {
-      const context = getCanvasContext(this.canvas);
-      if (context) {
-        context.globalCompositeOperation = "destination-over";
-        context.fillStyle = `#${this.backgroundColor}`;
-        context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      }
-    }
-    return this.canvas.toDataURL(imageType, this.jpegQuality);
+    gmlView.draw();
+    // if (this.backgroundColor) {
+    //   renderContext.setRenderProps({
+    //     compositeOperation: "destination-over",
+    //     fillStyle: `#${this.backgroundColor}`,
+    //   });
+    //   renderContext.fillStyle = `#${this.backgroundColor}`;
+    //   renderContext.fillRect(0, 0, renderContext.width, renderContext.height);
+    // }
+    return renderContext.toDataURL(imageType, this.jpegQuality);
   }
 }

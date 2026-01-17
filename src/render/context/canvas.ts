@@ -8,13 +8,16 @@ import {
 import { RenderProps } from "../props";
 
 export class RenderContextCanvas extends RenderContextBase {
-  private canvas: GMLCanvas | null;
-  private canvasContext: GMLCanvasContext | null;
+  private canvas: GMLCanvas;
+  private canvasContext: GMLCanvasContext;
   constructor(...args: [string] | [number, number]) {
     super();
-    this.canvas = null;
-    this.canvasContext = null;
-    this.init(...args);
+    this.canvas = createCanvas(...args);
+    const context = getCanvasContext(this.canvas);
+    if (!context) {
+      throw new Error("Failed to get canvas 2D context.");
+    }
+    this.canvasContext = context;
   }
   private get _canvas() {
     if (!this.canvas) {
@@ -27,14 +30,6 @@ export class RenderContextCanvas extends RenderContextBase {
       throw new Error("Canvas context is not initialized.");
     }
     return this.canvasContext;
-  }
-  init(...args: [string] | [number, number]) {
-    this.canvas = createCanvas(...args);
-    this.canvasContext = getCanvasContext(this.canvas);
-  }
-  unload() {
-    this.canvas = null;
-    this.canvasContext = null;
   }
   get width() {
     return this._canvas.width;
@@ -81,5 +76,8 @@ export class RenderContextCanvas extends RenderContextBase {
       // @ts-expect-error TODO: validate
       this._canvasContext[key] = value;
     });
+  }
+  toDataURL(type: string, quality?: number): string {
+    return this._canvas.toDataURL(type, quality);
   }
 }

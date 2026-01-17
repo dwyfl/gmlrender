@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -W",
-    "test": "node --import tsx --test 'test/**/*.test.ts'",
-    "test:watch": "node --import tsx --test --watch 'test/**/*.test.ts'",
+    "test": "node --import tsx --test 'src/**/*.test.ts'",
+    "test:watch": "node --import tsx --test --watch 'src/**/*.test.ts'",
     "format": "prettier --write .",
     "clean": "rm -rf dist",
     "prepublishOnly:": "npm run clean && npm run build"
