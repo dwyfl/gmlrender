@@ -1,2 +1,2 @@
-export { ClientEnvironment } from "./client";
-export { TagEnvironment } from "./tag";
+export { ClientEnvironment } from "./client.ts";
+export { TagEnvironment } from "./tag.ts";

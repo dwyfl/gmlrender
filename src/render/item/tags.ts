@@ -1,9 +1,9 @@
 import { GML } from "gmljs";
 import { vec3 } from "gl-matrix";
-import { RenderItem } from "./base";
-import { ForegroundRenderProps } from "../props/foreground";
-import { RenderState } from "../state";
-import { RenderContextBase } from "../context/base";
+import { RenderItem } from "./base.ts";
+import { ForegroundRenderProps } from "../props/foreground.ts";
+import { RenderState } from "../state.ts";
+import { RenderContextBase } from "../context/base.ts";
 
 export class RenderItemTags extends RenderItem {
   private static readonly DEFAULT_LINE_WIDTH = 2;
@@ -25,22 +25,14 @@ export class RenderItemTags extends RenderItem {
     const tags = this.gml.getTags();
     const tagLimit = renderState.getTagRenderLimit() ?? tags.length - 1;
     for (let i = 0; i <= tagLimit; i += 1) {
-      this.initProjectionTransforms(
-        this.getTagEnvironment(i),
-        renderState.clientEnvironment
-      );
+      this.initProjectionTransforms(this.getTagEnvironment(i), renderState.clientEnvironment);
       this.renderTag(renderContext, renderState, i);
     }
   }
 
-  private renderTag(
-    renderContext: RenderContextBase,
-    renderState: RenderState,
-    tagIndex: number
-  ) {
+  private renderTag(renderContext: RenderContextBase, renderState: RenderState, tagIndex: number) {
     const drawings = this.gml.getDrawings(tagIndex) || [];
-    const drawingLimit =
-      renderState.getDrawingRenderLimit(tagIndex) ?? drawings.length - 1;
+    const drawingLimit = renderState.getDrawingRenderLimit(tagIndex) ?? drawings.length - 1;
     for (let i = 0; i <= drawingLimit; i += 1) {
       this.renderDrawing(renderContext, renderState, tagIndex, i);
     }
@@ -50,12 +42,11 @@ export class RenderItemTags extends RenderItem {
     renderContext: RenderContextBase,
     renderState: RenderState,
     tagIndex: number,
-    drawingIndex: number
+    drawingIndex: number,
   ) {
     const strokes = this.gml.getStrokes(tagIndex, drawingIndex) || [];
     const strokeLimit =
-      renderState.getStrokeRenderLimit(tagIndex, drawingIndex) ??
-      strokes.length - 1;
+      renderState.getStrokeRenderLimit(tagIndex, drawingIndex) ?? strokes.length - 1;
     for (let i = 0; i <= strokeLimit; i += 1) {
       if (!strokes[i].isDrawing()) {
         continue;
@@ -69,13 +60,11 @@ export class RenderItemTags extends RenderItem {
     renderState: RenderState,
     tagIndex: number,
     drawingIndex: number,
-    strokeIndex: number
+    strokeIndex: number,
   ) {
-    const points =
-      this.gml.getPoints(tagIndex, drawingIndex, strokeIndex) || [];
+    const points = this.gml.getPoints(tagIndex, drawingIndex, strokeIndex) || [];
     const pointLimit =
-      renderState.getPointRenderLimit(tagIndex, drawingIndex, strokeIndex) ??
-      points.length - 1;
+      renderState.getPointRenderLimit(tagIndex, drawingIndex, strokeIndex) ?? points.length - 1;
 
     if (points.length === 0 || pointLimit < 0) {
       return;
@@ -84,8 +73,7 @@ export class RenderItemTags extends RenderItem {
     renderContext.beginPath();
     renderContext.setRenderProps({
       lineWidth:
-        (renderState.getRenderOption("lineWidth") ??
-          RenderItemTags.DEFAULT_LINE_WIDTH) *
+        (renderState.getRenderOption("lineWidth") ?? RenderItemTags.DEFAULT_LINE_WIDTH) *
         renderState.clientEnvironment.scale, // ???
     });
 

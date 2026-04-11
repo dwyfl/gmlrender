@@ -1,6 +1,6 @@
-import { GMLAnimationState } from "../animation/animation";
-import { ClientEnvironment } from "../environment";
-import { RenderProps } from "./props";
+import { type GMLAnimationState } from "../animation/animation.ts";
+import { ClientEnvironment } from "../environment/index.ts";
+import { type RenderProps } from "./props/index.ts";
 
 export class RenderState {
   clientEnvironment: ClientEnvironment;
@@ -10,7 +10,7 @@ export class RenderState {
   constructor(
     clientEnvironment: ClientEnvironment,
     animationState: GMLAnimationState,
-    options?: RenderProps
+    options?: RenderProps,
   ) {
     this.clientEnvironment = clientEnvironment;
     this.animationState = animationState;
@@ -29,9 +29,7 @@ export class RenderState {
     delete this.renderProps[key];
   }
 
-  getRenderOption<T extends keyof RenderProps>(
-    key: T
-  ): RenderProps[T] | undefined {
+  getRenderOption<T extends keyof RenderProps>(key: T): RenderProps[T] | undefined {
     return this.renderProps[key];
   }
 
@@ -55,11 +53,7 @@ export class RenderState {
       : undefined;
   }
 
-  getPointRenderLimit(
-    tagIndex: number,
-    drawingIndex: number,
-    strokeIndex: number
-  ) {
+  getPointRenderLimit(tagIndex: number, drawingIndex: number, strokeIndex: number) {
     const { frame } = this.animationState;
     return frame &&
       tagIndex === frame.tag &&

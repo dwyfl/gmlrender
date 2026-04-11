@@ -1,5 +1,5 @@
 import { mat3 } from "gl-matrix";
-import { Environment } from "./base";
+import { Environment } from "./base.ts";
 
 export class ClientEnvironment extends Environment {
   rotation: number;

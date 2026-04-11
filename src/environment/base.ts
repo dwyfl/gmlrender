@@ -53,12 +53,7 @@ export class Environment {
     this.setOffsetValues(value[0], value[1]);
   }
   setOffsetValues(x: number, y: number) {
-    vec3.set(
-      this.offset,
-      Number.isFinite(x) ? x : 0,
-      Number.isFinite(y) ? y : 0,
-      0
-    );
+    vec3.set(this.offset, Number.isFinite(x) ? x : 0, Number.isFinite(y) ? y : 0, 0);
   }
   setTransform(transform: mat3) {
     mat3.copy(this.transform, transform);

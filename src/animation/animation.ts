@@ -1,12 +1,12 @@
 import { GML } from "gmljs";
-import { GMLTagTimeline, GMLTagTimelineFrame, GMLTimeline } from "./timeline";
+import { type GMLTagTimeline, type GMLTagTimelineFrame, GMLTimeline } from "./timeline.ts";
 import {
   GML_cancelAnimationFrame,
   GML_clearTimeout,
   GML_requestAnimationFrame,
   GML_setTimeout,
   GML_time,
-} from "../isomorphic/time";
+} from "../isomorphic/time.ts";
 
 export interface GMLAnimationState {
   timeline: GMLTagTimeline;
@@ -60,9 +60,7 @@ export class GMLAnimation extends EventTarget {
   private get timeline(): GMLTagTimeline {
     const timeline = this.timelines[this.currentTag];
     if (!timeline) {
-      throw new Error(
-        `Invalid GML Animation: No timeline found for tag index ${this.currentTag}.`
-      );
+      throw new Error(`Invalid GML Animation: No timeline found for tag index ${this.currentTag}.`);
     }
     return timeline;
   }
@@ -107,9 +105,7 @@ export class GMLAnimation extends EventTarget {
   }
 
   getFrame(index?: number): GMLTagTimelineFrame | undefined {
-    return this.timeline[
-      Math.max(0, Math.min(this.lastIndex, index ?? this.currentIndex))
-    ];
+    return this.timeline[Math.max(0, Math.min(this.lastIndex, index ?? this.currentIndex))];
   }
 
   getTime(index?: number) {
@@ -152,9 +148,7 @@ export class GMLAnimation extends EventTarget {
           ? this.getTime(index)
           : Math.min(Math.max(time, indexTime), nextIndexTime);
     }
-    this.dispatchEvent(
-      new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() })
-    );
+    this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }));
   }
 
   setTag(value: number) {
@@ -177,9 +171,7 @@ export class GMLAnimation extends EventTarget {
     this.lastStepTime = GML_time();
     this.running = true;
     this.scheduleAnimationFrame();
-    this.dispatchEvent(
-      new CustomEvent(GMLAnimation.EVENT_START, { detail: this.getState() })
-    );
+    this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_START, { detail: this.getState() }));
   }
 
   private scheduleAnimationFrame() {
@@ -207,15 +199,13 @@ export class GMLAnimation extends EventTarget {
     }
     this.animationRequest = null;
     this.running = false;
-    this.dispatchEvent(
-      new CustomEvent(GMLAnimation.EVENT_STOP, { detail: this.getState() })
-    );
+    this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_STOP, { detail: this.getState() }));
   }
 
   private step(time: number) {
     let shouldUpdate = false;
-    let deltaTime = time - this.lastStepTime;
-    let lastIndex = this.lastIndex;
+    const deltaTime = time - this.lastStepTime;
+    const lastIndex = this.lastIndex;
     let nextTime;
     this.lastStepTime = time;
     this.currentTime += deltaTime * 0.001 * this.speed;
@@ -226,9 +216,7 @@ export class GMLAnimation extends EventTarget {
       shouldUpdate = true;
     }
     if (shouldUpdate) {
-      this.dispatchEvent(
-        new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() })
-      );
+      this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }));
     }
     if (this.currentIndex >= this.lastIndex) {
       this.complete(this.loop);

@@ -40,10 +40,7 @@ export class GMLTimeline {
   useCustomFps: boolean;
   fps: number;
 
-  constructor(
-    gml?: GML,
-    { fps, useCustomFps }: Partial<GMLTimelineOptions> = {}
-  ) {
+  constructor(gml?: GML, { fps, useCustomFps }: Partial<GMLTimelineOptions> = {}) {
     this.useCustomFps = useCustomFps ?? false;
     this.fps = fps ?? 60;
     if (gml) {
@@ -58,10 +55,7 @@ export class GMLTimeline {
     });
   }
 
-  private static getFramesForGml(
-    gml: GML,
-    options: GMLTimelineOptions
-  ): GMLTagTimeline[] {
+  private static getFramesForGml(gml: GML, options: GMLTimelineOptions): GMLTagTimeline[] {
     /**
      * @TODO: Use worker thread to precalculate timelines (per tag)?
      */
@@ -75,48 +69,38 @@ export class GMLTimeline {
     };
     return gml
       .getTags()
-      .map((tag, index) =>
-        GMLTimeline.getFramesForTag(tag, { ...context, tag: index }, options)
-      );
+      .map((tag, index) => GMLTimeline.getFramesForTag(tag, { ...context, tag: index }, options));
   }
 
   private static getFramesForTag(
     tag: GMLTag,
     context: GMLTimelineFrameContext,
-    options: GMLTimelineOptions
+    options: GMLTimelineOptions,
   ) {
     return (
       tag
         .getDrawings()
         ?.flatMap((drawing, index) =>
-          GMLTimeline.getFramesForDrawing(
-            drawing,
-            { ...context, drawing: index },
-            options
-          )
+          GMLTimeline.getFramesForDrawing(drawing, { ...context, drawing: index }, options),
         ) ?? []
     );
   }
   private static getFramesForDrawing(
     drawing: GMLDrawing,
     context: GMLTimelineFrameContext,
-    options: GMLTimelineOptions
+    options: GMLTimelineOptions,
   ) {
     return drawing
       .getStrokes()
       .flatMap((stroke, index) =>
-        GMLTimeline.getFramesForStroke(
-          stroke,
-          { ...context, stroke: index },
-          options
-        )
+        GMLTimeline.getFramesForStroke(stroke, { ...context, stroke: index }, options),
       );
   }
 
   private static getFramesForStroke(
     stroke: GMLStroke,
     context: GMLTimelineFrameContext,
-    { useCustomFps, fps }: GMLTimelineOptions
+    { useCustomFps, fps }: GMLTimelineOptions,
   ) {
     const FPS_SECONDS = 1 / fps;
     let previousPoint: GMLPoint | undefined;
@@ -166,7 +150,7 @@ export class GMLTimeline {
     p1: GMLPoint,
     p2: GMLPoint,
     t1: number,
-    t2: number
+    t2: number,
   ): { speed: number; direction: { x: number; y: number; z: number } } {
     const v = p1.getXYZ();
     const pv = p2.getXYZ();

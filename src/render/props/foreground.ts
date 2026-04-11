@@ -1,4 +1,4 @@
-import { BaseRenderProps } from "./index";
+import { BaseRenderProps } from "./index.ts";
 
 export class ForegroundRenderProps extends BaseRenderProps {
   constructor(color = "#000") {

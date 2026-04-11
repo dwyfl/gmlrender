@@ -1,9 +1,9 @@
-import { vec3, mat3, vec2, ReadonlyVec3 } from "gl-matrix";
-import { ClientEnvironment, TagEnvironment } from "../../environment";
-import { BaseRenderProps } from "../props";
+import { vec3, mat3, vec2, type ReadonlyVec3 } from "gl-matrix";
+import { type ClientEnvironment, TagEnvironment } from "../../environment/index.ts";
+import { BaseRenderProps, type RenderProps } from "../props/index.ts";
 import { GML } from "gmljs";
-import { RenderState } from "../state";
-import { RenderContextBase } from "../context/base";
+import { RenderState } from "../state.ts";
+import { RenderContextBase } from "../context/base.ts";
 
 export abstract class RenderItem {
   private static readonly GML_ORIGIN = vec3.fromValues(0.5, 0.5, 0);
@@ -17,39 +17,38 @@ export abstract class RenderItem {
   constructor(gml: GML) {
     this.gml = gml;
     this.renderProps = new BaseRenderProps();
-    this.tagEnvironments = gml
-      .getTags()
-      .map((item) => new TagEnvironment(item));
+    this.tagEnvironments = gml.getTags().map((item) => new TagEnvironment(item));
   }
 
   abstract get type(): string;
 
-  abstract render(
-    renderContext: RenderContextBase,
-    renderState: RenderState
-  ): void;
+  abstract render(renderContext: RenderContextBase, renderState: RenderState): void;
 
   getRenderProps() {
     return this.renderProps.toObject();
+  }
+
+  setRenderProps(props: Partial<RenderProps>) {
+    for (const [key, value] of Object.entries(props)) {
+      // @ts-expect-error this is fine
+      this.renderProps[key] = value;
+    }
   }
 
   getTagEnvironment(index: number) {
     return this.tagEnvironments?.[index];
   }
 
-  initProjectionTransforms(
-    tagEnvironment: TagEnvironment,
-    clientEnvironment: ClientEnvironment
-  ) {
+  initProjectionTransforms(tagEnvironment: TagEnvironment, clientEnvironment: ClientEnvironment) {
     const clientScreenBounds = vec3.create();
     const screenRatioTransform = RenderItem.getScreenRatioTransform(
       tagEnvironment.getScreenBounds(),
-      clientEnvironment.getScreenBounds()
+      clientEnvironment.getScreenBounds(),
     );
     vec3.transformMat3(
       clientScreenBounds,
       clientEnvironment.getScreenBounds(),
-      screenRatioTransform
+      screenRatioTransform,
     );
     this.clientScreenBounds = clientScreenBounds;
     this.clientEnvironment = clientEnvironment;
@@ -57,11 +56,7 @@ export abstract class RenderItem {
   }
 
   projectPoint(p: vec3, point: ReadonlyVec3) {
-    if (
-      !this.tagEnvironment ||
-      !this.clientEnvironment ||
-      !this.clientScreenBounds
-    ) {
+    if (!this.tagEnvironment || !this.clientEnvironment || !this.clientScreenBounds) {
       throw new Error("Projection environments not initialized");
     }
     // Center on origin
@@ -80,10 +75,7 @@ export abstract class RenderItem {
     vec3.add(p, p, this.clientEnvironment.getOffset());
   }
 
-  private static getScreenRatioTransform(
-    innerScreenBounds: vec2,
-    outerScreenBounds: vec2
-  ) {
+  private static getScreenRatioTransform(innerScreenBounds: vec2, outerScreenBounds: vec2) {
     const m = mat3.create();
     let [boundsWidth, boundsHeight] = innerScreenBounds;
     if (!Number.isFinite(boundsWidth) || boundsWidth <= 0) {

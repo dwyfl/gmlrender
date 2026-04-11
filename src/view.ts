@@ -1,29 +1,25 @@
 import { GML } from "gmljs";
-import { GMLRenderer } from "./render";
+import { GMLRenderer } from "./render/index.ts";
 import { EventEmitter } from "eventemitter3";
-import { GMLAnimation } from "./animation/animation";
-import {
-  GML_requestAnimationFrame,
-  GML_cancelAnimationFrame,
-} from "./isomorphic/time";
-import {
-  RenderItemBackground,
-  RenderItemTags,
-  RenderItemDrips,
-} from "./render/item";
+import { GMLAnimation } from "./animation/animation.ts";
+import { GML_requestAnimationFrame, GML_cancelAnimationFrame } from "./isomorphic/time.ts";
+import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
+import type { RenderProps } from "./render/props/index.ts";
 
 export const GMLViewEvents = {
   START: "start",
   STOP: "stop",
 } as const;
 
-export type GMLViewEventType =
-  (typeof GMLViewEvents)[keyof typeof GMLViewEvents];
+export type GMLViewEventType = (typeof GMLViewEvents)[keyof typeof GMLViewEvents];
 
 export class GMLView extends EventEmitter {
   private _gml: GML | undefined;
   private _renderer: GMLRenderer | undefined;
   private _animation: GMLAnimation | undefined;
+  private renderItemBackground: RenderItemBackground | undefined;
+  private renderItemTags: RenderItemTags | undefined;
+  private renderItemDrips: RenderItemDrips | undefined;
   private animationRequest: number | null = null;
 
   constructor(gml?: GML, renderer?: GMLRenderer) {
@@ -61,20 +57,31 @@ export class GMLView extends EventEmitter {
     }
     this._animation = new GMLAnimation(this._gml);
     this._animation.addEventListener(GMLAnimation.EVENT_START, (event) =>
-      this.emit(GMLViewEvents.START, event)
+      this.emit(GMLViewEvents.START, event),
     );
     this._animation.addEventListener(GMLAnimation.EVENT_STOP, (event) =>
-      this.emit(GMLViewEvents.STOP, event)
+      this.emit(GMLViewEvents.STOP, event),
     );
+    this.renderItemBackground = new RenderItemBackground(this._gml);
+    this.renderItemTags = new RenderItemTags(this._gml);
+    this.renderItemDrips = new RenderItemDrips(this._gml);
+
+    if (this._renderer) {
+      this._renderer.addRenderItems([
+        this.renderItemBackground,
+        this.renderItemTags,
+        this.renderItemDrips,
+      ]);
+    }
   }
 
   setRenderer(renderer: GMLRenderer) {
     this._renderer = renderer;
-    if (this._gml) {
+    if (this._gml && this.renderItemBackground && this.renderItemTags && this.renderItemDrips) {
       this._renderer.addRenderItems([
-        new RenderItemBackground(this._gml),
-        new RenderItemTags(this._gml),
-        new RenderItemDrips(this._gml),
+        this.renderItemBackground,
+        this.renderItemTags,
+        this.renderItemDrips,
       ]);
     }
   }
@@ -89,6 +96,18 @@ export class GMLView extends EventEmitter {
 
   getRenderItems() {
     return this._renderer ? this._renderer.renderItems : [];
+  }
+
+  setBackgroundRenderProps(props: Partial<RenderProps>) {
+    this.renderItemBackground?.setRenderProps(props);
+  }
+
+  setTagsRenderProps(props: Partial<RenderProps>) {
+    this.renderItemTags?.setRenderProps(props);
+  }
+
+  setDripsRenderProps(props: Partial<RenderProps>) {
+    this.renderItemDrips?.setRenderProps(props);
   }
 
   getState() {

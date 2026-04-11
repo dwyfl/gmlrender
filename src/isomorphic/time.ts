@@ -5,18 +5,13 @@ export const GML_time =
 
 let timeLastFrame = 0;
 
-export const GML_requestAnimationFrame: (
-  callback: (time: number) => void
-) => number =
+export const GML_requestAnimationFrame: (callback: (time: number) => void) => number =
   typeof window === "undefined"
     ? (callback: (time: number) => void) => {
         const timeCurrent = GML_time();
         const timeToCallback = Math.max(0, 16 - (timeCurrent - timeLastFrame));
         timeLastFrame = timeCurrent + timeToCallback;
-        const timeout = setTimeout(
-          () => callback(timeCurrent + timeToCallback),
-          timeToCallback
-        );
+        const timeout = setTimeout(() => callback(timeCurrent + timeToCallback), timeToCallback);
         return timeout[Symbol.toPrimitive]();
       }
     : window.requestAnimationFrame.bind(window);

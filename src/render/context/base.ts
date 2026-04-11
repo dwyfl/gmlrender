@@ -1,4 +1,4 @@
-import { RenderProps } from "../props";
+import { type RenderProps } from "../props/index.ts";
 
 export abstract class RenderContextBase extends EventTarget {
   static EVENT_RESIZE = "event_resize";
@@ -14,4 +14,5 @@ export abstract class RenderContextBase extends EventTarget {
   abstract stroke(): void;
   abstract clear(color?: string): void;
   abstract setRenderProps(props: Partial<RenderProps>): void;
+  abstract toDataURL(type: "jpeg" | "png" | "gif" | "webp" | "avif", quality?: number): string;
 }

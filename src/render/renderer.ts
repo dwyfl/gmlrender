@@ -1,8 +1,8 @@
-import { ClientEnvironment } from "../environment";
-import { RenderContextBase } from "./context/base";
-import { RenderState } from "./state";
-import { RenderItem } from "./item/base";
-import { GMLAnimationState } from "../animation/animation";
+import { ClientEnvironment } from "../environment/index.ts";
+import { RenderContextBase } from "./context/base.ts";
+import { RenderState } from "./state.ts";
+import { RenderItem } from "./item/base.ts";
+import { type GMLAnimationState } from "../animation/animation.ts";
 
 export interface RenderItemEntry {
   item: RenderItem;
@@ -16,10 +16,7 @@ export class GMLRenderer {
   private renderState: RenderState;
 
   constructor(context: RenderContextBase) {
-    this.clientEnvironment = new ClientEnvironment(
-      context.width,
-      context.height
-    );
+    this.clientEnvironment = new ClientEnvironment(context.width, context.height);
     this.renderContext = context;
     this.renderItems = [];
     this.renderState = new RenderState(this.clientEnvironment, {
@@ -34,16 +31,8 @@ export class GMLRenderer {
   unload() {
     this.renderItems = [];
   }
-  addRenderItem(
-    item: RenderItem,
-    index: number | null = null,
-    visible: boolean = true
-  ) {
-    this.renderItems.splice(
-      index === null ? this.renderItems.length : index,
-      0,
-      { item, visible }
-    );
+  addRenderItem(item: RenderItem, index: number | null = null, visible: boolean = true) {
+    this.renderItems.splice(index === null ? this.renderItems.length : index, 0, { item, visible });
   }
   addRenderItems(items: RenderItem[]) {
     items.forEach((item) => this.addRenderItem(item));
@@ -73,7 +62,7 @@ export class GMLRenderer {
   setLineWidth(value: number) {
     this.renderState.setRenderOption(
       "lineWidth",
-      Math.min(Math.max(parseFloat(String(value)), 0), 1)
+      Math.min(Math.max(parseFloat(String(value)), 0), 1),
     );
   }
 }

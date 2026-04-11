@@ -1,9 +1,9 @@
 import { GML } from "gmljs";
 import { vec3 } from "gl-matrix";
-import { RenderItem } from "./base";
-import { BackgroundRenderProps } from "../props/background";
-import { RenderContextBase } from "../context/base";
-import { RenderState } from "../state";
+import { RenderItem } from "./base.ts";
+import { BackgroundRenderProps } from "../props/background.ts";
+import { RenderContextBase } from "../context/base.ts";
+import { RenderState } from "../state.ts";
 
 export class RenderItemBackground extends RenderItem {
   private static readonly CORNER_POINTS = [
@@ -14,10 +14,10 @@ export class RenderItemBackground extends RenderItem {
   ];
   private p: vec3;
 
-  constructor(gml: GML) {
+  constructor(gml: GML, color?: string) {
     super(gml);
     this.p = vec3.create();
-    this.renderProps = new BackgroundRenderProps();
+    this.renderProps = new BackgroundRenderProps(color ? { fillStyle: color } : undefined);
     this.tagEnvironments.forEach((env) => {
       env.setOffsetValues(0, 0); // Don't offset the background
     });
@@ -27,28 +27,30 @@ export class RenderItemBackground extends RenderItem {
     return "background";
   }
 
-  render(renderContext: RenderContextBase, renderState: RenderState) {
+  setColor(value: string) {
+    this.setRenderProps({ fillStyle: value });
+  }
+
+  render(ctx: RenderContextBase, renderState: RenderState) {
     this.gml.getTags().forEach((_, index) => {
-      this.initProjectionTransforms(
-        this.getTagEnvironment(index),
-        renderState.clientEnvironment
-      );
-      this.renderBackground(renderContext);
+      this.initProjectionTransforms(this.getTagEnvironment(index), renderState.clientEnvironment);
+      this.renderBackground(ctx);
     });
   }
 
-  private renderBackground(renderContext: RenderContextBase) {
+  private renderBackground(ctx: RenderContextBase) {
     const { p } = this;
-    renderContext.beginPath();
+    ctx.setRenderProps(this.renderProps);
+    ctx.beginPath();
     for (let i = 0; i < RenderItemBackground.CORNER_POINTS.length; ++i) {
       this.projectPoint(p, RenderItemBackground.CORNER_POINTS[i]);
       if (i === 0) {
-        renderContext.moveTo(p[0], p[1]);
+        ctx.moveTo(p[0], p[1]);
       } else {
-        renderContext.lineTo(p[0], p[1]);
+        ctx.lineTo(p[0], p[1]);
       }
     }
-    renderContext.closePath();
-    renderContext.fill();
+    ctx.closePath();
+    ctx.fill();
   }
 }

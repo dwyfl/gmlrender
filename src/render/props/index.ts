@@ -1,4 +1,4 @@
-import { GMLCanvasContext } from "../../isomorphic/canvas";
+import { type GMLCanvasContext } from "../../isomorphic/canvas.ts";
 
 export type RenderProps = Pick<
   GMLCanvasContext,
@@ -11,12 +11,12 @@ export class BaseRenderProps {
   lineWidth: RenderProps["lineWidth"];
   lineCap: RenderProps["lineCap"];
   lineJoin: RenderProps["lineJoin"];
-  constructor() {
-    this.fillStyle = "#000";
-    this.strokeStyle = "#000";
-    this.lineWidth = 0;
-    this.lineCap = "round";
-    this.lineJoin = "round";
+  constructor(props?: Partial<RenderProps>) {
+    this.fillStyle = props?.fillStyle ?? "#000";
+    this.strokeStyle = props?.strokeStyle ?? "#000";
+    this.lineWidth = props?.lineWidth ?? 0;
+    this.lineCap = props?.lineCap ?? "round";
+    this.lineJoin = props?.lineJoin ?? "round";
   }
   toObject() {
     return {

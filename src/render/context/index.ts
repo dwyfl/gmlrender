@@ -1,1 +1,2 @@
-export * from "./canvas";
+export * from "./base.ts";
+export * from "./canvas.ts";

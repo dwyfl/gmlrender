@@ -1,9 +1,8 @@
-import { RenderItem } from "./base";
-import { ForegroundRenderProps } from "../props/foreground";
+import { RenderItem } from "./base.ts";
+import { ForegroundRenderProps } from "../props/foreground.ts";
 import { GML } from "gmljs";
-import { GMLTimeline } from "../../animation/timeline";
-import { RenderContextBase } from "../context/base";
-import { RenderState } from "../state";
+import { RenderContextBase } from "../context/base.ts";
+import { RenderState } from "../state.ts";
 
 const DEFAULT_DRIP_FACTOR = 0.2;
 const DEFAULT_DRIP_LENGTH = 0.2; // GML virtual units
@@ -31,15 +30,15 @@ const getRandomRatio = (value: number, ratio: number) => {
 
 export class RenderItemDrips extends RenderItem {
   type = "drips" as const;
-  private timelines: GMLTimeline;
-  private dripPoints: any[] | null;
+  // private _timelines: GMLTimeline;
+  // private _dripPoints: any[] | null;
   private options: DripOptions;
 
   constructor(gml: GML) {
     super(gml);
     this.renderProps = new ForegroundRenderProps();
-    this.timelines = new GMLTimeline(gml);
-    this.dripPoints = null;
+    // this._timelines = new GMLTimeline(gml);
+    // this._dripPoints = null;
     this.options = { ...DEFAULT_OPTIONS };
   }
 
@@ -56,7 +55,7 @@ export class RenderItemDrips extends RenderItem {
     if (options.dripEasing !== undefined && typeof options.dripEasing === "function") {
       this.options.dripEasing = options.dripEasing;
     }
-    this.dripPoints = this.calculateDripPoints();
+    // this._dripPoints = this.calculateDripPoints();
   }
 
   calculateDripPoints(): any[] | null {

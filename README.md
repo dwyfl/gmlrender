@@ -1,8 +1,23 @@
-# gmlrender
-JavaScript library for rendering GML files.
+# vite-plus-starter
 
-## Usage
-Install it using the command line:
+A starter for creating a Vite Plus project.
+
+## Development
+
+- Install dependencies:
+
+```bash
+vp install
 ```
-npm install gmlrender
+
+- Run the unit tests:
+
+```bash
+vp test
+```
+
+- Build the library:
+
+```bash
+vp pack
 ```

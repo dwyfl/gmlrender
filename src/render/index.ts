@@ -1,1 +1,1 @@
-export { GMLRenderer } from './renderer';
+export { GMLRenderer } from "./renderer.ts";

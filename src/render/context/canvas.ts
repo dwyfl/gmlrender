@@ -1,11 +1,11 @@
-import { RenderContextBase } from "./base";
+import { RenderContextBase } from "./base.ts";
 import {
   createCanvas,
   getCanvasContext,
-  GMLCanvas,
-  GMLCanvasContext,
-} from "../../isomorphic/canvas";
-import { RenderProps } from "../props";
+  type GMLCanvas,
+  type GMLCanvasContext,
+} from "../../isomorphic/canvas.ts";
+import { type RenderProps } from "../props/index.ts";
 
 export class RenderContextCanvas extends RenderContextBase {
   private canvas: GMLCanvas;
@@ -77,7 +77,7 @@ export class RenderContextCanvas extends RenderContextBase {
       this._canvasContext[key] = value;
     });
   }
-  toDataURL(type: string, quality?: number): string {
-    return this._canvas.toDataURL(type, quality);
+  toDataURL(type: "jpeg" | "png" | "gif" | "webp" | "avif", quality?: number): string {
+    return this._canvas.toDataURL(`image/${type}`, quality);
   }
 }
