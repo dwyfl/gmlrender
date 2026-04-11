@@ -6,21 +6,32 @@ import { Preview } from "../preview.ts";
 import packageJson from "../../package.json" with { type: "json" };
 
 program
-  .description("Render GML file to image")
-  .argument("<input>", "gml file input")
-  .argument("[output]", "image file output")
-  .option("-w, --width <n>", "output width", parseInt, 1024)
-  .option("-h, --height <n>", "output height", parseInt, 768)
-  // .option("-b, --background <hexcolor>", "background color", "white")
+  .name("gmlrender")
+  .description("Render GML documents to images")
+  // .usage("[options] <input> [output]")
+  .version(packageJson.version)
+  .showHelpAfterError()
+  .helpOption("--help", "print help text")
+  .argument("<input>", "GML document input")
+  .argument("[output]", "image output")
+  .option("-w, --width <n>", "output width", (v) => parseInt(v, 10), 1024)
+  .option("-h, --height <n>", "output height", (v) => parseInt(v, 10), 768)
+  .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
     new Option("-f, --format <format>", "output format").choices(["png", "jpg"]).default("png"),
   )
-  .version(packageJson.version)
   .parse(process.argv);
 
 const options = program.opts();
-const file = fs.readFileSync(options.input, "utf8");
-const preview = new Preview(new GML(file), options);
-const image = preview.getPreview(options.format);
+const { format, width, height } = options;
+const [input, output] = program.args;
+const inFile = input;
+const outFile = output || `${inFile.replace(/\.(?:gml|xml)$/i, "")}.${format}`;
 
-fs.writeFileSync(options.output, image.replace(/^data:image\/[a-z]+;base64,/, ""), "base64");
+const document = fs.readFileSync(inFile, "utf8");
+const preview = new Preview(new GML(document), options);
+const image = preview.getPreview(format);
+
+fs.writeFileSync(outFile, image.replace(/^data:image\/[a-z]+;base64,/, ""), "base64");
+
+console.log(`✅ Rendered ${width}x${height} ${format} file: ${outFile}`);
