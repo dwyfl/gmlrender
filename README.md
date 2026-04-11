@@ -1,6 +1,6 @@
 # gmlrender
 
-- It's can render [GML (Graffiti Markup Language)](https://en.wikipedia.org/wiki/Graffiti_Markup_Language) documents.
+- It renders [GML (Graffiti Markup Language)](https://en.wikipedia.org/wiki/Graffiti_Markup_Language) documents to images (PNG, JPG).
 - It's a JavaScript library with full TypeScript support.
 - It's a CLI tool.
 - It's open source.
