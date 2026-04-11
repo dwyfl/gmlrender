@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vite-plus/test";
-import { Preview } from "../src/preview.ts";
+import { GMLViewStatic } from "../src/preview.ts";
 import { GML } from "gmljs";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -22,7 +22,10 @@ const example001 = readFileSync(join(__dirname, "./data/example001.xml"), "utf8"
 describe("Preview: pixel properties", () => {
   test("background is white by default", () => {
     const pixels = pixelReaderfromDataURL(
-      new Preview(new GML(example001), { width: 320, height: 240 }).getPreview("png"),
+      new GMLViewStatic(new GML(example001), {
+        width: 320,
+        height: 240,
+      }).render("png"),
     );
     // Sample the four corners — they should never be touched by the stroke
     expect(isWhite(pixels.at(5, 5))).toBe(true);
@@ -33,11 +36,11 @@ describe("Preview: pixel properties", () => {
 
   test("custom background color is applied", () => {
     const pixels = pixelReaderfromDataURL(
-      new Preview(new GML(example001), {
+      new GMLViewStatic(new GML(example001), {
         width: 320,
         height: 240,
         background: "#ff0000",
-      }).getPreview("png"),
+      }).render("png"),
     );
     const corner = pixels.at(5, 5);
     expect(corner.r).toBeGreaterThan(200);
@@ -47,20 +50,23 @@ describe("Preview: pixel properties", () => {
 
   test("renders visible strokes for multi-point GML", () => {
     const pixels = pixelReaderfromDataURL(
-      new Preview(new GML(example001), { width: 320, height: 240 }).getPreview("png"),
+      new GMLViewStatic(new GML(example001), {
+        width: 320,
+        height: 240,
+      }).render("png"),
     );
     expect(pixels.count(isDark)).toBeGreaterThan(100);
   });
 
   test("different GML inputs produce different images", () => {
-    const a = new Preview(new GML(example000), {
+    const a = new GMLViewStatic(new GML(example000), {
       width: 320,
       height: 240,
-    }).getPreview("png");
-    const b = new Preview(new GML(example001), {
+    }).render("png");
+    const b = new GMLViewStatic(new GML(example001), {
       width: 320,
       height: 240,
-    }).getPreview("png");
+    }).render("png");
     expect(a).not.toBe(b);
   });
 });
@@ -77,7 +83,10 @@ describe("Preview: pixel properties", () => {
 describe("Preview: image snapshots", () => {
   test("renders an empty document", () => {
     const result = matchImageSnapshot(
-      new Preview(new GML(example000), { width: 320, height: 240 }).getPreview("png"),
+      new GMLViewStatic(new GML(example000), {
+        width: 320,
+        height: 240,
+      }).render("png"),
       join(__dirname, "snapshots/empty-document.png"),
     );
     if (result) {
@@ -87,7 +96,10 @@ describe("Preview: image snapshots", () => {
 
   test("renders a basic tag", () => {
     const result = matchImageSnapshot(
-      new Preview(new GML(example001), { width: 320, height: 240 }).getPreview("png"),
+      new GMLViewStatic(new GML(example001), {
+        width: 320,
+        height: 240,
+      }).render("png"),
       join(__dirname, "snapshots/basic-tag.png"),
     );
     if (result) {

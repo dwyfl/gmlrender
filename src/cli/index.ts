@@ -2,7 +2,7 @@
 import { program, Option } from "commander";
 import fs from "fs";
 import { GML } from "gmljs";
-import { Preview } from "../preview.ts";
+import { GMLViewStatic } from "../preview.ts";
 import packageJson from "../../package.json" with { type: "json" };
 
 program
@@ -29,8 +29,8 @@ const inFile = input;
 const outFile = output || `${inFile.replace(/\.(?:gml|xml)$/i, "")}.${format}`;
 
 const document = fs.readFileSync(inFile, "utf8");
-const preview = new Preview(new GML(document), options);
-const image = preview.getPreview(format);
+const preview = new GMLViewStatic(new GML(document), options);
+const image = preview.render(format);
 
 fs.writeFileSync(outFile, image.replace(/^data:image\/[a-z]+;base64,/, ""), "base64");
 

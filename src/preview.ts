@@ -5,8 +5,8 @@ import { GML } from "gmljs";
 
 const DEFAULT_QUALITY = 0.6;
 
-export type PreviewType = "jpeg" | "png" | "gif" | "webp" | "avif";
-export interface PreviewOptions {
+export type GMLRenderFormat = "jpeg" | "png" | "gif" | "webp" | "avif";
+export interface GMLViewStaticOptions {
   width: number;
   height: number;
   progress: number;
@@ -15,17 +15,17 @@ export interface PreviewOptions {
   ctx: RenderContextBase;
 }
 
-export class Preview {
+export class GMLViewStatic {
   private gml: GML;
   private ctx: RenderContextBase;
-  private imageData: Record<string, string>;
+  private imageData: Partial<Record<GMLRenderFormat, string>>;
   private quality: number;
   private progress: number;
   private width: number;
   private height: number;
   private background: string | undefined;
 
-  constructor(gml: GML, options?: Partial<PreviewOptions>) {
+  constructor(gml: GML, options?: Partial<GMLViewStaticOptions>) {
     this.gml = gml;
     this.imageData = {};
 
@@ -63,19 +63,19 @@ export class Preview {
       this.imageData = {};
     }
   }
-  getPreview(type: PreviewType = "jpeg"): string {
-    if (!this.imageData[type]) {
-      this.imageData[type] = this._render(type);
+  render(format: GMLRenderFormat = "jpeg"): string {
+    if (!this.imageData[format]) {
+      this.imageData[format] = this.renderToDataURL(format);
     }
-    return this.imageData[type];
+    return this.imageData[format];
   }
-  _render(type: PreviewType): string {
+  private renderToDataURL(format: GMLRenderFormat): string {
     const view = new GMLView(this.gml, new GMLRenderer(this.ctx));
     if (this.background) {
       view.setBackgroundRenderProps({ fillStyle: this.background });
     }
     view.setProgress(this.progress);
     view.draw();
-    return this.ctx.toDataURL(type, this.quality);
+    return this.ctx.toDataURL(format, this.quality);
   }
 }

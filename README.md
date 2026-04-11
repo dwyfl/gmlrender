@@ -19,20 +19,20 @@ Install it globally to use it on the command line.
 npm install -g gmlrender
 ```
 
-## Usage
+## Example
 
 Rendering images with `gmlrender` is simple.
 
 ```typescript
 import { readFileSync, writeFileSync } from "node:fs";
 import { GML } from "gmljs";
-import { Preview } from "gmlrender";
+import { GMLViewStatic } from "gmlrender";
 
 const gml = new GML(readFileSync("tag.gml", "utf8"));
-const preview = new Preview(gml, { width: 1024, height: 768 });
+const view = new GMLViewStatic(gml, { width: 1024, height: 768 });
 
 // Get a PNG data URL
-const dataURL = preview.getPreview("png");
+const dataURL = view.render("png");
 
 // Write it to a file
 const base64 = dataURL.replace(/^data:image\/[a-z]+;base64,/, "");
@@ -49,7 +49,7 @@ Options:
 | `progress`   | `number` | `1`     | Fraction of the drawing to render, from `0` to `1` |
 | `quality`    | `number` | `0.6`   | JPEG/WebP compression quality, from `0` to `1`     |
 
-### CLI
+## CLI
 
 Using `gmlrender` on the command line is simple.
 
@@ -71,8 +71,8 @@ Options:
   -f, --format <format>        output format (choices: "png", "jpg", default: "png")
   --help                       print help text
 
-$ gmlrender ~/gml/dondi.gml
-✅ Rendered 1024x768 png file: ~/gml/dondi.png
-$ gmlrender ~/gml/zephyr.gml -w 1920 -h 1080 --format jpg --background #aaddff
-✅ Rendered 1920x1080 jpg file: ~/gml/zephyr.png
+$ gmlrender ~/nyc/zephyr.gml
+✅ Rendered 1024x768 png file: ~/nyc/zephyr.png
+$ gmlrender ~/nyc/cope2.gml -w 1920 -h 1080 --format jpg --background #aaddff
+✅ Rendered 1920x1080 jpg file: ~/nyc/cope2.png
 ```
