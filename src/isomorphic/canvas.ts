@@ -46,7 +46,8 @@ export function createCanvas(...args: [string] | [number, number]): GMLCanvas {
 
 export function getCanvasContext(canvas: GMLCanvas): GMLCanvasContext | null {
   const context = canvas.getContext("2d");
-  return context instanceof NodeCanvasRenderingContext2D ||
+  return (NodeCanvasRenderingContext2D != null &&
+    context instanceof NodeCanvasRenderingContext2D) ||
     context instanceof CanvasRenderingContext2D
     ? context
     : null;
