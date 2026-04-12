@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 import { program, Option } from "commander";
-import fs from "fs";
+import fs from "node:fs";
+import path from "node:path";
 import { GML } from "gmljs";
 import { GMLViewStatic } from "../preview.ts";
 import packageJson from "../../package.json" with { type: "json" };
 
 program
   .name("gmlrender")
-  .description("Render GML documents to images")
-  // .usage("[options] <input> [output]")
+  .description("Render GML documents to images.")
+  .usage("[options] <file> ...")
   .version(packageJson.version)
   .showHelpAfterError()
   .helpOption("--help", "print help text")
-  .argument("<input>", "GML document input")
-  .argument("[output]", "image output")
-  .option("-w, --width <n>", "output width", (v) => parseInt(v, 10), 1024)
-  .option("-h, --height <n>", "output height", (v) => parseInt(v, 10), 768)
+  .argument("<file...>", "GML document file(s)")
+  .option("-o, --out <path>", "target file or directory")
+  .option("-w, --width <size>", "image width", (v) => parseInt(v, 10), 1024)
+  .option("-h, --height <size>", "image height", (v) => parseInt(v, 10), 768)
   .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
     new Option("-f, --format <format>", "output format").choices(["png", "jpg"]).default("png"),
@@ -23,15 +24,58 @@ program
   .parse(process.argv);
 
 const options = program.opts();
-const { format, width, height } = options;
-const [input, output] = program.args;
-const inFile = input;
-const outFile = output || `${inFile.replace(/\.(?:gml|xml)$/i, "")}.${format}`;
+const { format, width, height, out } = options;
+const files = program.args;
 
-const document = fs.readFileSync(inFile, "utf8");
-const preview = new GMLViewStatic(new GML(document), options);
-const image = preview.render(format);
+if (out && !fs.existsSync(out) && files.length > 1) {
+  console.error(`❌ Directory "${out}" does not exist.`);
+  process.exit(1);
+}
 
-fs.writeFileSync(outFile, image.replace(/^data:image\/[a-z]+;base64,/, ""), "base64");
+let hasError = false;
 
-console.log(`✅ Rendered ${width}x${height} ${format} file: ${outFile}`);
+for (const file of files) {
+  try {
+    if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
+      throw new Error(`"${file}" is not a file.`);
+    }
+    if (out && !fs.existsSync(out) && files.length > 1) {
+      throw new Error(`"${out}" is not a directory.`);
+    }
+
+    let outFile = `${file.replace(/\.(?:gml|xml)$/i, "")}.${format}`;
+
+    if (out) {
+      const gmlFileExt = `${path.basename(file).replace(/\.(?:gml|xml)$/i, "")}.${format}`;
+      if (files.length > 1) {
+        // out is a directory
+        outFile = path.join(out, gmlFileExt);
+      } else {
+        // out can be both file/directory
+        if (fs.existsSync(out)) {
+          outFile = fs.lstatSync(out).isDirectory() ? path.join(out, gmlFileExt) : out;
+        } else {
+          if (!fs.existsSync(path.dirname(out))) {
+            throw new Error(`Cannor write "${out}", directory does not exist.`);
+          }
+          outFile = out;
+        }
+      }
+    }
+
+    const document = fs.readFileSync(file, "utf8");
+    const preview = new GMLViewStatic(new GML(document), options);
+    const image = preview.render(format);
+
+    fs.writeFileSync(outFile, image.replace(/^data:image\/[a-z]+;base64,/, ""), "base64");
+
+    console.log(`✅ Rendered ${width}x${height} ${format} file: ${outFile}`);
+  } catch (err) {
+    hasError = true;
+    console.error(
+      `❌ Failed to render ${file}: ${err instanceof Error ? err.message : "Unknown Error"}`,
+    );
+  }
+}
+
+process.exit(hasError ? 1 : 0);
