@@ -33,7 +33,7 @@ describe("CLI", () => {
 
   test("writes a PNG to the specified output path", () => {
     const out = join(tmpDir, "out.png");
-    const result = run([EXAMPLE, out]);
+    const result = run([EXAMPLE, "--out", out]);
     expect(result.status).toBe(0);
     expect(existsSync(out)).toBe(true);
   });
@@ -56,14 +56,14 @@ describe("CLI", () => {
 
   test("respects --format jpg", () => {
     const out = join(tmpDir, "out.jpg");
-    const result = run([EXAMPLE, out, "--format", "jpg"]);
+    const result = run([EXAMPLE, "-o", out, "--format", "jpg"]);
     expect(result.status).toBe(0);
     expect(existsSync(out)).toBe(true);
   });
 
   test("writes an image with the specified --width and --height", () => {
     const out = join(tmpDir, "out.png");
-    run([EXAMPLE, out, "--width", "100", "--height", "80"]);
+    run([EXAMPLE, "-o", out, "--width", "100", "--height", "80"]);
     const png = PNG.sync.read(readFileSync(out));
     expect(png.width).toBe(100);
     expect(png.height).toBe(80);
@@ -71,7 +71,7 @@ describe("CLI", () => {
 
   test("applies --background to corner pixels", () => {
     const out = join(tmpDir, "out.png");
-    run([EXAMPLE, out, "--background", "#ff0000"]);
+    run([EXAMPLE, "-o", out, "--background", "#ff0000"]);
     const png = PNG.sync.read(readFileSync(out));
     expect(png.data[0]).toBeGreaterThan(200); // r
     expect(png.data[1]).toBeLessThan(50); //     g

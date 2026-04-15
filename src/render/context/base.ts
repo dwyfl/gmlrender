@@ -1,6 +1,6 @@
 import { type RenderProps } from "../props/index.ts";
 
-export abstract class RenderContextBase extends EventTarget {
+export abstract class RenderContextBase {
   static EVENT_RESIZE = "event_resize";
   abstract get width(): number;
   abstract get height(): number;

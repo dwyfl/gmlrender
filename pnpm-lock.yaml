@@ -18,9 +18,6 @@ importers:
       commander:
         specifier: ^14.0.3
         version: 14.0.3
-      eventemitter3:
-        specifier: ^5.0.4
-        version: 5.0.4
       gl-matrix:
         specifier: ^3.4.4
         version: 3.4.4
@@ -712,9 +709,6 @@ packages:
 
   es-module-lexer@1.7.0:
     resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
-
-  eventemitter3@5.0.4:
-    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
 
   expand-template@2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
@@ -1492,8 +1486,6 @@ snapshots:
       once: 1.4.0
 
   es-module-lexer@1.7.0: {}
-
-  eventemitter3@5.0.4: {}
 
   expand-template@2.0.3: {}
 

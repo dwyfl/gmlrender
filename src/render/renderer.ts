@@ -3,6 +3,7 @@ import { RenderContextBase } from "./context/base.ts";
 import { RenderState } from "./state.ts";
 import { RenderItem } from "./item/base.ts";
 import { type GMLAnimationState } from "../animation/animation.ts";
+import { RenderContextCanvas } from "./context/canvas.ts";
 
 export interface RenderItemEntry {
   item: RenderItem;
@@ -28,19 +29,29 @@ export class GMLRenderer {
       totalTime: 0,
     });
   }
+
+  static createCanvasRenderer(...args: [string] | [number, number]) {
+    return new GMLRenderer(new RenderContextCanvas(...args));
+  }
+
   unload() {
     this.renderItems = [];
   }
+
   addRenderItem(item: RenderItem, index: number | null = null, visible: boolean = true) {
     this.renderItems.splice(index === null ? this.renderItems.length : index, 0, { item, visible });
   }
+
   addRenderItems(items: RenderItem[]) {
     items.forEach((item) => this.addRenderItem(item));
   }
+
   removeRenderItem(index: number) {
     this.renderItems.splice(index, 1);
   }
+
   render(state: GMLAnimationState) {
+    // TODO: apply this.renderState.renderProps?
     this.renderState.animationState = state;
     this.renderContext.clear();
     this.renderItems.forEach((renderItem) => {
@@ -50,15 +61,19 @@ export class GMLRenderer {
       }
     });
   }
+
   setRotation(value: number) {
     this.clientEnvironment.setRotation(value);
   }
+
   setScale(value: number) {
     this.clientEnvironment.setScale(value);
   }
+
   setOffset(x: number, y: number) {
     this.clientEnvironment.setOffsetValues(x, y);
   }
+
   setLineWidth(value: number) {
     this.renderState.setRenderOption(
       "lineWidth",

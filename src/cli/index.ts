@@ -15,8 +15,8 @@ program
   .helpOption("--help", "print help text")
   .argument("<file...>", "GML document file(s)")
   .option("-o, --out <path>", "target file or directory")
-  .option("-w, --width <size>", "image width", (v) => parseInt(v, 10), 1024)
-  .option("-h, --height <size>", "image height", (v) => parseInt(v, 10), 768)
+  .option("-w, --width <size>", "force image width", (v) => parseInt(v, 10), 1024)
+  .option("-h, --height <size>", "force image height", (v) => parseInt(v, 10), 768)
   .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
     new Option("-f, --format <format>", "output format").choices(["png", "jpg"]).default("png"),
@@ -56,7 +56,7 @@ for (const file of files) {
           outFile = fs.lstatSync(out).isDirectory() ? path.join(out, gmlFileExt) : out;
         } else {
           if (!fs.existsSync(path.dirname(out))) {
-            throw new Error(`Cannor write "${out}", directory does not exist.`);
+            throw new Error(`Cannot write "${out}", directory does not exist.`);
           }
           outFile = out;
         }

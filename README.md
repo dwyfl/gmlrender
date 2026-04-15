@@ -55,18 +55,18 @@ Using `gmlrender` on the command line is simple.
 
 ```
 $ gmlrender  --help
-Usage: gmlrender [options] <input> [output]
+Usage: gmlrender [options] <file> ...
 
-Render GML documents to images
+Render GML documents to images.
 
 Arguments:
-  input                        GML document input
-  output                       image output
+  file                         GML document file(s)
 
 Options:
   -V, --version                output the version number
-  -w, --width <n>              output width (default: 1024)
-  -h, --height <n>             output height (default: 768)
+  -o, --out <path>             target file or directory
+  -w, --width <size>           image width (default: 1024)
+  -h, --height <size>          image height (default: 768)
   -b, --background <hexcolor>  background color (default: "white")
   -f, --format <format>        output format (choices: "png", "jpg", default: "png")
   --help                       print help text

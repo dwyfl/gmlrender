@@ -17,12 +17,45 @@ export interface GMLAnimationState {
   totalTime: number;
 }
 
+export type GMLAnimationEvent =
+  | typeof GMLAnimation.EVENT_START
+  | typeof GMLAnimation.EVENT_STOP
+  | typeof GMLAnimation.EVENT_UPDATE;
+
 export class GMLAnimation extends EventTarget {
   private static readonly DEFAULT_RESTART_DELAY = 1000;
 
   static readonly EVENT_START = "start";
   static readonly EVENT_STOP = "stop";
   static readonly EVENT_UPDATE = "update";
+
+  addEventListener<K extends GMLAnimationEvent>(
+    type: K,
+    listener: (event: CustomEvent<GMLAnimationState>) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(type: string, listener: any, options?: any): void {
+    super.addEventListener(type, listener, options);
+  }
+
+  removeEventListener<K extends GMLAnimationEvent>(
+    type: K,
+    listener: (event: CustomEvent<GMLAnimationState>) => void,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(type: string, listener: any, options?: any): void {
+    super.removeEventListener(type, listener, options);
+  }
 
   timelines: GMLTagTimeline[] = [];
   lastStepTime: number;
@@ -152,7 +185,7 @@ export class GMLAnimation extends EventTarget {
   }
 
   setTag(value: number) {
-    this.currentTag = Math.max(0, Math.max(this.timelines.length - 1, value));
+    this.currentTag = Math.max(0, Math.min(this.timelines.length - 1, value));
   }
 
   setLoop(value: boolean) {

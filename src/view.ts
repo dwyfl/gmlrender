@@ -1,19 +1,44 @@
 import { GML } from "gmljs";
 import { GMLRenderer } from "./render/index.ts";
-import { EventEmitter } from "eventemitter3";
-import { GMLAnimation } from "./animation/animation.ts";
+import { GMLAnimation, type GMLAnimationState } from "./animation/animation.ts";
 import { GML_requestAnimationFrame, GML_cancelAnimationFrame } from "./isomorphic/time.ts";
 import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
 
-export const GMLViewEvents = {
-  START: "start",
-  STOP: "stop",
-} as const;
+export type GMLViewEvent = typeof GMLView.EVENT_START | typeof GMLView.EVENT_STOP;
 
-export type GMLViewEventType = (typeof GMLViewEvents)[keyof typeof GMLViewEvents];
+export class GMLView extends EventTarget {
+  static readonly EVENT_START = "start";
+  static readonly EVENT_STOP = "stop";
 
-export class GMLView extends EventEmitter {
+  addEventListener<K extends GMLViewEvent>(
+    type: K,
+    listener: (event: CustomEvent<GMLAnimationState>) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(type: string, listener: any, options?: any): void {
+    super.addEventListener(type, listener, options);
+  }
+
+  removeEventListener<K extends GMLViewEvent>(
+    type: K,
+    listener: (event: CustomEvent<GMLAnimationState>) => void,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(type: string, listener: any, options?: any): void {
+    super.removeEventListener(type, listener, options);
+  }
+
   private _gml: GML | undefined;
   private _renderer: GMLRenderer | undefined;
   private _animation: GMLAnimation | undefined;
@@ -36,13 +61,6 @@ export class GMLView extends EventEmitter {
     }
   }
 
-  static get EVENT_START() {
-    return GMLViewEvents.START;
-  }
-  static get EVENT_STOP() {
-    return GMLViewEvents.STOP;
-  }
-
   setGml(gml: GML | string) {
     if (!gml) {
       throw new Error("Not a GML object.");
@@ -57,10 +75,10 @@ export class GMLView extends EventEmitter {
     }
     this._animation = new GMLAnimation(this._gml);
     this._animation.addEventListener(GMLAnimation.EVENT_START, (event) =>
-      this.emit(GMLViewEvents.START, event),
+      this.dispatchEvent(new CustomEvent(GMLView.EVENT_START, { detail: event.detail })),
     );
     this._animation.addEventListener(GMLAnimation.EVENT_STOP, (event) =>
-      this.emit(GMLViewEvents.STOP, event),
+      this.dispatchEvent(new CustomEvent(GMLView.EVENT_STOP, { detail: event.detail })),
     );
     this.renderItemBackground = new RenderItemBackground(this._gml);
     this.renderItemTags = new RenderItemTags(this._gml);
@@ -169,7 +187,6 @@ export class GMLView extends EventEmitter {
 
   unload() {
     this._cancelAnimationFrame();
-    this.removeAllListeners();
     this._gml = undefined;
     if (this._animation) {
       this._animation.unload();
