@@ -4,12 +4,17 @@ import { GMLAnimation, type GMLAnimationState } from "./animation/animation.ts";
 import { GML_requestAnimationFrame, GML_cancelAnimationFrame } from "./isomorphic/time.ts";
 import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
+import { clamp } from "./util.ts";
 
-export type GMLViewEvent = typeof GMLView.EVENT_START | typeof GMLView.EVENT_STOP;
+export type GMLViewEvent =
+  | typeof GMLView.EVENT_START
+  | typeof GMLView.EVENT_STOP
+  | typeof GMLView.EVENT_RESTART;
 
 export class GMLView extends EventTarget {
   static readonly EVENT_START = "start";
   static readonly EVENT_STOP = "stop";
+  static readonly EVENT_RESTART = "restart";
 
   addEventListener<K extends GMLViewEvent>(
     type: K,
@@ -39,204 +44,220 @@ export class GMLView extends EventTarget {
     super.removeEventListener(type, listener, options);
   }
 
-  private _gml: GML | undefined;
-  private _renderer: GMLRenderer | undefined;
-  private _animation: GMLAnimation | undefined;
-  private renderItemBackground: RenderItemBackground | undefined;
-  private renderItemTags: RenderItemTags | undefined;
-  private renderItemDrips: RenderItemDrips | undefined;
-  private animationRequest: number | null = null;
+  private _gml: GML;
+  private _renderer: GMLRenderer;
+  private _animation: GMLAnimation;
+  private _animationRequest: number | null = null;
 
-  constructor(gml?: GML, renderer?: GMLRenderer) {
+  constructor(gml: GML | string, renderer: GMLRenderer) {
     super();
-    this._gml = undefined;
-    this._renderer = undefined;
-    this._animation = undefined;
-    this.animationRequest = null;
-    if (gml !== undefined) {
-      this.setGml(gml);
+
+    this._gml = this._initGml(gml);
+    this._animation = this._initAnimation(this._gml);
+    this._renderer = renderer;
+    this._initRenderer(this._initRenderItems(this._gml));
+    this._animationRequest = null;
+  }
+
+  private get animation() {
+    if (!this._animation) {
+      throw new Error("GML not initialized");
     }
-    if (renderer !== undefined) {
-      this.setRenderer(renderer);
-    }
+    return this._animation;
   }
 
   setGml(gml: GML | string) {
-    if (!gml) {
-      throw new Error("Not a GML object.");
-    }
-    if (typeof gml === "string") {
-      this._gml = new GML(gml);
-    } else {
-      this._gml = gml;
-    }
+    this._gml = this._initGml(gml);
+    this._animation = this._initAnimation(this._gml);
+    this._initRenderer(this._initRenderItems(this._gml));
+  }
+
+  private _initGml(document: GML | string) {
+    return typeof document === "string" ? new GML(document) : document;
+  }
+
+  private _initAnimation(gml: GML) {
     if (this._animation) {
       this._animation.unload();
+      this._animation.removeEventListener(GMLAnimation.EVENT_START, this._animationEventHandler);
+      this._animation.removeEventListener(GMLAnimation.EVENT_RESTART, this._animationEventHandler);
+      this._animation.removeEventListener(GMLAnimation.EVENT_STOP, this._animationEventHandler);
     }
-    this._animation = new GMLAnimation(this._gml);
-    this._animation.addEventListener(GMLAnimation.EVENT_START, (event) =>
-      this.dispatchEvent(new CustomEvent(GMLView.EVENT_START, { detail: event.detail })),
-    );
-    this._animation.addEventListener(GMLAnimation.EVENT_STOP, (event) =>
-      this.dispatchEvent(new CustomEvent(GMLView.EVENT_STOP, { detail: event.detail })),
-    );
-    this.renderItemBackground = new RenderItemBackground(this._gml);
-    this.renderItemTags = new RenderItemTags(this._gml);
-    this.renderItemDrips = new RenderItemDrips(this._gml);
+    const animation = new GMLAnimation(gml);
+    animation.addEventListener(GMLAnimation.EVENT_START, this._animationEventHandler);
+    animation.addEventListener(GMLAnimation.EVENT_RESTART, this._animationEventHandler);
+    animation.addEventListener(GMLAnimation.EVENT_STOP, this._animationEventHandler);
+    return animation;
+  }
 
-    if (this._renderer) {
-      this._renderer.addRenderItems([
-        this.renderItemBackground,
-        this.renderItemTags,
-        this.renderItemDrips,
-      ]);
+  private _animationEventHandler(event: CustomEvent<GMLAnimationState>) {
+    const eventType = {
+      [GMLAnimation.EVENT_START]: GMLView.EVENT_START,
+      [GMLAnimation.EVENT_RESTART]: GMLView.EVENT_RESTART,
+      [GMLAnimation.EVENT_STOP]: GMLView.EVENT_STOP,
+    }[event.type];
+    if (eventType) {
+      this.dispatchEvent(new CustomEvent(eventType, { detail: event.detail }));
     }
+  }
+
+  private _initRenderer({
+    renderItemBackground,
+    renderItemTags,
+    renderItemDrips,
+  }: Partial<{
+    renderItemBackground: RenderItemBackground;
+    renderItemTags: RenderItemTags;
+    renderItemDrips: RenderItemDrips;
+  }> = {}) {
+    this._renderer.unload();
+    this._renderer.addRenderItems([
+      ...(renderItemBackground ? [renderItemBackground] : []),
+      ...(renderItemTags ? [renderItemTags] : []),
+      ...(renderItemDrips ? [renderItemDrips] : []),
+    ]);
+  }
+
+  private _initRenderItems(gml: GML) {
+    const renderItemBackground = new RenderItemBackground(gml);
+    const renderItemTags = new RenderItemTags(gml);
+    const renderItemDrips = new RenderItemDrips(gml);
+    return {
+      renderItemBackground,
+      renderItemTags,
+      renderItemDrips,
+    };
   }
 
   setRenderer(renderer: GMLRenderer) {
     this._renderer = renderer;
-    if (this._gml && this.renderItemBackground && this.renderItemTags && this.renderItemDrips) {
-      this._renderer.addRenderItems([
-        this.renderItemBackground,
-        this.renderItemTags,
-        this.renderItemDrips,
-      ]);
-    }
+    this._initRenderer(this._initRenderItems(this._gml));
   }
 
-  getRenderer() {
+  get renderer() {
     return this._renderer;
   }
 
-  getRenderContext() {
-    return this._renderer ? this._renderer.renderContext : null;
+  get renderContext() {
+    return this._renderer.context;
   }
 
-  getRenderItems() {
-    return this._renderer ? this._renderer.renderItems : [];
+  get renderItems() {
+    return this._renderer.items;
   }
 
   setBackgroundRenderProps(props: Partial<RenderProps>) {
-    this.renderItemBackground?.setRenderProps(props);
+    this._renderer.getRenderItemType("background")?.item.setRenderProps(props);
   }
 
   setTagsRenderProps(props: Partial<RenderProps>) {
-    this.renderItemTags?.setRenderProps(props);
+    this._renderer.getRenderItemType("tags")?.item?.setRenderProps(props);
   }
 
   setDripsRenderProps(props: Partial<RenderProps>) {
-    this.renderItemDrips?.setRenderProps(props);
+    this._renderer.getRenderItemType("drips")?.item?.setRenderProps(props);
   }
 
-  getState() {
-    if (!this._animation) {
-      throw new Error("Timeline not initialized");
-    }
-    return this._animation.getState();
+  setFrame(frame: number, time?: number) {
+    this.animation.setFrame(frame, time);
   }
 
-  setIndex(index: number, time?: number) {
-    if (!this._animation) {
-      throw new Error("Timeline not initialized");
-    }
-    this._animation.setIndex(index, time);
+  setPosition(value: number, relative = false) {
+    const position = relative ? this.currentPosition + value : value;
+    const time = this.animation.totalTime * clamp(position, 0, 1);
+    const index = this.animation.getFrameIndex(time);
+    this.animation.setFrame(index, time);
   }
 
-  setProgress(value: number) {
-    if (!this._animation) {
-      throw new Error("Timeline not initialized");
-    }
-    value = Math.min(1, Math.max(0, value));
-    const time = this._animation.totalTime * value;
-    const index = this._animation.getIndex(time);
-    this._animation.setIndex(index, time);
+  setTime(value: number, relative = false) {
+    this.setPosition((relative ? this.animation.time + value : value) / this.animation.totalTime);
   }
 
-  isPlaying() {
-    return this._animation ? this._animation.isRunning : false;
+  get currentPosition() {
+    const { time: currentTime, totalTime } = this.animation;
+    return currentTime / totalTime;
+  }
+
+  get currentTime() {
+    return this.state.time;
+  }
+
+  get state() {
+    return this.animation.getState();
+  }
+
+  get isLooping() {
+    return this._animation.isLooping;
+  }
+
+  get isPlaying() {
+    return this._animation.isPlaying;
   }
 
   togglePlay() {
-    if (!this._animation) return;
-    if (this.isPlaying()) {
+    if (this.isPlaying) {
       this.stop();
-    } else if (this._animation.currentIndex >= this._animation.lastIndex) {
-      this.restart();
     } else {
       this.start();
     }
   }
 
   restart() {
-    if (!this._animation) return;
-    this._animation.setIndex(0, 0);
+    this._animation.setFrame(0, 0);
     this._animation.start();
   }
 
   start() {
-    if (!this._animation) return;
     this._animation.start();
     this._requestAnimationFrame();
   }
 
   stop() {
-    if (!this._animation) return;
     this._animation.stop();
     this._cancelAnimationFrame();
   }
 
   unload() {
     this._cancelAnimationFrame();
-    this._gml = undefined;
-    if (this._animation) {
-      this._animation.unload();
-      this._animation = undefined;
-    }
-    if (this._renderer) {
-      this._renderer.unload();
-      this._renderer = undefined;
-    }
+    this._animation.unload();
+    this._renderer.unload();
   }
 
   setLoop(value: boolean) {
-    if (!this._animation) return;
     this._animation.setLoop(value);
   }
 
   setSpeed(value: number) {
-    if (!this._animation) return;
     this._animation.setSpeed(value);
   }
 
   setRotation(value: number) {
-    if (!this._renderer) return;
     this._renderer.setRotation(value);
   }
 
   setScale(value: number) {
-    if (!this._renderer) return;
     this._renderer.setScale(value);
   }
 
   setOffset(x: number, y: number) {
-    if (!this._renderer) return;
     this._renderer.setOffset(x, y);
   }
 
   draw() {
-    if (!this._renderer || !this._animation) return;
     this._renderer.render(this._animation.getState());
   }
 
-  _requestAnimationFrame() {
-    this.animationRequest = GML_requestAnimationFrame(() => {
+  private _requestAnimationFrame() {
+    this._animationRequest = GML_requestAnimationFrame(() => {
       this.draw();
       this._requestAnimationFrame();
     });
   }
 
-  _cancelAnimationFrame() {
-    if (this.animationRequest) GML_cancelAnimationFrame(this.animationRequest);
-    this.animationRequest = null;
+  private _cancelAnimationFrame() {
+    if (this._animationRequest) {
+      GML_cancelAnimationFrame(this._animationRequest);
+      this._animationRequest = null;
+    }
   }
 }

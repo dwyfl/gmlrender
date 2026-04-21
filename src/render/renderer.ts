@@ -11,9 +11,9 @@ export interface RenderItemEntry {
 }
 
 export class GMLRenderer {
-  clientEnvironment: ClientEnvironment;
-  renderContext: RenderContextBase;
-  renderItems: RenderItemEntry[];
+  private clientEnvironment: ClientEnvironment;
+  private renderContext: RenderContextBase;
+  private renderItems: RenderItemEntry[];
   private renderState: RenderState;
 
   constructor(context: RenderContextBase) {
@@ -36,6 +36,22 @@ export class GMLRenderer {
 
   unload() {
     this.renderItems = [];
+  }
+
+  get context() {
+    return this.renderContext;
+  }
+
+  get items() {
+    return this.renderItems;
+  }
+
+  getRenderItem(index: number): RenderItemEntry | undefined {
+    return this.renderItems[index];
+  }
+
+  getRenderItemType(type: string): RenderItemEntry | undefined {
+    return this.renderItems.find(({ item }) => item.type === type);
   }
 
   addRenderItem(item: RenderItem, index: number | null = null, visible: boolean = true) {

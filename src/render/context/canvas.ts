@@ -93,7 +93,7 @@ export class RenderContextCanvas extends RenderContextBase {
     });
   }
 
-  toDataURL(type: "jpeg" | "png" | "gif" | "webp" | "avif", quality?: number): string {
+  toDataURL(type: "jpeg" | "png", quality?: number): string {
     return this._canvas.toDataURL(`image/${type}`, quality);
   }
 }

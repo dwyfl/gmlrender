@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vite-plus/test";
-import { GMLViewStatic } from "../src/preview.ts";
+import { GMLViewStatic } from "../src/view-static.ts";
 import { GML } from "gmljs";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

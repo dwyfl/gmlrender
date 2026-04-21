@@ -3,7 +3,7 @@ import { program, Option } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import { GML } from "gmljs";
-import { GMLViewStatic } from "../preview.ts";
+import { GMLViewStatic } from "../view-static.ts";
 import packageJson from "../../package.json" with { type: "json" };
 
 program
