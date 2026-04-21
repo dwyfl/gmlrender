@@ -90,7 +90,7 @@ export class GMLView extends EventTarget {
     return animation;
   }
 
-  private _animationEventHandler(event: CustomEvent<GMLAnimationState>) {
+  private _animationEventHandler = (event: CustomEvent<GMLAnimationState>) => {
     const eventType = {
       [GMLAnimation.EVENT_START]: GMLView.EVENT_START,
       [GMLAnimation.EVENT_RESTART]: GMLView.EVENT_RESTART,
@@ -99,7 +99,7 @@ export class GMLView extends EventTarget {
     if (eventType) {
       this.dispatchEvent(new CustomEvent(eventType, { detail: event.detail }));
     }
-  }
+  };
 
   private _initRenderer({
     renderItemBackground,
