@@ -46,6 +46,10 @@ export class GMLRenderer {
     return this.renderItems;
   }
 
+  get env() {
+    return this.clientEnvironment;
+  }
+
   getRenderItem(index: number): RenderItemEntry | undefined {
     return this.renderItems[index];
   }
@@ -88,6 +92,10 @@ export class GMLRenderer {
 
   setOffset(x: number, y: number) {
     this.clientEnvironment.setOffsetValues(x, y);
+  }
+
+  setScreenBounds(width: number, height: number) {
+    this.clientEnvironment.setScreenBoundsValues(width, height);
   }
 
   setLineWidth(value: number) {
