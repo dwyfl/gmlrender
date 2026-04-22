@@ -11,7 +11,7 @@ export interface MatchResult {
 }
 
 /**
- * Compare a rendered data URL against a reference PNG stored on disk.
+ * Compare a rendered Blob against a reference PNG stored on disk.
  *
  * - If the reference file does not exist, it is created and `null` is returned
  *   (the test passes automatically on first run).
@@ -23,13 +23,12 @@ export interface MatchResult {
  * @param threshold  Per-pixel color tolerance passed to pixelmatch (0–1).
  *                   0.1 absorbs minor antialiasing differences.
  */
-export function matchImageSnapshot(
-  dataURL: string,
+export async function matchImageSnapshot(
+  blob: Blob,
   snapshotPath: string,
   { threshold = 0.1 }: { threshold?: number } = {},
-): MatchResult | null {
-  const base64 = dataURL.replace(/^data:image\/[a-z]+;base64,/, "");
-  const rendered = PNG.sync.read(Buffer.from(base64, "base64"));
+): Promise<MatchResult | null> {
+  const rendered = PNG.sync.read(Buffer.from(await blob.arrayBuffer()));
 
   if (!existsSync(snapshotPath)) {
     mkdirSync(dirname(snapshotPath), { recursive: true });

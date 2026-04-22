@@ -1,6 +1,11 @@
 import { type RenderProps } from "../props/index.ts";
 
-export type RenderFormat = "jpeg" | "png";
+export type RenderImageFormat = "jpeg" | "png" | "webp";
+export interface RenderImageOptions {
+  type: RenderImageFormat;
+  quality?: number;
+}
+
 export abstract class RenderContextBase {
   static EVENT_RESIZE = "event_resize";
   abstract get width(): number;
@@ -15,6 +20,6 @@ export abstract class RenderContextBase {
   abstract stroke(): void;
   abstract clear(color?: string): void;
   abstract setRenderProps(props: Partial<RenderProps>): void;
-  abstract toDataURL(type: RenderFormat, quality?: number): string;
-  // abstract toDataBlob(type: RenderFormat, quality?: number): string;
+  abstract renderToBlob(options?: RenderImageOptions): Promise<Blob>;
+  abstract renderToDataURL(options?: RenderImageOptions): Promise<string>;
 }

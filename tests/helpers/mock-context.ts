@@ -1,4 +1,4 @@
-import { RenderContextBase } from "../../src/render/context/base.ts";
+import { RenderContextBase, type RenderImageOptions } from "../../src/render/context/base.ts";
 import type { RenderProps } from "../../src/render/props/index.ts";
 
 // Discriminated union of every canvas API call the render pipeline can make.
@@ -64,8 +64,12 @@ export class MockContext extends RenderContextBase {
   setRenderProps(props: Partial<RenderProps>) {
     this.calls.push({ type: "setRenderProps", props: { ...props } });
   }
-  toDataURL(_type: string, _quality?: number): string {
-    return "data:image/png;base64,";
+  renderToDataURL(_options?: RenderImageOptions): Promise<string> {
+    return Promise.resolve("data:image/png;base64,");
+  }
+
+  renderToBlob(_options?: RenderImageOptions): Promise<Blob> {
+    return Promise.resolve(new Blob([], { type: "image/png" }));
   }
 
   reset() {

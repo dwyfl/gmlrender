@@ -64,10 +64,10 @@ for (const file of files) {
     }
 
     const document = fs.readFileSync(file, "utf8");
-    const preview = new GMLViewStatic(new GML(document), options);
-    const image = preview.render(format);
+    const view = new GMLViewStatic(new GML(document), options);
+    const image = await view.render(format);
 
-    fs.writeFileSync(outFile, image.replace(/^data:image\/[a-z]+;base64,/, ""), "base64");
+    fs.writeFileSync(outFile, Buffer.from(await image.arrayBuffer()));
 
     console.log(`✅ Rendered ${width}x${height} ${format} file: ${outFile}`);
   } catch (err) {

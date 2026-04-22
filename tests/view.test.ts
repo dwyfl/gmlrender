@@ -20,9 +20,9 @@ const example001 = readFileSync(join(__dirname, "./data/example001.xml"), "utf8"
 // that matter (wrong background color, invisible strokes, etc.).
 // ---------------------------------------------------------------------------
 describe("Preview: pixel properties", () => {
-  test("background is white by default", () => {
-    const pixels = pixelReaderfromDataURL(
-      new GMLViewStatic(new GML(example001), {
+  test("background is white by default", async () => {
+    const pixels = await pixelReaderfromDataURL(
+      await new GMLViewStatic(new GML(example001), {
         width: 320,
         height: 240,
       }).render("png"),
@@ -34,9 +34,9 @@ describe("Preview: pixel properties", () => {
     expect(isWhite(pixels.at(315, 235))).toBe(true);
   });
 
-  test("custom background color is applied", () => {
-    const pixels = pixelReaderfromDataURL(
-      new GMLViewStatic(new GML(example001), {
+  test("custom background color is applied", async () => {
+    const pixels = await pixelReaderfromDataURL(
+      await new GMLViewStatic(new GML(example001), {
         width: 320,
         height: 240,
         background: "#ff0000",
@@ -48,9 +48,9 @@ describe("Preview: pixel properties", () => {
     expect(corner.b).toBeLessThan(50);
   });
 
-  test("renders visible strokes for multi-point GML", () => {
-    const pixels = pixelReaderfromDataURL(
-      new GMLViewStatic(new GML(example001), {
+  test("renders visible strokes for multi-point GML", async () => {
+    const pixels = await pixelReaderfromDataURL(
+      await new GMLViewStatic(new GML(example001), {
         width: 320,
         height: 240,
       }).render("png"),
@@ -58,12 +58,12 @@ describe("Preview: pixel properties", () => {
     expect(pixels.count(isDark)).toBeGreaterThan(100);
   });
 
-  test("different GML inputs produce different images", () => {
-    const a = new GMLViewStatic(new GML(example000), {
+  test("different GML inputs produce different images", async () => {
+    const a = await new GMLViewStatic(new GML(example000), {
       width: 320,
       height: 240,
     }).render("png");
-    const b = new GMLViewStatic(new GML(example001), {
+    const b = await new GMLViewStatic(new GML(example001), {
       width: 320,
       height: 240,
     }).render("png");
@@ -81,9 +81,9 @@ describe("Preview: pixel properties", () => {
 // To update a reference: delete the PNG file and re-run the tests.
 // ---------------------------------------------------------------------------
 describe("Preview: image snapshots", () => {
-  test("renders an empty document", () => {
-    const result = matchImageSnapshot(
-      new GMLViewStatic(new GML(example000), {
+  test("renders an empty document", async () => {
+    const result = await matchImageSnapshot(
+      await new GMLViewStatic(new GML(example000), {
         width: 320,
         height: 240,
       }).render("png"),
@@ -94,9 +94,9 @@ describe("Preview: image snapshots", () => {
     }
   });
 
-  test("renders a basic tag", () => {
-    const result = matchImageSnapshot(
-      new GMLViewStatic(new GML(example001), {
+  test("renders a basic tag", async () => {
+    const result = await matchImageSnapshot(
+      await new GMLViewStatic(new GML(example001), {
         width: 320,
         height: 240,
       }).render("png"),

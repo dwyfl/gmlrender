@@ -1,4 +1,4 @@
-import { RenderContextBase } from "./base.ts";
+import { RenderContextBase, type RenderImageOptions } from "./base.ts";
 import {
   createCanvas,
   getCanvasContext,
@@ -93,7 +93,15 @@ export class RenderContextCanvas extends RenderContextBase {
     });
   }
 
-  toDataURL(type: "jpeg" | "png", quality?: number): string {
-    return this._canvas.toDataURL(`image/${type}`, quality);
+  renderToDataURL({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<string> {
+    return Promise.resolve(this._canvas.toDataURL(`image/${type}`, quality));
+  }
+
+  renderToBlob({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<Blob> {
+    const dataURL = this._canvas.toDataURL(`image/${type}`, quality);
+    const [header, data] = dataURL.split(",");
+    const mimeType = header.match(/:(.*?);/)?.[1] ?? `image/${type}`;
+    const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+    return Promise.resolve(new Blob([bytes], { type: mimeType }));
   }
 }

@@ -18,9 +18,8 @@ export interface PixelReader {
   _png: PNG;
 }
 
-export function pixelReaderfromDataURL(dataURL: string): PixelReader {
-  const base64 = dataURL.replace(/^data:image\/[a-z]+;base64,/, "");
-  const png = PNG.sync.read(Buffer.from(base64, "base64"));
+export async function pixelReaderfromDataURL(blob: Blob): Promise<PixelReader> {
+  const png = PNG.sync.read(Buffer.from(await blob.arrayBuffer()));
   return {
     width: png.width,
     height: png.height,

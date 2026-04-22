@@ -223,6 +223,10 @@ export class GMLAnimation extends EventTarget {
     }
     this.cancelRestart();
     this.cancelAnimation();
+    if (this._frame === this.lastFrameIndex) {
+      this._frame = 0;
+      this._time = 0;
+    }
     this._isPlaying = true;
     this.lastStepTime = GML_time();
     this.requestAnimationFrame();
