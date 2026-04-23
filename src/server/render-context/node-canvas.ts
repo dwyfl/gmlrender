@@ -1,8 +1,8 @@
 import { createCanvas, type Canvas, type CanvasRenderingContext2D } from "canvas";
-import { RenderContextBase, type RenderImageOptions } from "./base.ts";
-import { type RenderProps } from "../props/index.ts";
+import { RenderContextBase, type RenderImageOptions } from "../../render/context.ts";
+import { type RenderProps } from "../../render/props/index.ts";
 
-export class RenderContextCanvasNode extends RenderContextBase {
+export class RenderContextNodeCanvas extends RenderContextBase {
   private canvas: Canvas;
   private ctx: CanvasRenderingContext2D;
 
@@ -83,5 +83,10 @@ export class RenderContextCanvasNode extends RenderContextBase {
         ? this.canvas.toBuffer("image/png")
         : this.canvas.toBuffer("image/jpeg", { quality });
     return Promise.resolve(new Blob([new Uint8Array(buffer)], { type: `image/${type}` }));
+  }
+
+  override async renderToRawPixels(): Promise<Uint8Array> {
+    const { data } = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    return new Uint8Array(data.buffer);
   }
 }

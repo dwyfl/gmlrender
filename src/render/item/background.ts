@@ -2,7 +2,7 @@ import { GML } from "gmljs";
 import { vec3 } from "gl-matrix";
 import { RenderItem } from "./base.ts";
 import { BackgroundRenderProps } from "../props/background.ts";
-import { RenderContextBase } from "../context/base.ts";
+import { RenderContextBase } from "../context.ts";
 import { RenderState } from "../state.ts";
 
 export class RenderItemBackground extends RenderItem {

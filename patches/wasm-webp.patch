@@ -1,0 +1,31 @@
+diff --git a/dist/esm/index.js b/dist/esm/index.js
+index 5a7bab2939380616a0b359a2da8d068e12a584af..4771e00c5076f9f3c033510b30de2751c5fbb9b0 100644
+--- a/dist/esm/index.js
++++ b/dist/esm/index.js
+@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
+     });
+ };
+ // @ts-ignore
+-import Module from './webp-wasm';
++import Module from './webp-wasm.js';
+ // default webp config
+ const defaultWebpConfig = {
+     lossless: 0,
+diff --git a/package.json b/package.json
+index 605fc5cdc75ddb0fbdc27331329fc078dcf54559..351f8e31e8a0508c309e6f64a60b7b3a303a9226 100644
+--- a/package.json
++++ b/package.json
+@@ -6,6 +6,13 @@
+   "module": "dist/esm/index.js",
+   "types": "dist/index.d.ts",
+   "type": "module",
++  "exports": {
++    ".": {
++      "import": "./dist/esm/index.js",
++      "require": "./dist/cjs/index.js",
++      "types": "./dist/index.d.ts"
++    }
++  },
+   "keywords": [
+     "webp",
+     "wasm",

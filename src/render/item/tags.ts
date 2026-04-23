@@ -3,7 +3,7 @@ import { vec3 } from "gl-matrix";
 import { RenderItem } from "./base.ts";
 import { ForegroundRenderProps } from "../props/foreground.ts";
 import { RenderState } from "../state.ts";
-import { RenderContextBase } from "../context/base.ts";
+import { RenderContextBase } from "../context.ts";
 
 export class RenderItemTags extends RenderItem {
   private static readonly DEFAULT_LINE_WIDTH = 2;

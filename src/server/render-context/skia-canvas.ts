@@ -1,8 +1,8 @@
 import { Canvas, type CanvasRenderingContext2D } from "skia-canvas";
-import { RenderContextBase, type RenderImageOptions } from "./base.ts";
-import { type RenderProps } from "../props/index.ts";
+import { RenderContextBase, type RenderImageOptions } from "../../render/context.ts";
+import { type RenderProps } from "../../render/props/index.ts";
 
-export class RenderContextSkia extends RenderContextBase {
+export class RenderContextSkiaCanvas extends RenderContextBase {
   private canvas: Canvas;
   private ctx: CanvasRenderingContext2D;
 

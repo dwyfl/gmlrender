@@ -1,7 +1,7 @@
 import { RenderItem } from "./base.ts";
 import { ForegroundRenderProps } from "../props/foreground.ts";
 import { GML } from "gmljs";
-import { RenderContextBase } from "../context/base.ts";
+import { RenderContextBase } from "../context.ts";
 import { RenderState } from "../state.ts";
 
 const DEFAULT_DRIP_FACTOR = 0.2;

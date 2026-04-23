@@ -2,13 +2,14 @@
 import { program, Option } from "commander";
 import fs from "node:fs";
 import path from "node:path";
-import { GML } from "gmljs";
-import { GMLViewStatic } from "../view-static.ts";
 import packageJson from "../../package.json" with { type: "json" };
+import { createGMLViewStatic } from "../server/index.ts";
+import { renderToVideo } from "../render/video.ts";
+import { createGMLView } from "../server/factory.ts";
 
 program
   .name("gmlrender")
-  .description("Render GML documents to images.")
+  .description("Render GML documents to images or video.")
   .usage("[options] <file> ...")
   .version(packageJson.version)
   .showHelpAfterError()
@@ -19,12 +20,17 @@ program
   .option("-h, --height <size>", "force image height", (v) => parseInt(v, 10), 768)
   .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
-    new Option("-f, --format <format>", "output format").choices(["png", "jpg"]).default("png"),
+    new Option("-f, --format <format>", "output format")
+      .choices(["png", "jpg", "webp"])
+      .default("png"),
   )
+  .optionsGroup("Video options")
+  .option("--fps <fps>", "frames per second", (v) => parseInt(v, 10), 30)
+  .option("--lossless", "use lossless WebP encoding")
   .parse(process.argv);
 
 const options = program.opts();
-const { format, width, height, out } = options;
+const { format, width, height, out, fps, lossless, background } = options;
 const files = program.args;
 
 if (out && !fs.existsSync(out) && files.length > 1) {
@@ -64,12 +70,22 @@ for (const file of files) {
     }
 
     const document = fs.readFileSync(file, "utf8");
-    const view = new GMLViewStatic(new GML(document), options);
-    const image = await view.render(format);
+    const opts = { background };
 
-    fs.writeFileSync(outFile, Buffer.from(await image.arrayBuffer()));
+    let data: Uint8Array | Buffer;
+    if (format === "webp") {
+      const view = createGMLView(document, width, height, "canvas", opts);
+      data = await renderToVideo(view, { fps, lossless });
+    } else {
+      const view = createGMLViewStatic(document, width, height, "canvas", opts);
+      const image = await view.render(format);
+      data = Buffer.from(await image.arrayBuffer());
+    }
 
-    console.log(`✅ Rendered ${width}x${height} ${format} file: ${outFile}`);
+    fs.writeFileSync(outFile, data);
+
+    const label = format === "webp" ? `${fps}fps webp` : `${format}`;
+    console.log(`✅ Rendered ${width}x${height} ${label} file: ${outFile}`);
   } catch (err) {
     hasError = true;
     console.error(

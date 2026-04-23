@@ -3,7 +3,7 @@ import { type ClientEnvironment, TagEnvironment } from "../../environment/index.
 import { BaseRenderProps, type RenderProps } from "../props/index.ts";
 import { GML } from "gmljs";
 import { RenderState } from "../state.ts";
-import { RenderContextBase } from "../context/base.ts";
+import { RenderContextBase } from "../context.ts";
 
 export abstract class RenderItem {
   private static readonly GML_ORIGIN = vec3.fromValues(0.5, 0.5, 0);

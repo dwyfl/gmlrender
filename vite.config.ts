@@ -8,6 +8,8 @@ export default defineConfig({
     entry: {
       index: "src/index.ts",
       "cli/index": "src/cli/index.ts",
+      browser: "src/browser/index.ts",
+      server: "src/server/index.ts",
     },
     dts: {
       tsgo: true,

@@ -1,4 +1,4 @@
-import { type RenderProps } from "../props/index.ts";
+import { type RenderProps } from "./props/index.ts";
 
 export type RenderImageFormat = "jpeg" | "png" | "webp";
 export interface RenderImageOptions {
@@ -22,4 +22,10 @@ export abstract class RenderContextBase {
   abstract setRenderProps(props: Partial<RenderProps>): void;
   abstract renderToBlob(options?: RenderImageOptions): Promise<Blob>;
   abstract renderToDataURL(options?: RenderImageOptions): Promise<string>;
+  async renderToArrayBuffer(options?: RenderImageOptions): Promise<ArrayBuffer> {
+    return await (await this.renderToBlob(options)).arrayBuffer();
+  }
+  async renderToRawPixels(): Promise<Uint8Array> {
+    throw new Error("Not implemented");
+  }
 }

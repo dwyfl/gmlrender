@@ -1,4 +1,4 @@
-import { RenderContextBase, type RenderImageOptions } from "../../src/render/context/base.ts";
+import { RenderContextBase, type RenderImageOptions } from "../../src/render/context.ts";
 import type { RenderProps } from "../../src/render/props/index.ts";
 
 // Discriminated union of every canvas API call the render pipeline can make.

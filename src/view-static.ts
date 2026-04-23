@@ -1,14 +1,18 @@
 import { GMLView } from "./view.ts";
 import { GMLRenderer } from "./render/index.ts";
-import {
-  RenderContextBase,
-  RenderContextCanvas,
-  type RenderImageFormat,
-} from "./render/context/index.ts";
 import { GML } from "gmljs";
 import { clamp } from "./util.ts";
+import type { RenderProps } from "./render/props/index.ts";
+import type { RenderContextBase, RenderImageFormat } from "./render/context.ts";
 
 const DEFAULT_QUALITY = 0.6;
+
+export interface GMLVideoRenderOptions {
+  fps?: number;
+  /** WebP encoding quality, 0–100. Default 80. */
+  quality?: number;
+  lossless?: boolean;
+}
 
 export interface GMLViewStaticOptions {
   width: number;
@@ -16,7 +20,7 @@ export interface GMLViewStaticOptions {
   position: number;
   quality: number;
   background: string;
-  ctx: RenderContextBase;
+  renderProps: Partial<RenderProps>;
 }
 
 export class GMLViewStatic {
@@ -29,7 +33,7 @@ export class GMLViewStatic {
   private height: number;
   private background: string | undefined;
 
-  constructor(gml: GML, options?: Partial<GMLViewStaticOptions>) {
+  constructor(gml: GML, context: RenderContextBase, options?: Partial<GMLViewStaticOptions>) {
     this.gml = gml;
     this.imageData = {};
 
@@ -39,7 +43,7 @@ export class GMLViewStatic {
       position = 1,
       quality = DEFAULT_QUALITY,
       background,
-      ctx,
+      renderProps,
     } = options ?? {};
 
     this.position = clamp(position, 0, 1);
@@ -47,7 +51,15 @@ export class GMLViewStatic {
     this.width = width;
     this.height = height;
     this.background = background;
-    this.ctx = ctx ? ctx : new RenderContextCanvas(width, height);
+    this.ctx = context;
+
+    if (renderProps) {
+      this.ctx.setRenderProps(renderProps);
+    }
+  }
+
+  get renderContext(): RenderContextBase {
+    return this.ctx;
   }
 
   setSize(width: number, height: number) {
