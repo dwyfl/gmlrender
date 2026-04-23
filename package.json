@@ -1,6 +1,6 @@
 {
   "name": "gmlrender",
-  "version": "3.0.0-beta.6",
+  "version": "3.0.0-beta.7",
   "description": "Library for rendering GML documents.",
   "homepage": "https://github.com/dwyfl/gmlrender",
   "bugs": {
