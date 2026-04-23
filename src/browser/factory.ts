@@ -3,26 +3,26 @@ import { GMLViewStatic, type GMLViewStaticOptions } from "../view-static.ts";
 import { GMLView } from "../view.ts";
 import { GMLRenderer } from "../render/index.ts";
 import {
-  ServerRenderContext,
-  type ServerRenderContextOptions,
-  type ServerRenderContextType,
+  BrowserRenderContext,
+  type BrowserRenderContextOptions,
+  type BrowserRenderContextType,
 } from "./render-context/index.ts";
 
 export function createGMLViewStatic(
   gml: string | GML,
-  renderOptions: ServerRenderContextOptions,
+  renderOptions: BrowserRenderContextOptions,
   viewOptions?: Partial<GMLViewStaticOptions>,
 ): GMLViewStatic;
 export function createGMLViewStatic(
   gml: string | GML,
-  type: ServerRenderContextType,
+  type: BrowserRenderContextType,
   width: number,
   height: number,
   viewOptions?: Partial<GMLViewStaticOptions>,
 ): GMLViewStatic;
 export function createGMLViewStatic(
   gml: string | GML,
-  optionsOrType: ServerRenderContextType | ServerRenderContextOptions,
+  optionsOrType: BrowserRenderContextType | BrowserRenderContextOptions,
   optionsOrWidth?: number | Partial<GMLViewStaticOptions>,
   height?: number,
   viewOptions?: Partial<GMLViewStaticOptions>,
@@ -33,26 +33,26 @@ export function createGMLViewStatic(
   const opts = typeof optionsOrWidth === "number" ? viewOptions : optionsOrWidth;
   return new GMLViewStatic(
     typeof gml === "string" ? new GML(gml) : gml,
-    ServerRenderContext.createRenderContext(type, w, h),
+    BrowserRenderContext.createRenderContext(type, w, h),
     opts,
   );
 }
 
 export function createGMLView(
   gml: string | GML,
-  renderOptions: ServerRenderContextOptions,
+  renderOptions: BrowserRenderContextOptions,
   viewOptions?: Partial<{ position: number; background: string }>,
 ): GMLView;
 export function createGMLView(
   gml: string | GML,
-  type: ServerRenderContextType,
+  type: BrowserRenderContextType,
   width: number,
   height: number,
   viewOptions?: Partial<{ position: number; background: string }>,
 ): GMLView;
 export function createGMLView(
   gml: string | GML,
-  optionsOrType: ServerRenderContextType | ServerRenderContextOptions,
+  optionsOrType: BrowserRenderContextType | BrowserRenderContextOptions,
   optionsOrWidth?: number | Partial<GMLViewStaticOptions>,
   height?: number,
   viewOptions?: Partial<{ position: number; background: string }>,
@@ -63,7 +63,7 @@ export function createGMLView(
   const opts = typeof optionsOrWidth === "number" ? viewOptions : optionsOrWidth;
   const view = new GMLView(
     typeof gml === "string" ? new GML(gml) : gml,
-    new GMLRenderer(ServerRenderContext.createRenderContext(type, w, h)),
+    new GMLRenderer(BrowserRenderContext.createRenderContext(type, w, h)),
   );
   if (opts?.background) {
     view.setBackgroundRenderProps({ fillStyle: opts.background });

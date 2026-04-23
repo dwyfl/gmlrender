@@ -7,16 +7,7 @@ import type { RenderContextBase, RenderImageFormat } from "./render/context.ts";
 
 const DEFAULT_QUALITY = 0.6;
 
-export interface GMLVideoRenderOptions {
-  fps?: number;
-  /** WebP encoding quality, 0–100. Default 80. */
-  quality?: number;
-  lossless?: boolean;
-}
-
 export interface GMLViewStaticOptions {
-  width: number;
-  height: number;
   position: number;
   quality: number;
   background: string;
@@ -29,27 +20,16 @@ export class GMLViewStatic {
   private imageData: Partial<Record<RenderImageFormat, Blob>>;
   private quality: number;
   private position: number;
-  private width: number;
-  private height: number;
   private background: string | undefined;
 
   constructor(gml: GML, context: RenderContextBase, options?: Partial<GMLViewStaticOptions>) {
     this.gml = gml;
     this.imageData = {};
 
-    const {
-      width = 640,
-      height = 480,
-      position = 1,
-      quality = DEFAULT_QUALITY,
-      background,
-      renderProps,
-    } = options ?? {};
+    const { position = 1, quality = DEFAULT_QUALITY, background, renderProps } = options ?? {};
 
     this.position = clamp(position, 0, 1);
     this.quality = clamp(quality, 0, 1);
-    this.width = width;
-    this.height = height;
     this.background = background;
     this.ctx = context;
 
@@ -60,14 +40,6 @@ export class GMLViewStatic {
 
   get renderContext(): RenderContextBase {
     return this.ctx;
-  }
-
-  setSize(width: number, height: number) {
-    if (this.width !== width || this.height !== height) {
-      this.width = width;
-      this.height = height;
-      this.imageData = {};
-    }
   }
 
   setPosition(value: number) {

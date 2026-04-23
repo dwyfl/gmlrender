@@ -7,7 +7,7 @@ import { decodeAnimation } from "wasm-webp";
 import { PNG } from "pngjs";
 import { pixelReaderfromDataURL, isDark, isWhite } from "./helpers/pixels.ts";
 import { matchImageSnapshot } from "./helpers/snapshots.ts";
-import { renderToVideo } from "../src/render/video.ts";
+import { renderToWebp } from "../src/render/video.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,7 +21,7 @@ const example001 = readFileSync(join(__dirname, "./data/example001.xml"), "utf8"
 describe("Preview: pixel properties", () => {
   test("background is white by default", async () => {
     const pixels = await pixelReaderfromDataURL(
-      await createGMLViewStatic(example001, 320, 240, "canvas").render("png"),
+      await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png"),
     );
     expect(isWhite(pixels.at(5, 5))).toBe(true);
     expect(isWhite(pixels.at(5, 235))).toBe(true);
@@ -31,7 +31,7 @@ describe("Preview: pixel properties", () => {
 
   test("custom background color is applied", async () => {
     const pixels = await pixelReaderfromDataURL(
-      await createGMLViewStatic(example001, 320, 240, "canvas", {
+      await createGMLViewStatic(example001, "node-canvas", 320, 240, {
         background: "#ff0000",
       }).render("png"),
     );
@@ -43,14 +43,14 @@ describe("Preview: pixel properties", () => {
 
   test("renders visible strokes for multi-point GML", async () => {
     const pixels = await pixelReaderfromDataURL(
-      await createGMLViewStatic(example001, 320, 240, "canvas").render("png"),
+      await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png"),
     );
     expect(pixels.count(isDark)).toBeGreaterThan(100);
   });
 
   test("different GML inputs produce different images", async () => {
-    const a = await createGMLViewStatic(example000, 320, 240, "canvas").render("png");
-    const b = await createGMLViewStatic(example001, 320, 240, "canvas").render("png");
+    const a = await createGMLViewStatic(example000, "node-canvas", 320, 240).render("png");
+    const b = await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png");
     expect(a).not.toBe(b);
   });
 });
@@ -61,7 +61,7 @@ describe("Preview: pixel properties", () => {
 describe("Preview: image snapshots", () => {
   test("renders an empty document", async () => {
     const result = await matchImageSnapshot(
-      await createGMLViewStatic(example000, 320, 240, "canvas").render("png"),
+      await createGMLViewStatic(example000, "node-canvas", 320, 240).render("png"),
       join(__dirname, "snapshots/empty-document.png"),
     );
     if (result) {
@@ -71,7 +71,7 @@ describe("Preview: image snapshots", () => {
 
   test("renders a basic tag", async () => {
     const result = await matchImageSnapshot(
-      await createGMLViewStatic(example001, 320, 240, "canvas").render("png"),
+      await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png"),
       join(__dirname, "snapshots/basic-tag.png"),
     );
     if (result) {
@@ -98,7 +98,7 @@ function isValidWebP(data: Uint8Array): boolean {
 
 describe("renderToVideo", () => {
   test("returns valid animated WebP bytes", async () => {
-    const result = await renderToVideo(createGMLView(example001, 160, 120, "canvas"), {
+    const result = await renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
       fps: 5,
     });
 
@@ -108,7 +108,7 @@ describe("renderToVideo", () => {
 
   test("frame count matches fps × animation duration", async () => {
     const fps = 5;
-    const result = await renderToVideo(createGMLView(example001, 160, 120, "canvas"), {
+    const result = await renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
       fps,
     });
 
@@ -118,7 +118,7 @@ describe("renderToVideo", () => {
 
   test("frame duration matches 1000 / fps", async () => {
     const fps = 5;
-    const result = await renderToVideo(createGMLView(example001, 160, 120, "canvas"), {
+    const result = await renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
       fps,
     });
 
@@ -127,7 +127,7 @@ describe("renderToVideo", () => {
   });
 
   test("last frame matches the fully-drawn animation snapshot", async () => {
-    const result = await renderToVideo(createGMLView(example001, 320, 240, "canvas"), {
+    const result = await renderToWebp(createGMLView(example001, "node-canvas", 320, 240), {
       fps: 30,
     });
 
@@ -148,11 +148,11 @@ describe("renderToVideo", () => {
 
   test("lossless encoding produces different output than lossy", async () => {
     const [lossy, lossless] = await Promise.all([
-      renderToVideo(createGMLView(example001, 160, 120, "canvas"), {
+      renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
         fps: 3,
         lossless: false,
       }),
-      renderToVideo(createGMLView(example001, 160, 120, "canvas"), {
+      renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
         fps: 3,
         lossless: true,
       }),

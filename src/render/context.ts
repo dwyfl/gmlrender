@@ -1,13 +1,18 @@
 import { type RenderProps } from "./props/index.ts";
 
 export type RenderImageFormat = "jpeg" | "png" | "webp";
+
+export interface RenderContextDimensions {
+  width: number;
+  height: number;
+}
+
 export interface RenderImageOptions {
   type: RenderImageFormat;
   quality?: number;
 }
 
 export abstract class RenderContextBase {
-  static EVENT_RESIZE = "event_resize";
   abstract get width(): number;
   abstract get height(): number;
   abstract set width(value: number);
@@ -22,9 +27,11 @@ export abstract class RenderContextBase {
   abstract setRenderProps(props: Partial<RenderProps>): void;
   abstract renderToBlob(options?: RenderImageOptions): Promise<Blob>;
   abstract renderToDataURL(options?: RenderImageOptions): Promise<string>;
+
   async renderToArrayBuffer(options?: RenderImageOptions): Promise<ArrayBuffer> {
     return await (await this.renderToBlob(options)).arrayBuffer();
   }
+
   async renderToRawPixels(): Promise<Uint8Array> {
     throw new Error("Not implemented");
   }

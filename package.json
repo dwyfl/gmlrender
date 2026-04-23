@@ -16,7 +16,8 @@
     "gmlrender": "./dist/cli/index.mjs"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "type": "module",
   "browser": {

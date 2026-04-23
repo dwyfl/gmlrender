@@ -3,9 +3,8 @@ import { program, Option } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import packageJson from "../../package.json" with { type: "json" };
-import { createGMLViewStatic } from "../server/index.ts";
-import { renderToVideo } from "../render/video.ts";
-import { createGMLView } from "../server/factory.ts";
+import { createGMLView, createGMLViewStatic } from "../server/index.ts";
+import { renderToWebp } from "../render/video.ts";
 
 program
   .name("gmlrender")
@@ -74,10 +73,10 @@ for (const file of files) {
 
     let data: Uint8Array | Buffer;
     if (format === "webp") {
-      const view = createGMLView(document, width, height, "canvas", opts);
-      data = await renderToVideo(view, { fps, lossless });
+      const view = createGMLView(document, "node-canvas", width, height, opts);
+      data = await renderToWebp(view, { fps, lossless });
     } else {
-      const view = createGMLViewStatic(document, width, height, "canvas", opts);
+      const view = createGMLViewStatic(document, "node-canvas", width, height, opts);
       const image = await view.render(format);
       data = Buffer.from(await image.arrayBuffer());
     }

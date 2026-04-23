@@ -6,7 +6,7 @@ export interface GMLVideoRenderOptions {
   lossless?: boolean;
 }
 
-export async function renderToVideo(
+export async function renderToWebp(
   view: GMLView,
   options?: GMLVideoRenderOptions,
 ): Promise<Uint8Array> {
@@ -32,7 +32,8 @@ export async function renderToVideo(
     });
   }
 
-  const { encodeAnimation } = await import("wasm-webp");
+  const { createRequire } = await import("node:module");
+  const { encodeAnimation } = createRequire(import.meta.url)("wasm-webp");
   const result = await encodeAnimation(
     view.renderContext.width,
     view.renderContext.height,
