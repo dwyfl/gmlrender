@@ -33,6 +33,7 @@
     "access": "public"
   },
   "scripts": {
+    "postinstall": "node scripts/postinstall.mjs",
     "build": "vp pack",
     "dev": "vp pack --watch",
     "test": "vp test",

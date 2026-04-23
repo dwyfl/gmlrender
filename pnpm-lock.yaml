@@ -10,7 +10,7 @@ overrides:
 
 patchedDependencies:
   wasm-webp:
-    hash: f64f8e8b14ac2975d744daec072feb9c874f140eba8833b628db1707705fd896
+    hash: 3de29440f26c2439f6cbe62ef036304b0d5180221847b971b6ae4483349b54b1
     path: patches/wasm-webp.patch
 
 importers:
@@ -37,7 +37,7 @@ importers:
         version: 3.0.8
       wasm-webp:
         specifier: ^0.1.0
-        version: 0.1.0(patch_hash=f64f8e8b14ac2975d744daec072feb9c874f140eba8833b628db1707705fd896)
+        version: 0.1.0(patch_hash=3de29440f26c2439f6cbe62ef036304b0d5180221847b971b6ae4483349b54b1)
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -1976,7 +1976,7 @@ snapshots:
       jiti: 2.6.1
       yaml: 2.8.3
 
-  wasm-webp@0.1.0(patch_hash=f64f8e8b14ac2975d744daec072feb9c874f140eba8833b628db1707705fd896): {}
+  wasm-webp@0.1.0(patch_hash=3de29440f26c2439f6cbe62ef036304b0d5180221847b971b6ae4483349b54b1): {}
 
   wrappy@1.0.2: {}
 
