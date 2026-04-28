@@ -35,8 +35,8 @@ export abstract class RenderItem {
     }
   }
 
-  getTagEnvironment(index: number) {
-    return this.tagEnvironments?.[index];
+  getTagEnvironment(tagIndex: number) {
+    return this.tagEnvironments[tagIndex];
   }
 
   initProjectionTransforms(tagEnvironment: TagEnvironment, clientEnvironment: ClientEnvironment) {

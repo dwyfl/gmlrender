@@ -140,7 +140,10 @@ describe("renderToVideo", () => {
       type: "image/png",
     });
 
-    const comparison = await matchImageSnapshot(blob, join(__dirname, "snapshots/basic-tag.png"));
+    const comparison = await matchImageSnapshot(
+      blob,
+      join(__dirname, "snapshots/basic-tag-video-last-frame.png"),
+    );
     if (comparison) {
       expect(comparison.mismatchedPixels, `${comparison.mismatchedPixels} pixels differ`).toBe(0);
     }

@@ -12,6 +12,8 @@ export interface GMLViewStaticOptions {
   quality: number;
   background: string;
   renderProps: Partial<RenderProps>;
+  drips: boolean;
+  dripFactor: number;
 }
 
 export class GMLViewStatic {
@@ -21,16 +23,27 @@ export class GMLViewStatic {
   private quality: number;
   private position: number;
   private background: string | undefined;
+  private drips: boolean;
+  private dripFactor: number | undefined;
 
   constructor(gml: GML, context: RenderContextBase, options?: Partial<GMLViewStaticOptions>) {
     this.gml = gml;
     this.imageData = {};
 
-    const { position = 1, quality = DEFAULT_QUALITY, background, renderProps } = options ?? {};
+    const {
+      position = 1,
+      quality = DEFAULT_QUALITY,
+      background,
+      renderProps,
+      drips = false,
+      dripFactor,
+    } = options ?? {};
 
     this.position = clamp(position, 0, 1);
     this.quality = clamp(quality, 0, 1);
     this.background = background;
+    this.drips = drips;
+    this.dripFactor = dripFactor;
     this.ctx = context;
 
     if (renderProps) {
@@ -67,6 +80,10 @@ export class GMLViewStatic {
     const view = new GMLView(this.gml, new GMLRenderer(this.ctx));
     if (this.background) {
       view.setBackgroundRenderProps({ fillStyle: this.background });
+    }
+    view.setDripsEnabled(this.drips);
+    if (this.drips && this.dripFactor !== undefined) {
+      view.setDripsOptions({ dripFactor: this.dripFactor });
     }
     view.setPosition(this.position);
     view.draw();

@@ -26,10 +26,13 @@ program
   .optionsGroup("Video options")
   .option("--fps <fps>", "frames per second", (v) => parseInt(v, 10), 30)
   .option("--lossless", "use lossless WebP encoding")
+  .optionsGroup("Effect options")
+  .option("--drips", "enable drip effect (experimental)")
+  .option("--drip-factor <value>", "drip factor 0-1 (default 0.2)", (v) => parseFloat(v))
   .parse(process.argv);
 
 const options = program.opts();
-const { format, width, height, out, fps, lossless, background } = options;
+const { format, width, height, out, fps, lossless, background, drips, dripFactor } = options;
 const files = program.args;
 
 if (out && !fs.existsSync(out) && files.length > 1) {
@@ -69,14 +72,23 @@ for (const file of files) {
     }
 
     const document = fs.readFileSync(file, "utf8");
-    const opts = { background };
 
     let data: Uint8Array | Buffer;
     if (format === "webp") {
-      const view = createGMLView(document, "node-canvas", width, height, opts);
+      const view = createGMLView(document, "node-canvas", width, height, {
+        background,
+      });
+      view.setDripsEnabled(drips ?? false);
+      if (drips && dripFactor !== undefined) {
+        view.setDripsOptions({ dripFactor });
+      }
       data = await renderToWebp(view, { fps, lossless });
     } else {
-      const view = createGMLViewStatic(document, "node-canvas", width, height, opts);
+      const view = createGMLViewStatic(document, "node-canvas", width, height, {
+        background,
+        drips: drips ?? false,
+        dripFactor,
+      });
       const image = await view.render(format);
       data = Buffer.from(await image.arrayBuffer());
     }

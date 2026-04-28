@@ -15,13 +15,15 @@ const DEFAULT_CLIENT_ENVS = [
 ];
 
 export class TagEnvironment extends Environment {
-  tag: GMLTag;
+  private tag: GMLTag;
+
   constructor(tag: GMLTag) {
     super();
     this.tag = tag;
-    this.loadFromTag(tag);
+    this._initFromTag(tag);
   }
-  private loadFromTag(tag: GMLTag) {
+
+  private _initFromTag(tag: GMLTag) {
     this.tag = tag;
     const defaultEnv = this.getClientDefaults(tag);
     const tagEnv = tag.getEnvironment();
@@ -39,10 +41,24 @@ export class TagEnvironment extends Environment {
       this.setTransform(this.getTransformFromEnvironment(up, rotation));
     }
   }
+
+  getUpVector(): vec3 {
+    const tagEnvUp = this.tag.getEnvironment()?.getUp();
+    if (tagEnvUp) {
+      const [x, y, z] = tagEnvUp;
+      if (Math.abs(x) + Math.abs(y) + Math.abs(z) > 0) {
+        return vec3.fromValues(tagEnvUp[0], tagEnvUp[1], tagEnvUp[2]);
+      }
+    }
+    const defaultUp = this.getClientDefaults(this.tag)?.up ?? [0, 1, 0];
+    return vec3.fromValues(defaultUp[0], defaultUp[1], defaultUp[2]);
+  }
+
   private getClientDefaults(tag: GMLTag) {
     const clientName = tag.getClientName();
     return DEFAULT_CLIENT_ENVS.find((env) => env.clientNames.includes(clientName));
   }
+
   private getTransformFromEnvironment(up?: vec3, rotation?: vec3): mat3 {
     const m = mat3.create();
     if (up) {
@@ -55,6 +71,7 @@ export class TagEnvironment extends Environment {
     }
     return m;
   }
+
   private getUpTransform([x, y, z]: vec3) {
     const m = mat3.create();
     // Some GML documents have (0,0,0) as up vector
@@ -70,6 +87,7 @@ export class TagEnvironment extends Environment {
     mat3.str(m);
     return m;
   }
+
   private getRotationMatrixToAlignVectors(a: vec3, b: vec3): mat3 {
     // Z coordinate is currently ignored.
     const m = mat3.create();

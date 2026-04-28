@@ -1,9 +1,9 @@
 import type { GMLView } from "../view.ts";
 
 export interface GMLVideoRenderOptions {
-  fps?: number;
   quality?: number; // WebP encoding quality, 0–100. Default 80.
   lossless?: boolean;
+  fps?: number | { frames: number; duration: number };
 }
 
 export async function renderToWebp(
@@ -15,9 +15,9 @@ export async function renderToWebp(
   const ctx = view.renderContext;
 
   const { totalTime } = view.state;
-  const frameDuration = 1 / fps;
-  const frameCount = Math.ceil(totalTime * fps);
-  const frameDurationMs = Math.round(1000 / fps);
+  const frameDuration = typeof fps === "number" ? 1 / fps : fps.duration;
+  const frameDurationMs = Math.round(1000 * frameDuration);
+  const frameCount = typeof fps === "number" ? Math.ceil(totalTime * fps) : fps.frames;
   const config = { lossless: lossless ? 1 : 0, quality } as const;
 
   const frames = [];

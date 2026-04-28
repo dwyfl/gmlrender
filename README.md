@@ -54,10 +54,9 @@ Options:
 Using `gmlrender` on the command line is simple.
 
 ```
-$ gmlrender  --help
-Usage: gmlrender [options] <file> ...
+$ Usage: gmlrender [options] <file> ...
 
-Render GML documents to images.
+Render GML documents to images or animated WebP.
 
 Arguments:
   file                         GML document file(s)
@@ -65,11 +64,15 @@ Arguments:
 Options:
   -V, --version                output the version number
   -o, --out <path>             target file or directory
-  -w, --width <size>           image width (default: 1024)
-  -h, --height <size>          image height (default: 768)
+  -w, --width <size>           force image width (default: 1024)
+  -h, --height <size>          force image height (default: 768)
   -b, --background <hexcolor>  background color (default: "white")
-  -f, --format <format>        output format (choices: "png", "jpg", default: "png")
+  -f, --format <format>        output format (choices: "png", "jpg", "webp", default: "png")
   --help                       print help text
+
+Video options
+  --fps <fps>                  frames per second (default: 30)
+  --lossless                   use lossless WebP encoding
 
 $ gmlrender ~/nyc/zephyr.gml
 ✅ Rendered 1024x768 png file: ~/nyc/zephyr.png

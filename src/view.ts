@@ -5,6 +5,7 @@ import { GML_requestAnimationFrame, GML_cancelAnimationFrame } from "./isomorphi
 import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
 import { clamp } from "./util.ts";
+import type { DripOptions } from "./render/item/drips.ts";
 
 export type GMLViewEvent =
   | typeof GMLView.EVENT_START
@@ -156,6 +157,18 @@ export class GMLView extends EventTarget {
 
   setDripsRenderProps(props: Partial<RenderProps>) {
     this._renderer.getRenderItemType("drips")?.item?.setRenderProps(props);
+  }
+
+  setDripsEnabled(enabled: boolean) {
+    const entry = this._renderer.getRenderItemType("drips");
+    if (entry) entry.visible = enabled;
+  }
+
+  setDripsOptions(options: Partial<DripOptions>) {
+    const entry = this._renderer.getRenderItemType("drips");
+    if (entry?.item instanceof RenderItemDrips) {
+      entry.item.setOptions(options);
+    }
   }
 
   setFrame(frame: number, time?: number) {
