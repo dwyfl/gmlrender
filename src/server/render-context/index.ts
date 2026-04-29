@@ -19,13 +19,15 @@ export type ServerRenderContextOptions =
 export type ServerRenderContextType = ServerRenderContextOptions["type"];
 
 export class ServerRenderContext {
-  static createRenderContext(options: ServerRenderContextOptions): RenderContextBase;
+  static createRenderContext(this: void, options: ServerRenderContextOptions): RenderContextBase;
   static createRenderContext(
+    this: void,
     type: ServerRenderContextType,
     width: number,
     height: number,
   ): RenderContextBase;
   static createRenderContext(
+    this: void,
     optionsOrType: ServerRenderContextType | ServerRenderContextOptions,
     width?: number,
     height?: number,
@@ -39,6 +41,7 @@ export class ServerRenderContext {
       case "skia-canvas":
         return new RenderContextSkiaCanvas(w, h);
       default:
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         throw new Error(`Invalid render context type "${type}"`);
     }
   }

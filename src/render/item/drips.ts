@@ -90,8 +90,6 @@ function isDripVisible(drip: DripPoint, frame: GMLTagTimelineFrame): boolean {
 }
 
 export class RenderItemDrips extends RenderItem {
-  type = "drips" as const;
-
   private options: DripOptions;
   private _dripPoints: DripPoint[];
   private p1: vec3;
@@ -108,6 +106,10 @@ export class RenderItemDrips extends RenderItem {
     this._startVec = vec3.create();
     this._endVec = vec3.create();
     this._dripPoints = this._calculateDripPoints();
+  }
+
+  get type() {
+    return "drips";
   }
 
   setOptions(options: Partial<DripOptions>) {
@@ -136,8 +138,7 @@ export class RenderItemDrips extends RenderItem {
    * Drips flow opposite to the environment's up vector.
    */
   private _getDripDirection(tagIndex: number): vec3 {
-    const up = this.getTagEnvironment(tagIndex).getUpVector();
-    return vec3.fromValues(-up[0], -up[1], -(up[2] ?? 0));
+    return this.getTagEnvironment(tagIndex).getUpVector();
   }
 
   /**

@@ -5,7 +5,6 @@ import { GML_requestAnimationFrame, GML_cancelAnimationFrame } from "./isomorphi
 import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
 import { clamp } from "./util.ts";
-import type { DripOptions } from "./render/item/drips.ts";
 
 export type GMLViewEvent =
   | typeof GMLView.EVENT_START
@@ -117,6 +116,7 @@ export class GMLView extends EventTarget {
       ...(renderItemTags ? [renderItemTags] : []),
       ...(renderItemDrips ? [renderItemDrips] : []),
     ]);
+    this.setRenderItemVisible("drips", false); // drips are opt-in for now
   }
 
   private _initRenderItems(gml: GML) {
@@ -147,27 +147,18 @@ export class GMLView extends EventTarget {
     return this._renderer.items;
   }
 
-  setBackgroundRenderProps(props: Partial<RenderProps>) {
-    this._renderer.getRenderItemType("background")?.item.setRenderProps(props);
+  getRenderItem(type: string) {
+    return this._renderer.getRenderItemType(type);
   }
 
-  setTagsRenderProps(props: Partial<RenderProps>) {
-    this._renderer.getRenderItemType("tags")?.item?.setRenderProps(props);
+  setRenderItemProps(type: string, props: Partial<RenderProps>) {
+    this._renderer.getRenderItemType(type)?.item.setRenderProps(props);
   }
 
-  setDripsRenderProps(props: Partial<RenderProps>) {
-    this._renderer.getRenderItemType("drips")?.item?.setRenderProps(props);
-  }
-
-  setDripsEnabled(enabled: boolean) {
-    const entry = this._renderer.getRenderItemType("drips");
-    if (entry) entry.visible = enabled;
-  }
-
-  setDripsOptions(options: Partial<DripOptions>) {
-    const entry = this._renderer.getRenderItemType("drips");
-    if (entry?.item instanceof RenderItemDrips) {
-      entry.item.setOptions(options);
+  setRenderItemVisible(type: string, visible: boolean) {
+    const entry = this._renderer.getRenderItemType(type);
+    if (entry) {
+      entry.visible = visible;
     }
   }
 

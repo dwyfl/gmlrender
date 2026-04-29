@@ -7,6 +7,7 @@ import { RenderContextBase } from "../context.ts";
 
 export abstract class RenderItem {
   private static readonly GML_ORIGIN = vec3.fromValues(0.5, 0.5, 0);
+
   gml: GML;
   renderProps: BaseRenderProps;
   tagEnvironments: TagEnvironment[];
@@ -20,7 +21,9 @@ export abstract class RenderItem {
     this.tagEnvironments = gml.getTags().map((item) => new TagEnvironment(item));
   }
 
-  abstract get type(): string;
+  get type() {
+    return "base";
+  }
 
   abstract render(renderContext: RenderContextBase, renderState: RenderState): void;
 

@@ -20,13 +20,15 @@ export type BrowserRenderContextOptions =
 export type BrowserRenderContextType = BrowserRenderContextOptions["type"];
 
 export class BrowserRenderContext {
-  static createRenderContext(options: BrowserRenderContextOptions): RenderContextBase;
+  static createRenderContext(this: void, options: BrowserRenderContextOptions): RenderContextBase;
   static createRenderContext(
+    this: void,
     type: BrowserRenderContextType,
     width: number,
     height: number,
   ): RenderContextBase;
   static createRenderContext(
+    this: void,
     optionsOrType: BrowserRenderContextType | BrowserRenderContextOptions,
     width?: number,
     height?: number,
@@ -44,6 +46,7 @@ export class BrowserRenderContext {
       case "offscreen-canvas":
         return new RenderContextOffscreenCanvas(w, h);
       default:
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         throw new Error(`Invalid render context type "${type}"`);
     }
   }

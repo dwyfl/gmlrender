@@ -24,11 +24,13 @@ export interface MatchResult {
  *                   0.1 absorbs minor antialiasing differences.
  */
 export async function matchImageSnapshot(
-  blob: Blob,
+  data: Blob | ArrayBuffer,
   snapshotPath: string,
   { threshold = 0.1 }: { threshold?: number } = {},
 ): Promise<MatchResult | null> {
-  const rendered = PNG.sync.read(Buffer.from(await blob.arrayBuffer()));
+  const buf =
+    data instanceof ArrayBuffer ? Buffer.from(data) : Buffer.from(await data.arrayBuffer());
+  const rendered = PNG.sync.read(buf);
 
   if (!existsSync(snapshotPath)) {
     mkdirSync(dirname(snapshotPath), { recursive: true });

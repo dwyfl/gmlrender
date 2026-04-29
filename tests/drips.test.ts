@@ -5,7 +5,7 @@ import { RenderState } from "../src/render/state.ts";
 import { ClientEnvironment } from "../src/environment/client.ts";
 import { GMLTimeline } from "../src/animation/timeline.ts";
 import { MockContext } from "./helpers/mock-context.ts";
-import { createGMLViewStatic } from "../src/server/factory.ts";
+import { createGMLImage } from "../src/server/index.ts";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -169,37 +169,35 @@ describe("RenderItemDrips — drip direction", () => {
 });
 
 // ---------------------------------------------------------------------------
-// GMLViewStaticOptions integration
+// renderStatic integration
 // ---------------------------------------------------------------------------
 
-describe("GMLViewStaticOptions — drips option", () => {
+describe("renderStatic — drips option", () => {
   test("drips are off by default", async () => {
     // A render without drips should produce fewer dark pixels than one with drips
-    const withoutDrips = createGMLViewStatic(example002, "node-canvas", 320, 240);
-    const withDrips = createGMLViewStatic(example002, "node-canvas", 320, 240, {
-      drips: true,
-      dripFactor: 1,
-    });
-
     const [blobOff, blobOn] = await Promise.all([
-      withoutDrips.render("png"),
-      withDrips.render("png"),
+      createGMLImage(example002, "node-canvas", 320, 240, { format: "png" }),
+      createGMLImage(example002, "node-canvas", 320, 240, {
+        drips: true,
+        dripFactor: 1,
+        format: "png",
+      }),
     ]);
 
     // The two blobs must differ — drips add ink to the image
-    const [bufOff, bufOn] = await Promise.all([blobOff.arrayBuffer(), blobOn.arrayBuffer()]);
-    expect(Buffer.from(bufOff)).not.toEqual(Buffer.from(bufOn));
+    expect(Buffer.from(blobOff)).not.toEqual(Buffer.from(blobOn));
   });
 
   test("drips: true renders more ink than drips: false", async () => {
     const { pixelReaderfromDataURL, isDark } = await import("./helpers/pixels.ts");
 
     const [blobOff, blobOn] = await Promise.all([
-      createGMLViewStatic(example002, "node-canvas", 320, 240).render("png"),
-      createGMLViewStatic(example002, "node-canvas", 320, 240, {
+      createGMLImage(example002, "node-canvas", 320, 240, { format: "png" }),
+      createGMLImage(example002, "node-canvas", 320, 240, {
         drips: true,
         dripFactor: 1,
-      }).render("png"),
+        format: "png",
+      }),
     ]);
 
     const [pixOff, pixOn] = await Promise.all([
@@ -215,14 +213,16 @@ describe("GMLViewStaticOptions — drips option", () => {
     const { pixelReaderfromDataURL, isDark } = await import("./helpers/pixels.ts");
 
     const [blobLow, blobHigh] = await Promise.all([
-      createGMLViewStatic(example002, "node-canvas", 320, 240, {
+      createGMLImage(example002, "node-canvas", 320, 240, {
         drips: true,
         dripFactor: 0.2,
-      }).render("png"),
-      createGMLViewStatic(example002, "node-canvas", 320, 240, {
+        format: "png",
+      }),
+      createGMLImage(example002, "node-canvas", 320, 240, {
         drips: true,
         dripFactor: 1,
-      }).render("png"),
+        format: "png",
+      }),
     ]);
 
     const [pixLow, pixHigh] = await Promise.all([

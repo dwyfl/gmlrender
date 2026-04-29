@@ -3,8 +3,9 @@ import { program, Option } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import packageJson from "../../package.json" with { type: "json" };
-import { createGMLView, createGMLViewStatic } from "../server/index.ts";
+import { createGMLView, createGMLImage } from "../server/index.ts";
 import { renderToWebp } from "../render/video.ts";
+import type { RenderItemDrips } from "../render/item/index.ts";
 
 program
   .name("gmlrender")
@@ -75,22 +76,24 @@ for (const file of files) {
 
     let data: Uint8Array | Buffer;
     if (format === "webp") {
-      const view = createGMLView(document, "node-canvas", width, height, {
-        background,
-      });
-      view.setDripsEnabled(drips ?? false);
-      if (drips && dripFactor !== undefined) {
-        view.setDripsOptions({ dripFactor });
+      const view = createGMLView(document, "node-canvas", width, height);
+      view.setRenderItemProps("background", { fillStyle: background });
+      if (drips) {
+        view.setRenderItemVisible("drips", true);
+        if (dripFactor !== undefined) {
+          const drips = view.getRenderItem("drips")?.item as RenderItemDrips;
+          drips.setOptions({ dripFactor });
+        }
       }
       data = await renderToWebp(view, { fps, lossless });
     } else {
-      const view = createGMLViewStatic(document, "node-canvas", width, height, {
+      const image = await createGMLImage(document, "node-canvas", width, height, {
         background,
         drips: drips ?? false,
         dripFactor,
+        format,
       });
-      const image = await view.render(format);
-      data = Buffer.from(await image.arrayBuffer());
+      data = Buffer.from(image);
     }
 
     fs.writeFileSync(outFile, data);

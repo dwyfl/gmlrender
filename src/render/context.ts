@@ -7,6 +7,10 @@ export interface RenderContextDimensions {
   height: number;
 }
 
+export interface RenderContextOptions extends RenderContextDimensions {
+  type: string;
+}
+
 export interface RenderImageOptions {
   type: RenderImageFormat;
   quality?: number;

@@ -68,7 +68,7 @@ export async function renderToVideo(
 
   const view = new GMLView(gml, new GMLRenderer(ctx));
   if (background) {
-    view.setBackgroundRenderProps({ fillStyle: background });
+    view.setRenderItemProps("background", { fillStyle: background });
   }
 
   await output.start();

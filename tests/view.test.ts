@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vite-plus/test";
-import { createGMLView, createGMLViewStatic } from "../src/server/factory.ts";
+import { createGMLView, createGMLImage } from "../src/server/index.ts";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -21,7 +21,9 @@ const example001 = readFileSync(join(__dirname, "./data/example001.xml"), "utf8"
 describe("Preview: pixel properties", () => {
   test("background is white by default", async () => {
     const pixels = await pixelReaderfromDataURL(
-      await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png"),
+      await createGMLImage(example001, "node-canvas", 320, 240, {
+        format: "png",
+      }),
     );
     expect(isWhite(pixels.at(5, 5))).toBe(true);
     expect(isWhite(pixels.at(5, 235))).toBe(true);
@@ -31,9 +33,10 @@ describe("Preview: pixel properties", () => {
 
   test("custom background color is applied", async () => {
     const pixels = await pixelReaderfromDataURL(
-      await createGMLViewStatic(example001, "node-canvas", 320, 240, {
+      await createGMLImage(example001, "node-canvas", 320, 240, {
         background: "#ff0000",
-      }).render("png"),
+        format: "png",
+      }),
     );
     const corner = pixels.at(5, 5);
     expect(corner.r).toBeGreaterThan(200);
@@ -43,14 +46,20 @@ describe("Preview: pixel properties", () => {
 
   test("renders visible strokes for multi-point GML", async () => {
     const pixels = await pixelReaderfromDataURL(
-      await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png"),
+      await createGMLImage(example001, "node-canvas", 320, 240, {
+        format: "png",
+      }),
     );
     expect(pixels.count(isDark)).toBeGreaterThan(100);
   });
 
   test("different GML inputs produce different images", async () => {
-    const a = await createGMLViewStatic(example000, "node-canvas", 320, 240).render("png");
-    const b = await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png");
+    const a = await createGMLImage(example000, "node-canvas", 320, 240, {
+      format: "png",
+    });
+    const b = await createGMLImage(example001, "node-canvas", 320, 240, {
+      format: "png",
+    });
     expect(a).not.toBe(b);
   });
 });
@@ -61,7 +70,9 @@ describe("Preview: pixel properties", () => {
 describe("Preview: image snapshots", () => {
   test("renders an empty document", async () => {
     const result = await matchImageSnapshot(
-      await createGMLViewStatic(example000, "node-canvas", 320, 240).render("png"),
+      await createGMLImage(example000, "node-canvas", 320, 240, {
+        format: "png",
+      }),
       join(__dirname, "snapshots/empty-document.png"),
     );
     if (result) {
@@ -71,7 +82,9 @@ describe("Preview: image snapshots", () => {
 
   test("renders a basic tag", async () => {
     const result = await matchImageSnapshot(
-      await createGMLViewStatic(example001, "node-canvas", 320, 240).render("png"),
+      await createGMLImage(example001, "node-canvas", 320, 240, {
+        format: "png",
+      }),
       join(__dirname, "snapshots/basic-tag.png"),
     );
     if (result) {
@@ -140,10 +153,7 @@ describe("renderToVideo", () => {
       type: "image/png",
     });
 
-    const comparison = await matchImageSnapshot(
-      blob,
-      join(__dirname, "snapshots/basic-tag-video-last-frame.png"),
-    );
+    const comparison = await matchImageSnapshot(blob, join(__dirname, "snapshots/basic-tag.png"));
     if (comparison) {
       expect(comparison.mismatchedPixels, `${comparison.mismatchedPixels} pixels differ`).toBe(0);
     }

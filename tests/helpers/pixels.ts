@@ -18,8 +18,10 @@ export interface PixelReader {
   _png: PNG;
 }
 
-export async function pixelReaderfromDataURL(blob: Blob): Promise<PixelReader> {
-  const png = PNG.sync.read(Buffer.from(await blob.arrayBuffer()));
+export async function pixelReaderfromDataURL(data: Blob | ArrayBuffer): Promise<PixelReader> {
+  const buf =
+    data instanceof ArrayBuffer ? Buffer.from(data) : Buffer.from(await data.arrayBuffer());
+  const png = PNG.sync.read(buf);
   return {
     width: png.width,
     height: png.height,
