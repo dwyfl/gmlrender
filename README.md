@@ -23,31 +23,23 @@ npm install -g gmlrender
 
 Rendering images with `gmlrender` is simple.
 
+### Node.js
+
 ```typescript
 import { readFileSync, writeFileSync } from "node:fs";
-import { GML } from "gmljs";
-import { GMLViewStatic } from "gmlrender";
+import { createGMLImage } from "gmlrender/server";
 
-const gml = new GML(readFileSync("tag.gml", "utf8"));
-const view = new GMLViewStatic(gml, { width: 1024, height: 768 });
+const gml = readFileSync("tag.gml", "utf8");
+const image = await createGMLImage(gml, {
+  type: "node-canvas",
+  width: 1024,
+  height: 768,
+  background: "#eee",
+  format: "png",
+});
 
-// Get a PNG data URL
-const dataURL = view.render("png");
-
-// Write it to a file
-const base64 = dataURL.replace(/^data:image\/[a-z]+;base64,/, "");
-writeFileSync("tag.png", base64, "base64");
+writeFileSync("tag.png", Buffer.from(image));
 ```
-
-Options:
-
-| Option       | Type     | Default | Description                                        |
-| ------------ | -------- | ------- | -------------------------------------------------- |
-| `width`      | `number` | `640`   | Output width in pixels                             |
-| `height`     | `number` | `480`   | Output height in pixels                            |
-| `background` | `string` | `#fff`  | CSS color string for the background                |
-| `progress`   | `number` | `1`     | Fraction of the drawing to render, from `0` to `1` |
-| `quality`    | `number` | `0.6`   | JPEG/WebP compression quality, from `0` to `1`     |
 
 ## CLI
 
