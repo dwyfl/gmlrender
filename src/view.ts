@@ -247,6 +247,12 @@ export class GMLView extends EventTarget {
     this._renderer.setOffset(x, y);
   }
 
+  setSize(width: number, height: number) {
+    this._renderer.context.width = width;
+    this._renderer.context.height = height;
+    this._renderer.setScreenBounds(width, height);
+  }
+
   draw() {
     this._renderer.render(this._animation.getState());
   }
