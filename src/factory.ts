@@ -9,16 +9,16 @@ export type GenericRenderContextOptions<Type extends GenericRenderContextType> =
   RenderContextDimensions & { type: Type };
 export type GenericRenderStaticOptions<Type extends GenericRenderContextType> =
   Partial<RenderStaticOptions> & GenericRenderContextOptions<Type>;
-export type RenderContextFactoryFn<Type extends GenericRenderContextType> = (
-  type: Type,
-  width: number,
-  height: number,
-) => RenderContextBase;
+export type RenderContextFactoryFn<
+  Type extends GenericRenderContextType,
+  Options extends GenericRenderContextOptions<Type> = GenericRenderContextOptions<Type>,
+> = ((options: Options) => RenderContextBase) &
+  ((type: Type, width: number, height: number) => RenderContextBase);
 
 export function createGMLImageFactory<
   Type extends GenericRenderContextType,
   Options extends GenericRenderStaticOptions<Type>,
->(contextFactoryFn: RenderContextFactoryFn<Type>) {
+>(contextFactoryFn: RenderContextFactoryFn<Type, Options>) {
   function factory(gml: string | GML, options: Options): Promise<ArrayBuffer>;
   function factory(
     gml: string | GML,
@@ -34,11 +34,11 @@ export function createGMLImageFactory<
     height?: number,
     options?: Partial<RenderStaticOptions>,
   ): Promise<ArrayBuffer> {
-    const type = typeof optionsOrType === "string" ? optionsOrType : optionsOrType.type;
-    const w = typeof optionsOrType === "string" ? width! : optionsOrType.width;
-    const h = typeof optionsOrType === "string" ? height! : optionsOrType.height;
     const opts = typeof optionsOrType === "string" ? options : optionsOrType;
-    const ctx = contextFactoryFn(type, w, h);
+    const ctx =
+      typeof optionsOrType === "string"
+        ? contextFactoryFn(optionsOrType, width!, height!)
+        : contextFactoryFn(optionsOrType);
     return renderStatic(gml, ctx, opts);
   }
   return factory;
@@ -47,7 +47,7 @@ export function createGMLImageFactory<
 export function createGMLViewFactory<
   Type extends GenericRenderContextType,
   Options extends GenericRenderContextOptions<Type>,
->(contextFactoryFn: RenderContextFactoryFn<Type>) {
+>(contextFactoryFn: RenderContextFactoryFn<Type, Options>) {
   function factory(gml: string | GML, options: Options): GMLView;
   function factory(gml: string | GML, type: Type, width: number, height: number): GMLView;
   function factory(
@@ -56,10 +56,10 @@ export function createGMLViewFactory<
     width?: number,
     height?: number,
   ): GMLView {
-    const type = typeof optionsOrType === "string" ? optionsOrType : optionsOrType.type;
-    const w = typeof optionsOrType === "string" ? width! : optionsOrType.width;
-    const h = typeof optionsOrType === "string" ? height! : optionsOrType.height;
-    const ctx = contextFactoryFn(type, w, h);
+    const ctx =
+      typeof optionsOrType === "string"
+        ? contextFactoryFn(optionsOrType, width!, height!)
+        : contextFactoryFn(optionsOrType);
     return new GMLView(gml, new GMLRenderer(ctx));
   }
   return factory;

@@ -2,11 +2,18 @@ import type { RenderImageOptions } from "../../render/context.ts";
 import { RenderContextCanvas2D } from "./base.ts";
 
 export class RenderContextHtmlCanvas extends RenderContextCanvas2D<HTMLCanvasElement> {
+  constructor(canvas: string);
   constructor(canvas: HTMLCanvasElement);
   constructor(width: number, height: number);
-  constructor(canvasOrWidth: HTMLCanvasElement | number, height?: number) {
+  constructor(canvasOrWidth: string | HTMLCanvasElement | number, height?: number) {
     let canvas: HTMLCanvasElement;
-    if (canvasOrWidth instanceof HTMLCanvasElement) {
+    if (typeof canvasOrWidth === "string") {
+      const canvasEl = document.getElementById(canvasOrWidth);
+      if (!(canvasEl instanceof HTMLCanvasElement)) {
+        throw new Error(`Invalid canvas id ${canvasOrWidth}`);
+      }
+      canvas = canvasEl;
+    } else if (canvasOrWidth instanceof HTMLCanvasElement) {
       canvas = canvasOrWidth;
     } else {
       canvas = document.createElement("canvas");
