@@ -142,6 +142,7 @@ describe("renderToVideo", () => {
   test("last frame matches the fully-drawn animation snapshot", async () => {
     const result = await renderToWebp(createGMLView(example001, "node-canvas", 320, 240), {
       fps: 30,
+      lossless: true,
     });
 
     const frames = await decodeAnimation(result, true);

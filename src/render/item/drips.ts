@@ -238,30 +238,35 @@ export class RenderItemDrips extends RenderItem {
   }
 
   render(renderContext: RenderContextBase, renderState: RenderState): void {
-    if (!this._dripPoints.length) return;
-
-    const { frame, time } = renderState.animationState;
-    if (!frame) return;
+    if (!this._dripPoints.length || !renderState.frame) {
+      return;
+    }
 
     renderContext.beginPath();
-    renderContext.setRenderProps({
-      lineWidth:
-        (renderState.getRenderOption("lineWidth") ?? 2) * renderState.clientEnvironment.scale,
-    });
 
     const { p1, p2, _startVec: start, _endVec: end } = this;
+    const { frame, time } = renderState;
+    let tagIndex = null;
 
     for (const drip of this._dripPoints) {
-      if (!isDripVisible(drip, frame)) continue;
+      if (!isDripVisible(drip, frame)) {
+        continue;
+      }
 
       const elapsed = time - drip.t;
       const length = drip.dripLength * this.options.dripEasing(elapsed / drip.dripSpeed);
-      if (length <= 0) continue;
+      if (length <= 0) {
+        continue;
+      }
 
-      this.initProjectionTransforms(
-        this.getTagEnvironment(drip.tagIndex),
-        renderState.clientEnvironment,
-      );
+      if (tagIndex !== drip.tagIndex) {
+        tagIndex = drip.tagIndex;
+        this.initRenderEnvironments(
+          renderContext,
+          renderState,
+          this.getTagEnvironment(drip.tagIndex),
+        );
+      }
 
       const dripDir = this._getDripDirection(drip.tagIndex);
 

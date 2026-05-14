@@ -16,7 +16,8 @@ export class GMLRenderer {
   private renderState: RenderState;
 
   constructor(context: RenderContextBase) {
-    this.clientEnvironment = new ClientEnvironment(context.width, context.height);
+    const { width, height } = context;
+    this.clientEnvironment = new ClientEnvironment(width, height);
     this.renderContext = context;
     this.renderItems = [];
     this.renderState = new RenderState(this.clientEnvironment, {
@@ -66,12 +67,10 @@ export class GMLRenderer {
   }
 
   render(state: GMLAnimationState) {
-    // TODO: apply this.renderState.renderProps?
     this.renderState.animationState = state;
     this.renderContext.clear();
     this.renderItems.forEach((renderItem) => {
       if (renderItem.visible) {
-        this.renderContext.setRenderProps(renderItem.item.getRenderProps());
         renderItem.item.render(this.renderContext, this.renderState);
       }
     });
@@ -91,12 +90,5 @@ export class GMLRenderer {
 
   setScreenBounds(width: number, height: number) {
     this.clientEnvironment.setScreenBoundsValues(width, height);
-  }
-
-  setLineWidth(value: number) {
-    this.renderState.setRenderOption(
-      "lineWidth",
-      Math.min(Math.max(parseFloat(String(value)), 0), 1),
-    );
   }
 }

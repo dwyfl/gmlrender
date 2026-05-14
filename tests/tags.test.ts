@@ -15,6 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const example001 = readFileSync(join(__dirname, "data/example001.xml"), "utf8");
+const exampleBrush = readFileSync(join(__dirname, "data/example-brush.xml"), "utf8");
 
 function makeStateAtFrame(
   gml: GML,
@@ -78,5 +79,60 @@ describe("RenderItemTags", () => {
     const gml = new GML(example001);
     const tags = new RenderItemTags(gml);
     expect(tags.getRenderProps().strokeStyle).toBe("#000");
+  });
+
+  test("uses brush>width as lineWidth when stroke has a brush tag", () => {
+    const gml = new GML(exampleBrush);
+    const ctx = new MockContext();
+    const { timelines } = new GMLTimeline(gml);
+    const lastFrame = timelines[0][timelines[0].length - 1];
+
+    new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
+
+    const setProps = ctx.only("setRenderProps");
+    // First stroke has brush width=4.0, scale=1 → lineWidth 4
+    expect(setProps[1]?.props.lineWidth).toBe(4);
+  });
+
+  test("stroke without a brush tag inherits the width from the preceding stroke", () => {
+    const gml = new GML(exampleBrush);
+    const ctx = new MockContext();
+    const { timelines } = new GMLTimeline(gml);
+    const lastFrame = timelines[0][timelines[0].length - 1];
+
+    new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
+
+    const setProps = ctx.only("setRenderProps");
+    // Second stroke has no brush tag → inherits width=4.0 from first stroke
+    expect(setProps[1]?.props.lineWidth).toBe(4);
+  });
+
+  test("falls back to DEFAULT_LINE_WIDTH (4) when no brush has been declared", () => {
+    // example001 has no brush tags; use 1024×768 canvas to match its implicit screenbounds (contentScale=1)
+    const gml = new GML(example001);
+    const ctx = new MockContext();
+    const { timelines } = new GMLTimeline(gml);
+    const lastFrame = timelines[0][timelines[0].length - 1];
+
+    new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame, 1024, 768));
+
+    const setProps = ctx.only("setRenderProps");
+    expect(setProps[0]?.props.lineWidth).toBe(4);
+  });
+
+  test("brush>width is scaled by clientEnvironment.scale", () => {
+    const gml = new GML(exampleBrush);
+    const ctx = new MockContext();
+    const { timelines } = new GMLTimeline(gml);
+    const lastFrame = timelines[0][timelines[0].length - 1];
+    // Use scale=2 (e.g. retina display)
+    const state = makeStateAtFrame(gml, lastFrame);
+    state.clientEnvironment.setScale(2);
+
+    new RenderItemTags(gml).render(ctx, state);
+
+    const setProps = ctx.only("setRenderProps");
+    // brush width=4.0, scale=2 → lineWidth 8
+    expect(setProps[1]?.props.lineWidth).toBe(8);
   });
 });

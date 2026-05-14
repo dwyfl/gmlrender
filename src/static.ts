@@ -8,22 +8,40 @@ export interface RenderStaticOptions {
   position: number;
   quality: number;
   background: string;
+  color: string;
+  brushSize: number;
   drips: boolean;
   dripFactor: number;
   format: RenderImageFormat;
 }
 
 export function renderStatic(
-  gml: string | GML,
+  doc: string | GML,
   context: RenderContextBase,
   options: Partial<RenderStaticOptions> = {},
 ): Promise<ArrayBuffer> {
-  const { format = "jpeg", position = 1, quality, background, drips, dripFactor } = options;
+  const {
+    format = "jpeg",
+    position = 1,
+    quality,
+    background,
+    color,
+    brushSize,
+    drips,
+    dripFactor,
+  } = options;
 
-  const view = new GMLView(typeof gml === "string" ? new GML(gml) : gml, new GMLRenderer(context));
+  const gml = typeof doc === "string" ? new GML(doc) : doc;
+  const view = new GMLView(gml, new GMLRenderer(context));
 
   if (background) {
     view.setRenderItemProps("background", { fillStyle: background });
+  }
+  if (color) {
+    view.setRenderItemProps("tags", { fillStyle: color });
+  }
+  if (brushSize) {
+    view.setRenderItemProps("tags", { lineWidth: brushSize });
   }
 
   if (drips) {

@@ -1,8 +1,7 @@
-import { BaseRenderProps } from "./index.ts";
+import { BaseRenderProps, type RenderProps } from "./index.ts";
 
 export class ForegroundRenderProps extends BaseRenderProps {
-  constructor(color = "#000") {
-    super();
-    this.fillStyle = color;
+  constructor(props?: Partial<RenderProps>) {
+    super({ fillStyle: "#000", lineWidth: 4, ...props });
   }
 }

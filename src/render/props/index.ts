@@ -55,6 +55,7 @@ export class BaseRenderProps {
     this.lineCap = props?.lineCap ?? "round";
     this.lineJoin = props?.lineJoin ?? "round";
   }
+
   toObject() {
     return {
       fillStyle: this.fillStyle,

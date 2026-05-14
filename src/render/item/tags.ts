@@ -6,7 +6,6 @@ import { RenderState } from "../state.ts";
 import { RenderContextBase } from "../context.ts";
 
 export class RenderItemTags extends RenderItem {
-  private static readonly DEFAULT_LINE_WIDTH = 2;
   private p1: vec3;
   private p2: vec3;
 
@@ -25,7 +24,7 @@ export class RenderItemTags extends RenderItem {
     const tags = this.gml.getTags();
     const tagLimit = renderState.getTagRenderLimit() ?? tags.length - 1;
     for (let i = 0; i <= tagLimit; i += 1) {
-      this.initProjectionTransforms(this.getTagEnvironment(i), renderState.clientEnvironment);
+      this.initRenderEnvironments(renderContext, renderState, this.getTagEnvironment(i));
       this.renderTag(renderContext, renderState, i);
     }
   }
@@ -70,15 +69,18 @@ export class RenderItemTags extends RenderItem {
       return;
     }
 
+    const stroke = this.gml.getStroke(tagIndex, drawingIndex, strokeIndex);
+    const brushWidth = stroke?.getBrush()?.getWidth();
+
+    if (typeof brushWidth === "number") {
+      const lineWidth = brushWidth * this.contentScale * renderState.clientEnvironment.scale;
+      renderContext.setRenderProps({ lineWidth });
+    }
+
     renderContext.beginPath();
-    renderContext.setRenderProps({
-      lineWidth:
-        (renderState.getRenderOption("lineWidth") ?? RenderItemTags.DEFAULT_LINE_WIDTH) *
-        renderState.clientEnvironment.scale, // ???
-    });
 
     const { p1, p2 } = this;
-    const { time } = renderState.animationState;
+    const { time } = renderState;
 
     for (let i = 0; i <= pointLimit; ++i) {
       this.projectPoint(p1, points[i].getXYZ());

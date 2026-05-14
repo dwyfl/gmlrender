@@ -14,6 +14,7 @@ export abstract class RenderItem {
   tagEnvironment?: TagEnvironment;
   clientEnvironment?: ClientEnvironment;
   clientScreenBounds?: vec3;
+  contentScale: number = 1;
 
   constructor(gml: GML) {
     this.gml = gml;
@@ -42,7 +43,12 @@ export abstract class RenderItem {
     return this.tagEnvironments[tagIndex];
   }
 
-  initProjectionTransforms(tagEnvironment: TagEnvironment, clientEnvironment: ClientEnvironment) {
+  initRenderEnvironments(
+    renderContext: RenderContextBase,
+    renderState: RenderState,
+    tagEnvironment: TagEnvironment,
+  ) {
+    const { clientEnvironment } = renderState;
     const clientScreenBounds = vec3.create();
     const screenRatioTransform = RenderItem.getScreenRatioTransform(
       tagEnvironment.getScreenBounds(),
@@ -56,6 +62,17 @@ export abstract class RenderItem {
     this.clientScreenBounds = clientScreenBounds;
     this.clientEnvironment = clientEnvironment;
     this.tagEnvironment = tagEnvironment;
+    const gmlBounds = tagEnvironment.getScreenBounds();
+    this.contentScale = gmlBounds[0] > 0 ? clientScreenBounds[0] / gmlBounds[0] : 1;
+    this.initRenderProps(renderContext, renderState);
+  }
+
+  initRenderProps(renderContext: RenderContextBase, renderState: RenderState) {
+    const renderProps = this.getRenderProps();
+    renderContext.setRenderProps({
+      ...renderProps,
+      lineWidth: renderProps.lineWidth * this.contentScale * renderState.clientEnvironment.scale,
+    });
   }
 
   projectPoint(p: vec3, point: ReadonlyVec3) {

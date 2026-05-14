@@ -27,14 +27,14 @@ export class RenderItemBackground extends RenderItem {
     return "background";
   }
 
-  setColor(value: string) {
+  set color(value: string) {
     this.setRenderProps({ fillStyle: value });
   }
 
-  render(ctx: RenderContextBase, renderState: RenderState) {
+  render(renderContext: RenderContextBase, renderState: RenderState) {
     this.gml.getTags().forEach((_, index) => {
-      this.initProjectionTransforms(this.getTagEnvironment(index), renderState.clientEnvironment);
-      this.renderBackground(ctx);
+      this.initRenderEnvironments(renderContext, renderState, this.getTagEnvironment(index));
+      this.renderBackground(renderContext);
     });
   }
 
