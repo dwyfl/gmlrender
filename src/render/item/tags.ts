@@ -47,9 +47,6 @@ export class RenderItemTags extends RenderItem {
     const strokeLimit =
       renderState.getStrokeRenderLimit(tagIndex, drawingIndex) ?? strokes.length - 1;
     for (let i = 0; i <= strokeLimit; i += 1) {
-      if (!strokes[i].isDrawing()) {
-        continue;
-      }
       this.renderStroke(renderContext, renderState, tagIndex, drawingIndex, i);
     }
   }
@@ -65,16 +62,16 @@ export class RenderItemTags extends RenderItem {
     const pointLimit =
       renderState.getPointRenderLimit(tagIndex, drawingIndex, strokeIndex) ?? points.length - 1;
 
-    if (points.length === 0 || pointLimit < 0) {
-      return;
-    }
-
     const stroke = this.gml.getStroke(tagIndex, drawingIndex, strokeIndex);
     const brushWidth = stroke?.getBrush()?.getWidth();
 
     if (typeof brushWidth === "number") {
       const lineWidth = brushWidth * this.contentScale * renderState.clientEnvironment.scale;
       renderContext.setRenderProps({ lineWidth });
+    }
+
+    if (points.length === 0 || pointLimit < 0 || !stroke || !stroke.isDrawing()) {
+      return;
     }
 
     renderContext.beginPath();
