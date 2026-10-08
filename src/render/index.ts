@@ -4,8 +4,8 @@ import { RenderState } from "./state.ts";
 import { RenderItem } from "./item/base.ts";
 import { type GMLAnimationState } from "../animation/animation.ts";
 
-export interface RenderItemEntry {
-  item: RenderItem;
+export interface RenderItemEntry<Item extends RenderItem = RenderItem> {
+  item: Item;
   visible: boolean;
 }
 
@@ -21,7 +21,7 @@ export class GMLRenderer {
     this.renderContext = context;
     this.renderItems = [];
     this.renderState = new RenderState(this.clientEnvironment, {
-      timeline: { length: 0, tag: 0 } as any,
+      timeline: [],
       frame: undefined,
       frameIndex: 0,
       time: 0,

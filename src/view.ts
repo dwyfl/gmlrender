@@ -1,5 +1,5 @@
 import { GML } from "gmljs";
-import { GMLRenderer } from "./render/index.ts";
+import { GMLRenderer, type RenderItemEntry } from "./render/index.ts";
 import { GMLAnimation, type GMLAnimationState } from "./animation/animation.ts";
 import {
   GML_requestAnimationFrame,
@@ -10,6 +10,10 @@ import {
   RenderItemBackground,
   RenderItemTags,
   RenderItemDrips,
+  RenderItemTypeMap,
+  isRenderItemTypeKey,
+  type RenderItemOfType,
+  type RenderItemTypeKey,
 } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
 import { clamp } from "./util.ts";
@@ -178,8 +182,25 @@ export class GMLView extends EventTarget {
     return this._renderer.items;
   }
 
-  getRenderItem(type: string) {
-    return this._renderer.getRenderItemType(type);
+  /**
+   * Returns the render item entry of the given type. The built-in types ("background",
+   * "tags", "drips") return their concrete item class, e.g. RenderItemDrips for "drips".
+   */
+  getRenderItem<K extends RenderItemTypeKey>(
+    type: K,
+  ): RenderItemEntry<RenderItemOfType<K>> | undefined;
+  getRenderItem(type: string): RenderItemEntry | undefined;
+  getRenderItem(type: string): RenderItemEntry | undefined {
+    const entry = this._renderer.getRenderItemType(type);
+    // Guarantee the narrowed type: a custom item could reuse a built-in type name.
+    if (
+      entry &&
+      isRenderItemTypeKey(type) &&
+      !(entry.item instanceof RenderItemTypeMap[type])
+    ) {
+      return undefined;
+    }
+    return entry;
   }
 
   setRenderItemProps(type: string, props: Partial<RenderProps>) {

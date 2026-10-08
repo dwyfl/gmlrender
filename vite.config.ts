@@ -20,7 +20,12 @@ export default defineConfig({
     dts: {
       generator: "tsgo",
     },
-    exports: true,
+    exports: {
+      // The CLI is only meant to be run through `bin`; importing it would execute it.
+      exclude: ["cli/index"],
+      // main/types fallbacks for consumers on moduleResolution "node10".
+      legacy: true,
+    },
   },
   lint: {
     options: {
