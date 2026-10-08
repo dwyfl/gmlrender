@@ -91,4 +91,4 @@ for (const warning of view.gml.warnings) console.warn(warning.message);
 
 ## Made with gmlrender
 
-![KATSU tag rendered with gmlrender](docs/katsu.webp)
+![KATSU tag rendered with gmlrender](https://raw.githubusercontent.com/dwyfl/gmlrender/3.0.0/docs/katsu.webp)
