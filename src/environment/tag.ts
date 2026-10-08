@@ -33,7 +33,8 @@ export class TagEnvironment extends Environment {
   private _initFromTag(tag: GMLTag) {
     const defaultEnv = this.getClientDefaults(tag);
     const tagEnv = tag.getEnvironment();
-    // gmljs drops non-numeric values, so an incomplete <screenbounds> has fewer than 2.
+    // gmljs fills missing <screenbounds> values from its own 1920×1080 default; the
+    // client defaults apply only when the element is absent.
     const [width, height] =
       tagEnv?.getScreenBounds() ?? defaultEnv?.screenBounds ?? [];
     if (width !== undefined && height !== undefined) {
