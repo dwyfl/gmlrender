@@ -87,17 +87,15 @@ export class GMLTimeline {
     context: GMLTimelineFrameContext,
     options: GMLTimelineOptions,
   ) {
-    return (
-      tag
-        .getDrawings()
-        ?.flatMap((drawing, index) =>
-          GMLTimeline.getFramesForDrawing(
-            drawing,
-            { ...context, drawing: index },
-            options,
-          ),
-        ) ?? []
-    );
+    return tag
+      .getDrawings()
+      .flatMap((drawing, index) =>
+        GMLTimeline.getFramesForDrawing(
+          drawing,
+          { ...context, drawing: index },
+          options,
+        ),
+      );
   }
   private static getFramesForDrawing(
     drawing: GMLDrawing,
@@ -124,7 +122,7 @@ export class GMLTimeline {
     const FPS_SECONDS = 1 / fps;
     let previousPoint: GMLPoint | undefined;
 
-    return (stroke.getPoints()?.map((point, index, arr) => {
+    return stroke.getPoints().map((point, index, arr) => {
       const previousTimeOffset = cursor.previousTimeOffset ?? -FPS_SECONDS;
       const currentTimeOffset = useCustomFps
         ? cursor.currentFrame * FPS_SECONDS
@@ -161,8 +159,8 @@ export class GMLTimeline {
       cursor.previousTimeOffset = currentTimeOffset;
       cursor.currentFrame++;
 
-      return result;
-    }) ?? []) satisfies GMLTagTimelineFrame[];
+      return result satisfies GMLTagTimelineFrame;
+    });
   }
 
   private static getSpeedAndDirection(
@@ -171,8 +169,8 @@ export class GMLTimeline {
     t1: number,
     t2: number,
   ): { speed: number; direction: { x: number; y: number; z: number } } {
-    const [x1 = 0, y1 = 0, z1 = 0] = p1.getXYZ();
-    const [x2 = 0, y2 = 0, z2 = 0] = p2.getXYZ();
+    const [x1, y1, z1] = p1.getXYZ();
+    const [x2, y2, z2] = p2.getXYZ();
     const dt = t2 - t1;
     const dx = x1 - x2;
     const dy = y1 - y2;

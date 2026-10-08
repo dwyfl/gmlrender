@@ -2,15 +2,21 @@ import { mat3, vec3 } from "gl-matrix";
 import { Environment } from "./base.ts";
 import { GMLTag } from "gmljs";
 
-const DEFAULT_CLIENT_ENVS = [
+type Vector3 = [x: number, y: number, z: number];
+
+const DEFAULT_CLIENT_ENVS: {
+  clientNames: string[];
+  screenBounds: [width: number, height: number];
+  up: Vector3;
+}[] = [
   {
     clientNames: [
       "Graffiti Analysis 2.0: DustTag",
       "DustTag: Graffiti Analysis 2.0",
       "Fat Tag - Katsu Edition",
     ],
-    screenBounds: [480, 320], // width, height
-    up: [1, 0, 0], // x, y, z
+    screenBounds: [480, 320],
+    up: [1, 0, 0],
   },
 ];
 
@@ -18,8 +24,6 @@ const DEFAULT_CLIENT_ENVS = [
  * GML's y axis points down on screen, so "up" on screen is (0, -1, 0).
  */
 const SCREEN_UP: Vector3 = [0, -1, 0];
-
-type Vector3 = [x: number, y: number, z: number];
 
 export class TagEnvironment extends Environment {
   private upVector: Vector3;
@@ -33,12 +37,11 @@ export class TagEnvironment extends Environment {
   private _initFromTag(tag: GMLTag) {
     const defaultEnv = this.getClientDefaults(tag);
     const tagEnv = tag.getEnvironment();
-    // gmljs fills missing <screenbounds> values from its own 1920×1080 default; the
-    // client defaults apply only when the element is absent.
-    const [width, height] =
-      tagEnv?.getScreenBounds() ?? defaultEnv?.screenBounds ?? [];
-    if (width !== undefined && height !== undefined) {
-      this.setScreenBoundsValues(width, height);
+    // gmljs returns no bounds for an incomplete <screenBounds> (and lists a warning), so
+    // it falls back like a missing one.
+    const screenBounds = tagEnv?.getScreenBounds() ?? defaultEnv?.screenBounds;
+    if (screenBounds) {
+      this.setScreenBoundsValues(...screenBounds);
     }
     const offset = tagEnv?.getOffset();
     if (offset) {
@@ -68,11 +71,10 @@ export class TagEnvironment extends Environment {
    * The tag's <up> if it has a direction in the drawing plane, otherwise the client's
    * default, otherwise screen up (no rotation). Some documents have (0,0,0) as up vector.
    */
-  private getEffectiveUp(tagUp?: number[], clientUp?: number[]): Vector3 {
+  private getEffectiveUp(tagUp?: Vector3, clientUp?: Vector3): Vector3 {
     for (const up of [tagUp, clientUp]) {
-      const [x = 0, y = 0, z = 0] = up ?? [];
-      if (x !== 0 || y !== 0) {
-        return [x, y, z];
+      if (up && (up[0] !== 0 || up[1] !== 0)) {
+        return [...up];
       }
     }
     return SCREEN_UP;

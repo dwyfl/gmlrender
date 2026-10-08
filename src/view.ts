@@ -230,6 +230,14 @@ export class GMLView extends EventTarget {
     this._applyRenderItemSettings(settings);
   }
 
+  /**
+   * The parsed document. GML strings are parsed leniently: check `gml.warnings` for
+   * problems that were skipped.
+   */
+  get gml(): GML {
+    return this._gml;
+  }
+
   get renderer() {
     return this._renderer;
   }

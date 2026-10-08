@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "gl-matrix": "^3.4.4",
-    "gmljs": "3.0.0-beta.4"
+    "gmljs": "3.0.0-beta.5"
   },
   "devDependencies": {
     "@types/node": "^26",
@@ -71,7 +71,7 @@
     }
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "packageManager": "pnpm@10.33.0"
 }

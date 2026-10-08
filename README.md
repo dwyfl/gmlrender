@@ -67,3 +67,27 @@ const mp4 = await renderToVideo(gml, {
   format: "mp4",
 });
 ```
+
+## Invalid documents
+
+GML is parsed leniently: invalid points and values are skipped, and the problems are listed
+as warnings. Malformed XML is rejected with a `GMLParseError`.
+
+```typescript
+import { GMLParseError } from "gmlrender";
+import { createGMLImage, createGMLView } from "gmlrender/server";
+
+try {
+  await createGMLImage(gml, { type: "node-canvas", width: 1024, height: 768 });
+} catch (error) {
+  if (error instanceof GMLParseError)
+    console.error("Not valid XML:", error.message);
+}
+
+const view = createGMLView(gml, {
+  type: "node-canvas",
+  width: 1024,
+  height: 768,
+});
+for (const warning of view.gml.warnings) console.warn(warning.message);
+```

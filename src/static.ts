@@ -12,7 +12,7 @@ export interface RenderStaticOptions extends RenderOptions {
   format: RenderImageFormat;
 }
 
-export function renderStatic(
+export async function renderStatic(
   gml: string | GML,
   context: RenderContextBase,
   options: Partial<RenderStaticOptions> = {},

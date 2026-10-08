@@ -15,7 +15,7 @@ export type RenderContextFactoryFn<Options extends RenderContextOptions> = (
 export function createGMLImageFactory<Options extends RenderContextOptions>(
   contextFactoryFn: RenderContextFactoryFn<Options>,
 ) {
-  return function createGMLImage(
+  return async function createGMLImage(
     gml: string | GML,
     options: Options & Partial<RenderStaticOptions>,
   ): Promise<ArrayBuffer> {

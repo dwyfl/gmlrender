@@ -125,15 +125,10 @@ describe("Fitting the document into the canvas", () => {
   test.each([
     ["no <screenbounds> (1024×768 default)", undefined],
     ["zero <screenbounds>", bounds(0, 0)],
+    ["incomplete <screenbounds>", "<x>480</x>"],
   ])("%s falls back to filling the canvas", (_, b) => {
     const { document } = render(gml({ bounds: b }), 320, 240);
     expectRect(document, [0, 0, 320, 240]);
-  });
-
-  test("incomplete <screenbounds> gets gmljs' 1920×1080 default for the missing value", () => {
-    // <x>480</x> alone becomes 480×1080: a tall document, pillarboxed.
-    const { document } = render(gml({ bounds: "<x>480</x>" }), 320, 240);
-    expectRect(document, [106.667, 0, 213.333, 240]);
   });
 
   test("scales uniformly: a square on the original screen stays square", () => {

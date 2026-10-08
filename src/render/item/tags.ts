@@ -64,7 +64,7 @@ export class RenderItemTags extends RenderItem {
     renderState: RenderState,
     tagIndex: number,
   ) {
-    const drawings = this.gml.getDrawings(tagIndex) || [];
+    const drawings = this.gml.getDrawings(tagIndex);
     const drawingLimit =
       renderState.getDrawingRenderLimit(tagIndex) ?? drawings.length - 1;
     for (let i = 0; i <= drawingLimit; i += 1) {
@@ -78,7 +78,7 @@ export class RenderItemTags extends RenderItem {
     tagIndex: number,
     drawingIndex: number,
   ) {
-    const strokes = this.gml.getStrokes(tagIndex, drawingIndex) || [];
+    const strokes = this.gml.getStrokes(tagIndex, drawingIndex);
     const strokeLimit =
       renderState.getStrokeRenderLimit(tagIndex, drawingIndex) ??
       strokes.length - 1;
@@ -94,8 +94,7 @@ export class RenderItemTags extends RenderItem {
     drawingIndex: number,
     strokeIndex: number,
   ) {
-    const points =
-      this.gml.getPoints(tagIndex, drawingIndex, strokeIndex) || [];
+    const points = this.gml.getPoints(tagIndex, drawingIndex, strokeIndex);
     const pointLimit =
       renderState.getPointRenderLimit(tagIndex, drawingIndex, strokeIndex) ??
       points.length - 1;

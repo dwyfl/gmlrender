@@ -1,4 +1,4 @@
-export { GML } from "gmljs";
+export { GML, GMLParseError } from "gmljs";
 export { GMLView, type GMLViewEvent } from "./view.ts";
 export { GMLRenderer, type RenderItemEntry } from "./render/index.ts";
 export {

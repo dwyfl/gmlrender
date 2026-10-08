@@ -59,13 +59,13 @@ function computeGMLSeed(gml: GML): number {
   let seed = 12345;
   const tags = gml.getTags();
   for (let t = 0; t < Math.min(3, tags.length); t++) {
-    const drawings = gml.getDrawings(t) ?? [];
+    const drawings = gml.getDrawings(t);
     for (let d = 0; d < Math.min(2, drawings.length); d++) {
-      const strokes = gml.getStrokes(t, d) ?? [];
+      const strokes = gml.getStrokes(t, d);
       for (let s = 0; s < Math.min(2, strokes.length); s++) {
-        const points = gml.getPoints(t, d, s) ?? [];
+        const points = gml.getPoints(t, d, s);
         for (const point of points.slice(0, 3)) {
-          const [x = 0, y = 0] = point.getXYZ();
+          const [x, y] = point.getXYZ();
           seed = (Math.imul(seed, 1664525) + Math.round(x * 100000)) | 0;
           seed = (Math.imul(seed, 1664525) + Math.round(y * 100000)) | 0;
         }
@@ -248,7 +248,7 @@ export class RenderItemDrips extends RenderItem {
         );
         if (!point) continue;
 
-        const [x = 0, y = 0, z = 0] = point.getXYZ();
+        const [x, y, z] = point.getXYZ();
         dripPoints.push({
           tagIndex,
           drawingIndex: frame.drawing,
