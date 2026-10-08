@@ -189,7 +189,7 @@ describe("RenderItemDrips — drip direction", () => {
 
     expect(moves.length).toBeGreaterThan(0);
     for (let i = 0; i < moves.length; i++) {
-      expect(lines[i].y).toBeGreaterThan(moves[i].y);
+      expect(lines[i]!.y).toBeGreaterThan(moves[i]!.y);
     }
   });
 });

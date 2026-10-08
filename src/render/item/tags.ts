@@ -21,7 +21,7 @@ export class RenderItemTags extends RenderItem {
     this.renderProps = new ForegroundRenderProps();
   }
 
-  get type() {
+  override get type() {
     return "tags";
   }
 
@@ -46,7 +46,7 @@ export class RenderItemTags extends RenderItem {
     );
   }
 
-  render(renderContext: RenderContextBase, renderState: RenderState) {
+  override render(renderContext: RenderContextBase, renderState: RenderState) {
     const tags = this.gml.getTags();
     const tagLimit = renderState.getTagRenderLimit() ?? tags.length - 1;
     for (let i = 0; i <= tagLimit; i += 1) {
@@ -123,14 +123,18 @@ export class RenderItemTags extends RenderItem {
     const { p1, p2 } = this;
     const { time } = renderState;
 
-    for (let i = 0; i <= pointLimit; ++i) {
-      this.projectPoint(p1, points[i].getXYZ());
+    for (const [i, point] of points.entries()) {
+      if (i > pointLimit) {
+        break;
+      }
+      this.projectPoint(p1, point.getXYZ());
       if (i == 0) {
         renderContext.moveTo(p1[0], p1[1]);
       } else {
         renderContext.lineTo(p1[0], p1[1]);
       }
-      if (i == pointLimit && i < points.length - 1 && time > 0) {
+      const nextPoint = points[i + 1];
+      if (i == pointLimit && nextPoint && time > 0) {
         // Use timeline times rather than the points' <t> values, so documents without
         // timestamps (or with a custom fps timeline) interpolate too.
         const segment = renderState.getCurrentSegmentTimes();
@@ -138,7 +142,7 @@ export class RenderItemTags extends RenderItem {
           continue;
         }
         const [t1, t2] = segment;
-        this.projectPoint(p2, points[i + 1].getXYZ());
+        this.projectPoint(p2, nextPoint.getXYZ());
         const tt = Math.min(Math.max(time, t1), t2);
         const dt = t1 >= t2 ? 0 : (tt - t1) / (t2 - t1);
         const dx = p1[0] + (p2[0] - p1[0]) * dt;

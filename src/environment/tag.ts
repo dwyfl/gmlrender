@@ -17,23 +17,27 @@ const DEFAULT_CLIENT_ENVS = [
 /**
  * GML's y axis points down on screen, so "up" on screen is (0, -1, 0).
  */
-const SCREEN_UP = [0, -1, 0] as const;
+const SCREEN_UP: Vector3 = [0, -1, 0];
+
+type Vector3 = [x: number, y: number, z: number];
 
 export class TagEnvironment extends Environment {
-  private upVector: vec3;
+  private upVector: Vector3;
 
   constructor(tag: GMLTag) {
     super();
-    this.upVector = vec3.fromValues(...SCREEN_UP);
+    this.upVector = SCREEN_UP;
     this._initFromTag(tag);
   }
 
   private _initFromTag(tag: GMLTag) {
     const defaultEnv = this.getClientDefaults(tag);
     const tagEnv = tag.getEnvironment();
-    const screenBounds = tagEnv?.getScreenBounds() ?? defaultEnv?.screenBounds;
-    if (screenBounds) {
-      this.setScreenBoundsValues(screenBounds[0], screenBounds[1]);
+    // gmljs drops non-numeric values, so an incomplete <screenbounds> has fewer than 2.
+    const [width, height] =
+      tagEnv?.getScreenBounds() ?? defaultEnv?.screenBounds ?? [];
+    if (width !== undefined && height !== undefined) {
+      this.setScreenBoundsValues(width, height);
     }
     const offset = tagEnv?.getOffset();
     if (offset) {
@@ -49,7 +53,7 @@ export class TagEnvironment extends Environment {
    * point up on screen.
    */
   getUpVector(): vec3 {
-    return vec3.clone(this.upVector);
+    return vec3.fromValues(...this.upVector);
   }
 
   private getClientDefaults(tag: GMLTag) {
@@ -63,20 +67,21 @@ export class TagEnvironment extends Environment {
    * The tag's <up> if it has a direction in the drawing plane, otherwise the client's
    * default, otherwise screen up (no rotation). Some documents have (0,0,0) as up vector.
    */
-  private getEffectiveUp(tagUp?: number[], clientUp?: number[]): vec3 {
+  private getEffectiveUp(tagUp?: number[], clientUp?: number[]): Vector3 {
     for (const up of [tagUp, clientUp]) {
-      if (up && (up[0] !== 0 || up[1] !== 0)) {
-        return vec3.fromValues(up[0], up[1], up[2] ?? 0);
+      const [x = 0, y = 0, z = 0] = up ?? [];
+      if (x !== 0 || y !== 0) {
+        return [x, y, z];
       }
     }
-    return vec3.fromValues(...SCREEN_UP);
+    return SCREEN_UP;
   }
 
   /**
    * Rotation in the drawing plane that turns `up` to point up on screen. The z component is
    * ignored, and the vector does not need to be normalized.
    */
-  private static getUpTransform([x, y]: vec3): mat3 {
+  private static getUpTransform([x, y]: Vector3): mat3 {
     const length = Math.hypot(x, y);
     if (length === 0) {
       return mat3.create();

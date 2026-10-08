@@ -171,12 +171,12 @@ export class GMLTimeline {
     t1: number,
     t2: number,
   ): { speed: number; direction: { x: number; y: number; z: number } } {
-    const v = p1.getXYZ();
-    const pv = p2.getXYZ();
+    const [x1 = 0, y1 = 0, z1 = 0] = p1.getXYZ();
+    const [x2 = 0, y2 = 0, z2 = 0] = p2.getXYZ();
     const dt = t2 - t1;
-    const dx = v[0] - pv[0];
-    const dy = v[1] - pv[1];
-    const dz = v[2] - pv[2];
+    const dx = x1 - x2;
+    const dy = y1 - y2;
+    const dz = z1 - z2;
     const len = Math.sqrt(dx * dx + dy * dy);
     return {
       direction: {

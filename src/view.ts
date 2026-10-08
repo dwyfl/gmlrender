@@ -28,31 +28,35 @@ export class GMLView extends EventTarget {
   static readonly EVENT_STOP = "stop";
   static readonly EVENT_RESTART = "restart";
 
-  addEventListener<K extends GMLViewEvent>(
+  override addEventListener<K extends GMLViewEvent>(
     type: K,
     listener: (event: CustomEvent<GMLAnimationState>) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
-  addEventListener(
+  override addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ): void;
-  addEventListener(type: string, listener: any, options?: any): void {
+  override addEventListener(type: string, listener: any, options?: any): void {
     super.addEventListener(type, listener, options);
   }
 
-  removeEventListener<K extends GMLViewEvent>(
+  override removeEventListener<K extends GMLViewEvent>(
     type: K,
     listener: (event: CustomEvent<GMLAnimationState>) => void,
     options?: boolean | EventListenerOptions,
   ): void;
-  removeEventListener(
+  override removeEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | EventListenerOptions,
   ): void;
-  removeEventListener(type: string, listener: any, options?: any): void {
+  override removeEventListener(
+    type: string,
+    listener: any,
+    options?: any,
+  ): void {
     super.removeEventListener(type, listener, options);
   }
 

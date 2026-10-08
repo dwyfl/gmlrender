@@ -45,7 +45,7 @@ describe("RenderItemTags", () => {
     const gml = new GML(example001);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
-    const lastFrame = timelines[0][timelines[0].length - 1];
+    const lastFrame = timelines[0]?.at(-1);
 
     new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
 
@@ -58,7 +58,7 @@ describe("RenderItemTags", () => {
     const gml = new GML(example001);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
-    const lastFrame = timelines[0][timelines[0].length - 1];
+    const lastFrame = timelines[0]?.at(-1);
 
     new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
 
@@ -70,7 +70,7 @@ describe("RenderItemTags", () => {
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
     // First frame already has point:0; time=0 suppresses the partial-segment interpolation
-    const firstFrame = timelines[0][0];
+    const firstFrame = timelines[0]?.[0];
 
     new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, firstFrame));
 
@@ -88,7 +88,7 @@ describe("RenderItemTags", () => {
     const gml = new GML(exampleBrush);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
-    const lastFrame = timelines[0][timelines[0].length - 1];
+    const lastFrame = timelines[0]?.at(-1);
 
     new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
 
@@ -106,7 +106,7 @@ describe("RenderItemTags", () => {
     </drawing></tag></gml>`);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
-    const lastFrame = timelines[0][timelines[0].length - 1];
+    const lastFrame = timelines[0]?.at(-1);
 
     new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
 
@@ -129,7 +129,7 @@ describe("RenderItemTags", () => {
     const gml = new GML(example001);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
-    const lastFrame = timelines[0][timelines[0].length - 1];
+    const lastFrame = timelines[0]?.at(-1);
 
     new RenderItemTags(gml).render(
       ctx,
@@ -144,7 +144,7 @@ describe("RenderItemTags", () => {
     const gml = new GML(exampleBrush);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
-    const lastFrame = timelines[0][timelines[0].length - 1];
+    const lastFrame = timelines[0]?.at(-1);
     // Use scale=2 (e.g. retina display)
     const state = makeStateAtFrame(gml, lastFrame);
     state.clientEnvironment.setScale(2);

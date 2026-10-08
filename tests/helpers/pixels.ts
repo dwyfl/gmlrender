@@ -26,31 +26,26 @@ export async function pixelReaderfromDataURL(
       ? Buffer.from(data)
       : Buffer.from(await data.arrayBuffer());
   const png = PNG.sync.read(buf);
+  const pixelAt = (i: number): Pixel => ({
+    r: png.data[i] ?? 0,
+    g: png.data[i + 1] ?? 0,
+    b: png.data[i + 2] ?? 0,
+    a: png.data[i + 3] ?? 0,
+  });
   return {
     width: png.width,
     height: png.height,
     _png: png,
     at(x, y) {
-      const i = (png.width * y + x) * 4;
-      return {
-        r: png.data[i],
-        g: png.data[i + 1],
-        b: png.data[i + 2],
-        a: png.data[i + 3],
-      };
+      if (x < 0 || y < 0 || x >= png.width || y >= png.height) {
+        throw new RangeError(`Pixel (${x}, ${y}) is outside the image`);
+      }
+      return pixelAt((png.width * y + x) * 4);
     },
     count(pred) {
       let n = 0;
       for (let i = 0; i < png.data.length; i += 4) {
-        if (
-          pred({
-            r: png.data[i],
-            g: png.data[i + 1],
-            b: png.data[i + 2],
-            a: png.data[i + 3],
-          })
-        )
-          n++;
+        if (pred(pixelAt(i))) n++;
       }
       return n;
     },

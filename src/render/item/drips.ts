@@ -64,12 +64,10 @@ function computeGMLSeed(gml: GML): number {
       const strokes = gml.getStrokes(t, d) ?? [];
       for (let s = 0; s < Math.min(2, strokes.length); s++) {
         const points = gml.getPoints(t, d, s) ?? [];
-        for (let p = 0; p < Math.min(3, points.length); p++) {
-          const xyz = points[p].getXYZ();
-          seed =
-            (Math.imul(seed, 1664525) + Math.round((xyz[0] ?? 0) * 100000)) | 0;
-          seed =
-            (Math.imul(seed, 1664525) + Math.round((xyz[1] ?? 0) * 100000)) | 0;
+        for (const point of points.slice(0, 3)) {
+          const [x = 0, y = 0] = point.getXYZ();
+          seed = (Math.imul(seed, 1664525) + Math.round(x * 100000)) | 0;
+          seed = (Math.imul(seed, 1664525) + Math.round(y * 100000)) | 0;
         }
       }
     }
@@ -110,7 +108,7 @@ export class RenderItemDrips extends RenderItem {
     this._dripPoints = this._calculateDripPoints();
   }
 
-  get type() {
+  override get type() {
     return "drips";
   }
 
@@ -168,10 +166,9 @@ export class RenderItemDrips extends RenderItem {
   private _scoreTimeline(timeline: GMLTagTimeline): number[] {
     const scores: number[] = Array.from({ length: timeline.length }, () => 0);
 
-    for (let i = 0; i < timeline.length; i++) {
-      const frame = timeline[i];
-      const prev = i > 0 ? timeline[i - 1] : null;
-      const next = i < timeline.length - 1 ? timeline[i + 1] : null;
+    for (const [i, frame] of timeline.entries()) {
+      const prev = timeline[i - 1];
+      const next = timeline[i + 1];
 
       let score = 0;
 
@@ -227,14 +224,13 @@ export class RenderItemDrips extends RenderItem {
     const dripPoints: DripPoint[] = [];
     const timelines = new GMLTimeline(this.gml).timelines;
 
-    for (let tagIndex = 0; tagIndex < timelines.length; tagIndex++) {
-      const timeline = timelines[tagIndex];
+    for (const [tagIndex, timeline] of timelines.entries()) {
       if (!timeline.length) continue;
 
       const scores = this._scoreTimeline(timeline);
 
-      for (let i = 0; i < timeline.length; i++) {
-        const score = scores[i];
+      for (const [i, frame] of timeline.entries()) {
+        const score = scores[i] ?? 0;
         if (score <= 0) continue;
 
         // Probability capped at 1; DRIP_SCALE tunes the expected count
@@ -244,7 +240,6 @@ export class RenderItemDrips extends RenderItem {
         );
         if (prng() >= probability) continue;
 
-        const frame = timeline[i];
         const point = this.gml.getPoint(
           frame.tag,
           frame.drawing,
@@ -253,14 +248,14 @@ export class RenderItemDrips extends RenderItem {
         );
         if (!point) continue;
 
-        const xyz = point.getXYZ();
+        const [x = 0, y = 0, z = 0] = point.getXYZ();
         dripPoints.push({
           tagIndex,
           drawingIndex: frame.drawing,
           strokeIndex: frame.stroke,
           pointIndex: frame.point,
           t: frame.t,
-          xyz: [xyz[0] ?? 0, xyz[1] ?? 0, xyz[2] ?? 0],
+          xyz: [x, y, z],
           dripLength: RenderItemDrips._prngRatio(
             prng,
             this.options.dripLength,
@@ -278,7 +273,10 @@ export class RenderItemDrips extends RenderItem {
     return dripPoints;
   }
 
-  render(renderContext: RenderContextBase, renderState: RenderState): void {
+  override render(
+    renderContext: RenderContextBase,
+    renderState: RenderState,
+  ): void {
     if (!this._dripPoints.length || !renderState.frame) {
       return;
     }

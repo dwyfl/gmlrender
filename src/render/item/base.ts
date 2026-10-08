@@ -48,8 +48,12 @@ export abstract class RenderItem {
     applyRenderProps(this.renderProps, props);
   }
 
-  getTagEnvironment(tagIndex: number) {
-    return this.tagEnvironments[tagIndex];
+  getTagEnvironment(tagIndex: number): TagEnvironment {
+    const tagEnvironment = this.tagEnvironments[tagIndex];
+    if (!tagEnvironment) {
+      throw new RangeError(`No tag at index ${tagIndex}`);
+    }
+    return tagEnvironment;
   }
 
   initRenderEnvironments(
@@ -121,15 +125,16 @@ export abstract class RenderItem {
     outerScreenBounds: vec2,
   ) {
     const m = mat3.create();
-    let [boundsWidth, boundsHeight] = innerScreenBounds;
+    const [outerWidth = 0, outerHeight = 0] = outerScreenBounds;
+    let [boundsWidth = 0, boundsHeight = 0] = innerScreenBounds;
     if (!Number.isFinite(boundsWidth) || boundsWidth <= 0) {
-      boundsWidth = outerScreenBounds[0];
+      boundsWidth = outerWidth;
     }
     if (!Number.isFinite(boundsHeight) || boundsHeight <= 0) {
-      boundsHeight = outerScreenBounds[1];
+      boundsHeight = outerHeight;
     }
-    let dx = boundsWidth / outerScreenBounds[0];
-    let dy = boundsHeight / outerScreenBounds[1];
+    let dx = boundsWidth / outerWidth;
+    let dy = boundsHeight / outerHeight;
     let s = 1;
     if (dx > 1 || dy > 1 || (dx < 1 && dy < 1)) {
       s = 1.0 / Math.max(dy, dx);

@@ -25,7 +25,7 @@ export class RenderItemBackground extends RenderItem {
     });
   }
 
-  get type() {
+  override get type() {
     return "background";
   }
 
@@ -33,7 +33,7 @@ export class RenderItemBackground extends RenderItem {
     this.setRenderProps({ fillStyle: value });
   }
 
-  render(renderContext: RenderContextBase, renderState: RenderState) {
+  override render(renderContext: RenderContextBase, renderState: RenderState) {
     this.gml.getTags().forEach((_, index) => {
       this.initRenderEnvironments(
         renderContext,
@@ -48,8 +48,8 @@ export class RenderItemBackground extends RenderItem {
     const { p } = this;
     ctx.setRenderProps(this.renderProps);
     ctx.beginPath();
-    for (let i = 0; i < RenderItemBackground.CORNER_POINTS.length; ++i) {
-      this.projectPoint(p, RenderItemBackground.CORNER_POINTS[i]);
+    for (const [i, corner] of RenderItemBackground.CORNER_POINTS.entries()) {
+      this.projectPoint(p, corner);
       if (i === 0) {
         ctx.moveTo(p[0], p[1]);
       } else {

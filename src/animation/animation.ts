@@ -36,31 +36,35 @@ export class GMLAnimation extends EventTarget {
   static readonly EVENT_RESTART = "restart";
   static readonly EVENT_UPDATE = "update"; // dispatched on every new frame
 
-  addEventListener<K extends GMLAnimationEvent>(
+  override addEventListener<K extends GMLAnimationEvent>(
     type: K,
     listener: (event: CustomEvent<GMLAnimationState>) => void,
     options?: boolean | AddEventListenerOptions,
   ): void;
-  addEventListener(
+  override addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ): void;
-  addEventListener(type: string, listener: any, options?: any): void {
+  override addEventListener(type: string, listener: any, options?: any): void {
     super.addEventListener(type, listener, options);
   }
 
-  removeEventListener<K extends GMLAnimationEvent>(
+  override removeEventListener<K extends GMLAnimationEvent>(
     type: K,
     listener: (event: CustomEvent<GMLAnimationState>) => void,
     options?: boolean | EventListenerOptions,
   ): void;
-  removeEventListener(
+  override removeEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
     options?: boolean | EventListenerOptions,
   ): void;
-  removeEventListener(type: string, listener: any, options?: any): void {
+  override removeEventListener(
+    type: string,
+    listener: any,
+    options?: any,
+  ): void {
     super.removeEventListener(type, listener, options);
   }
 
@@ -172,14 +176,10 @@ export class GMLAnimation extends EventTarget {
     if (time === undefined) {
       return this._frame;
     }
-    let index;
-    for (index = 0; index < this.timeline.length; ++index) {
-      if (this.timeline[index].t > time) {
-        --index;
-        break;
-      }
-    }
-    return index;
+    // The last frame at or before `time` (-1 before the first frame, the timeline length
+    // when no frame comes after it; setFrame() clamps both).
+    const next = this.timeline.findIndex((frame) => frame.t > time);
+    return next === -1 ? this.timeline.length : next - 1;
   }
 
   setFrame(frame: number, time?: number) {
