@@ -1,5 +1,8 @@
 import { Canvas, type CanvasRenderingContext2D } from "skia-canvas";
-import { RenderContextBase, type RenderImageOptions } from "../../render/context.ts";
+import {
+  RenderContextBase,
+  type RenderImageOptions,
+} from "../../render/context.ts";
 import { type RenderProps } from "../../render/props/index.ts";
 
 export class RenderContextSkiaCanvas extends RenderContextBase {
@@ -69,11 +72,15 @@ export class RenderContextSkiaCanvas extends RenderContextBase {
     });
   }
 
-  renderToDataURL({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<string> {
+  renderToDataURL(
+    { type, quality }: RenderImageOptions = { type: "jpeg" },
+  ): Promise<string> {
     return Promise.resolve(this.canvas.toDataURL(type, quality));
   }
 
-  renderToBlob({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<Blob> {
+  renderToBlob(
+    { type, quality }: RenderImageOptions = { type: "jpeg" },
+  ): Promise<Blob> {
     const dataURL = this.canvas.toDataURL(type, quality);
     const [header, data] = dataURL.split(",");
     const mimeType = header.match(/:(.*?);/)?.[1] ?? `image/${type}`;

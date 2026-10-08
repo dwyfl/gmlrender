@@ -37,21 +37,32 @@ export class RenderItemTags extends RenderItem {
   }
 
   protected override getLineWidth(width: number, renderState: RenderState) {
-    return super.getLineWidth(width, renderState) * this.options.brushSizeMultiplier;
+    return (
+      super.getLineWidth(width, renderState) * this.options.brushSizeMultiplier
+    );
   }
 
   render(renderContext: RenderContextBase, renderState: RenderState) {
     const tags = this.gml.getTags();
     const tagLimit = renderState.getTagRenderLimit() ?? tags.length - 1;
     for (let i = 0; i <= tagLimit; i += 1) {
-      this.initRenderEnvironments(renderContext, renderState, this.getTagEnvironment(i));
+      this.initRenderEnvironments(
+        renderContext,
+        renderState,
+        this.getTagEnvironment(i),
+      );
       this.renderTag(renderContext, renderState, i);
     }
   }
 
-  private renderTag(renderContext: RenderContextBase, renderState: RenderState, tagIndex: number) {
+  private renderTag(
+    renderContext: RenderContextBase,
+    renderState: RenderState,
+    tagIndex: number,
+  ) {
     const drawings = this.gml.getDrawings(tagIndex) || [];
-    const drawingLimit = renderState.getDrawingRenderLimit(tagIndex) ?? drawings.length - 1;
+    const drawingLimit =
+      renderState.getDrawingRenderLimit(tagIndex) ?? drawings.length - 1;
     for (let i = 0; i <= drawingLimit; i += 1) {
       this.renderDrawing(renderContext, renderState, tagIndex, i);
     }
@@ -65,7 +76,8 @@ export class RenderItemTags extends RenderItem {
   ) {
     const strokes = this.gml.getStrokes(tagIndex, drawingIndex) || [];
     const strokeLimit =
-      renderState.getStrokeRenderLimit(tagIndex, drawingIndex) ?? strokes.length - 1;
+      renderState.getStrokeRenderLimit(tagIndex, drawingIndex) ??
+      strokes.length - 1;
     for (let i = 0; i <= strokeLimit; i += 1) {
       this.renderStroke(renderContext, renderState, tagIndex, drawingIndex, i);
     }
@@ -78,18 +90,27 @@ export class RenderItemTags extends RenderItem {
     drawingIndex: number,
     strokeIndex: number,
   ) {
-    const points = this.gml.getPoints(tagIndex, drawingIndex, strokeIndex) || [];
+    const points =
+      this.gml.getPoints(tagIndex, drawingIndex, strokeIndex) || [];
     const pointLimit =
-      renderState.getPointRenderLimit(tagIndex, drawingIndex, strokeIndex) ?? points.length - 1;
+      renderState.getPointRenderLimit(tagIndex, drawingIndex, strokeIndex) ??
+      points.length - 1;
 
     const stroke = this.gml.getStroke(tagIndex, drawingIndex, strokeIndex);
     const brushWidth = stroke?.getBrush()?.getWidth();
 
     if (typeof brushWidth === "number") {
-      renderContext.setRenderProps({ lineWidth: this.getLineWidth(brushWidth, renderState) });
+      renderContext.setRenderProps({
+        lineWidth: this.getLineWidth(brushWidth, renderState),
+      });
     }
 
-    if (points.length === 0 || pointLimit < 0 || !stroke || !stroke.isDrawing()) {
+    if (
+      points.length === 0 ||
+      pointLimit < 0 ||
+      !stroke ||
+      !stroke.isDrawing()
+    ) {
       return;
     }
 

@@ -1,5 +1,9 @@
 import { GML } from "gmljs";
-import { type GMLTagTimeline, type GMLTagTimelineFrame, GMLTimeline } from "./timeline.ts";
+import {
+  type GMLTagTimeline,
+  type GMLTagTimelineFrame,
+  GMLTimeline,
+} from "./timeline.ts";
 import { GML_time } from "../isomorphic/time.ts";
 import { clamp } from "../util.ts";
 
@@ -190,11 +194,17 @@ export class GMLAnimation extends EventTarget {
     } else {
       const newFrame = clamp(frame, 0, this.lastFrameIndex);
       const newFrameTime = this.getFrameTime(newFrame);
-      const newTime = clamp(time ?? newFrameTime, newFrameTime, this.getFrameTime(newFrame + 1));
+      const newTime = clamp(
+        time ?? newFrameTime,
+        newFrameTime,
+        this.getFrameTime(newFrame + 1),
+      );
       this._frame = newFrame;
       this._time = newTime;
     }
-    this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }));
+    this.dispatchEvent(
+      new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }),
+    );
   }
 
   setTime(time: number) {
@@ -227,13 +237,17 @@ export class GMLAnimation extends EventTarget {
     }
     this._isPlaying = true;
     this.lastStepTime = now;
-    this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_START, { detail: this.getState() }));
+    this.dispatchEvent(
+      new CustomEvent(GMLAnimation.EVENT_START, { detail: this.getState() }),
+    );
   }
 
   stop() {
     this.restartAt = null;
     this._isPlaying = false;
-    this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_STOP, { detail: this.getState() }));
+    this.dispatchEvent(
+      new CustomEvent(GMLAnimation.EVENT_STOP, { detail: this.getState() }),
+    );
   }
 
   /**
@@ -251,7 +265,11 @@ export class GMLAnimation extends EventTarget {
       this._frame = 0;
       this._time = 0;
       this.lastStepTime = now;
-      this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_RESTART, { detail: this.getState() }));
+      this.dispatchEvent(
+        new CustomEvent(GMLAnimation.EVENT_RESTART, {
+          detail: this.getState(),
+        }),
+      );
       return;
     }
     // A frame timestamp can precede the time playback was started.
@@ -266,7 +284,9 @@ export class GMLAnimation extends EventTarget {
       shouldUpdate = true;
     }
     if (shouldUpdate) {
-      this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }));
+      this.dispatchEvent(
+        new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }),
+      );
     }
     if (this._frame >= lastIndex) {
       if (this._loop) {

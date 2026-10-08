@@ -2,7 +2,10 @@ import { GML } from "gmljs";
 import { GMLView } from "./view.ts";
 import { GMLRenderer } from "./render/index.ts";
 import { renderStatic, type RenderStaticOptions } from "./static.ts";
-import type { RenderContextBase, RenderContextOptions } from "./render/context.ts";
+import type {
+  RenderContextBase,
+  RenderContextOptions,
+} from "./render/context.ts";
 
 export type RenderContextFactoryFn<Options extends RenderContextOptions> = (
   options: Options,

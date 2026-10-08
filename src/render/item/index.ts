@@ -15,4 +15,5 @@ export const RenderItemTypeMap = {
 } as const;
 
 export type RenderItemTypeKey = keyof typeof RenderItemTypeMap;
-export type RenderItemType<T extends RenderItemTypeKey> = (typeof RenderItemTypeMap)[T];
+export type RenderItemType<T extends RenderItemTypeKey> =
+  (typeof RenderItemTypeMap)[T];

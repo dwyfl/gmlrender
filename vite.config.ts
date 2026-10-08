@@ -28,5 +28,7 @@ export default defineConfig({
       typeCheck: true,
     },
   },
-  fmt: {},
+  fmt: {
+    printWidth: 80,
+  },
 });

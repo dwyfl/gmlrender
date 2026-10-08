@@ -98,7 +98,9 @@ describe("GMLAnimation.tick", () => {
   });
 
   test("schedules no timers of its own", () => {
-    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance", "Date"] });
+    vi.useFakeTimers({
+      toFake: ["setTimeout", "clearTimeout", "performance", "Date"],
+    });
     const { animation } = createAnimation();
     animation.start();
     animation.tick(1000);

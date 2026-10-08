@@ -25,7 +25,10 @@ function makeRenderState(width = 320, height = 240): RenderState {
 describe("RenderItemBackground", () => {
   test("fills with white (#fff) by default", () => {
     const ctx = new MockContext();
-    new RenderItemBackground(new GML(SINGLE_TAG_GML)).render(ctx, makeRenderState());
+    new RenderItemBackground(new GML(SINGLE_TAG_GML)).render(
+      ctx,
+      makeRenderState(),
+    );
 
     const fillStyles = ctx
       .only("setRenderProps")
@@ -37,7 +40,10 @@ describe("RenderItemBackground", () => {
 
   test("fills with a custom color when one is provided", () => {
     const ctx = new MockContext();
-    new RenderItemBackground(new GML(SINGLE_TAG_GML), "#abcdef").render(ctx, makeRenderState());
+    new RenderItemBackground(new GML(SINGLE_TAG_GML), "#abcdef").render(
+      ctx,
+      makeRenderState(),
+    );
 
     const fillStyles = ctx
       .only("setRenderProps")
@@ -48,7 +54,10 @@ describe("RenderItemBackground", () => {
 
   test("draws a closed 4-corner path (beginPath + moveTo + 3×lineTo + closePath + fill)", () => {
     const ctx = new MockContext(320, 240);
-    new RenderItemBackground(new GML(SINGLE_TAG_GML)).render(ctx, makeRenderState(320, 240));
+    new RenderItemBackground(new GML(SINGLE_TAG_GML)).render(
+      ctx,
+      makeRenderState(320, 240),
+    );
 
     expect(ctx.only("beginPath")).toHaveLength(1);
     expect(ctx.only("moveTo")).toHaveLength(1);
@@ -59,7 +68,10 @@ describe("RenderItemBackground", () => {
 
   test("path corners land on the canvas edges", () => {
     const ctx = new MockContext(320, 240);
-    new RenderItemBackground(new GML(SINGLE_TAG_GML)).render(ctx, makeRenderState(320, 240));
+    new RenderItemBackground(new GML(SINGLE_TAG_GML)).render(
+      ctx,
+      makeRenderState(320, 240),
+    );
 
     const corners = [...ctx.only("moveTo"), ...ctx.only("lineTo")].map(
       (c) => `${Math.round(c.x)},${Math.round(c.y)}`,

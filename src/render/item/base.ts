@@ -1,5 +1,8 @@
 import { vec3, mat3, vec2, type ReadonlyVec3 } from "gl-matrix";
-import { type ClientEnvironment, TagEnvironment } from "../../environment/index.ts";
+import {
+  type ClientEnvironment,
+  TagEnvironment,
+} from "../../environment/index.ts";
 import { BaseRenderProps, type RenderProps } from "../props/index.ts";
 import { GML } from "gmljs";
 import { RenderState } from "../state.ts";
@@ -19,14 +22,19 @@ export abstract class RenderItem {
   constructor(gml: GML) {
     this.gml = gml;
     this.renderProps = new BaseRenderProps();
-    this.tagEnvironments = gml.getTags().map((item) => new TagEnvironment(item));
+    this.tagEnvironments = gml
+      .getTags()
+      .map((item) => new TagEnvironment(item));
   }
 
   get type() {
     return "base";
   }
 
-  abstract render(renderContext: RenderContextBase, renderState: RenderState): void;
+  abstract render(
+    renderContext: RenderContextBase,
+    renderState: RenderState,
+  ): void;
 
   getRenderProps() {
     return this.renderProps.toObject();
@@ -63,7 +71,8 @@ export abstract class RenderItem {
     this.clientEnvironment = clientEnvironment;
     this.tagEnvironment = tagEnvironment;
     const gmlBounds = tagEnvironment.getScreenBounds();
-    this.contentScale = gmlBounds[0] > 0 ? clientScreenBounds[0] / gmlBounds[0] : 1;
+    this.contentScale =
+      gmlBounds[0] > 0 ? clientScreenBounds[0] / gmlBounds[0] : 1;
     this.initRenderProps(renderContext, renderState);
   }
 
@@ -83,7 +92,11 @@ export abstract class RenderItem {
   }
 
   projectPoint(p: vec3, point: ReadonlyVec3) {
-    if (!this.tagEnvironment || !this.clientEnvironment || !this.clientScreenBounds) {
+    if (
+      !this.tagEnvironment ||
+      !this.clientEnvironment ||
+      !this.clientScreenBounds
+    ) {
       throw new Error("Projection environments not initialized");
     }
     // Center on origin
@@ -102,7 +115,10 @@ export abstract class RenderItem {
     vec3.add(p, p, this.clientEnvironment.getOffset());
   }
 
-  private static getScreenRatioTransform(innerScreenBounds: vec2, outerScreenBounds: vec2) {
+  private static getScreenRatioTransform(
+    innerScreenBounds: vec2,
+    outerScreenBounds: vec2,
+  ) {
     const m = mat3.create();
     let [boundsWidth, boundsHeight] = innerScreenBounds;
     if (!Number.isFinite(boundsWidth) || boundsWidth <= 0) {

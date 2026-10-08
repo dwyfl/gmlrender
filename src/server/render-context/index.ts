@@ -1,4 +1,7 @@
-import type { RenderContextBase, RenderContextDimensions } from "../../render/context.ts";
+import type {
+  RenderContextBase,
+  RenderContextDimensions,
+} from "../../render/context.ts";
 import { RenderContextNodeCanvas } from "./node-canvas.ts";
 import { RenderContextSkiaCanvas } from "./skia-canvas.ts";
 
@@ -19,15 +22,19 @@ export type ServerRenderContextOptions =
 export type ServerRenderContextType = ServerRenderContextOptions["type"];
 
 export class ServerRenderContext {
-  static createRenderContext(this: void, options: ServerRenderContextOptions): RenderContextBase {
+  static createRenderContext(
+    this: void,
+    options: ServerRenderContextOptions,
+  ): RenderContextBase {
     switch (options.type) {
       case "node-canvas":
         return new RenderContextNodeCanvas(options.width, options.height);
       case "skia-canvas":
         return new RenderContextSkiaCanvas(options.width, options.height);
       default:
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        throw new Error(`Invalid render context type "${(options as { type: unknown }).type}"`);
+        throw new Error(
+          `Invalid render context type "${String((options as { type: unknown }).type)}"`,
+        );
     }
   }
 }

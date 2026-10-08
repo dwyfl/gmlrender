@@ -5,7 +5,10 @@ export class RenderContextHtmlCanvas extends RenderContextCanvas2D<HTMLCanvasEle
   constructor(canvas: string);
   constructor(canvas: HTMLCanvasElement);
   constructor(width: number, height: number);
-  constructor(canvasOrWidth: string | HTMLCanvasElement | number, height?: number) {
+  constructor(
+    canvasOrWidth: string | HTMLCanvasElement | number,
+    height?: number,
+  ) {
     let canvas: HTMLCanvasElement;
     if (typeof canvasOrWidth === "string") {
       const canvasEl = document.getElementById(canvasOrWidth);
@@ -27,14 +30,19 @@ export class RenderContextHtmlCanvas extends RenderContextCanvas2D<HTMLCanvasEle
     super(canvas, ctx);
   }
 
-  renderToDataURL({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<string> {
+  renderToDataURL(
+    { type, quality }: RenderImageOptions = { type: "jpeg" },
+  ): Promise<string> {
     return Promise.resolve(this.canvas.toDataURL(`image/${type}`, quality));
   }
 
-  renderToBlob({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<Blob> {
+  renderToBlob(
+    { type, quality }: RenderImageOptions = { type: "jpeg" },
+  ): Promise<Blob> {
     return new Promise((resolve, reject) => {
       this.canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error("Failed to create blob."))),
+        (blob) =>
+          blob ? resolve(blob) : reject(new Error("Failed to create blob.")),
         `image/${type}`,
         quality,
       );

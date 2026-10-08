@@ -66,8 +66,10 @@ function computeGMLSeed(gml: GML): number {
         const points = gml.getPoints(t, d, s) ?? [];
         for (let p = 0; p < Math.min(3, points.length); p++) {
           const xyz = points[p].getXYZ();
-          seed = (Math.imul(seed, 1664525) + Math.round((xyz[0] ?? 0) * 100000)) | 0;
-          seed = (Math.imul(seed, 1664525) + Math.round((xyz[1] ?? 0) * 100000)) | 0;
+          seed =
+            (Math.imul(seed, 1664525) + Math.round((xyz[0] ?? 0) * 100000)) | 0;
+          seed =
+            (Math.imul(seed, 1664525) + Math.round((xyz[1] ?? 0) * 100000)) | 0;
         }
       }
     }
@@ -122,13 +124,20 @@ export class RenderItemDrips extends RenderItem {
     if (options.dripSpeed !== undefined && !isNaN(options.dripSpeed)) {
       this.options.dripSpeed = Math.min(3600, Math.max(0, options.dripSpeed));
     }
-    if (options.dripEasing !== undefined && typeof options.dripEasing === "function") {
+    if (
+      options.dripEasing !== undefined &&
+      typeof options.dripEasing === "function"
+    ) {
       this.options.dripEasing = options.dripEasing;
     }
     this._dripPoints = this._calculateDripPoints();
   }
 
-  private static _prngRatio(prng: () => number, value: number, ratio: number): number {
+  private static _prngRatio(
+    prng: () => number,
+    value: number,
+    ratio: number,
+  ): number {
     ratio = Math.max(0, Math.min(1, ratio));
     return value * (1 - ratio) + value * ratio * prng();
   }
@@ -162,14 +171,19 @@ export class RenderItemDrips extends RenderItem {
 
       // Stroke boundary: paint pools at start and end of each stroke
       const isStrokeStart = frame.point === 0;
-      const isStrokeEnd = !next || next.stroke !== frame.stroke || next.drawing !== frame.drawing;
+      const isStrokeEnd =
+        !next || next.stroke !== frame.stroke || next.drawing !== frame.drawing;
 
       if (isStrokeStart || isStrokeEnd) {
         score += 1.0;
       }
 
       // Direction change within the same stroke (> 30°)
-      if (prev && prev.stroke === frame.stroke && prev.drawing === frame.drawing) {
+      if (
+        prev &&
+        prev.stroke === frame.stroke &&
+        prev.drawing === frame.drawing
+      ) {
         const d1 = prev.direction;
         const d2 = frame.direction;
         const len1 = Math.sqrt(d1.x * d1.x + d1.y * d1.y);
@@ -184,7 +198,12 @@ export class RenderItemDrips extends RenderItem {
       }
 
       // Speed slowdown within the same stroke (> 40% drop)
-      if (prev && prev.stroke === frame.stroke && prev.speed > 0 && frame.speed > 0) {
+      if (
+        prev &&
+        prev.stroke === frame.stroke &&
+        prev.speed > 0 &&
+        frame.speed > 0
+      ) {
         const speedRatio = frame.speed / prev.speed;
         if (speedRatio < 0.6) {
           score += (1 - speedRatio) * 0.6;
@@ -213,11 +232,19 @@ export class RenderItemDrips extends RenderItem {
         if (score <= 0) continue;
 
         // Probability capped at 1; DRIP_SCALE tunes the expected count
-        const probability = Math.min(1, score * this.options.dripFactor * DRIP_SCALE);
+        const probability = Math.min(
+          1,
+          score * this.options.dripFactor * DRIP_SCALE,
+        );
         if (prng() >= probability) continue;
 
         const frame = timeline[i];
-        const point = this.gml.getPoint(frame.tag, frame.drawing, frame.stroke, frame.point);
+        const point = this.gml.getPoint(
+          frame.tag,
+          frame.drawing,
+          frame.stroke,
+          frame.point,
+        );
         if (!point) continue;
 
         const xyz = point.getXYZ();
@@ -228,8 +255,16 @@ export class RenderItemDrips extends RenderItem {
           pointIndex: frame.point,
           t: frame.t,
           xyz: [xyz[0] ?? 0, xyz[1] ?? 0, xyz[2] ?? 0],
-          dripLength: RenderItemDrips._prngRatio(prng, this.options.dripLength, 0.9),
-          dripSpeed: RenderItemDrips._prngRatio(prng, this.options.dripSpeed, 0.5),
+          dripLength: RenderItemDrips._prngRatio(
+            prng,
+            this.options.dripLength,
+            0.9,
+          ),
+          dripSpeed: RenderItemDrips._prngRatio(
+            prng,
+            this.options.dripSpeed,
+            0.5,
+          ),
         });
       }
     }
@@ -254,7 +289,8 @@ export class RenderItemDrips extends RenderItem {
       }
 
       const elapsed = time - drip.t;
-      const length = drip.dripLength * this.options.dripEasing(elapsed / drip.dripSpeed);
+      const length =
+        drip.dripLength * this.options.dripEasing(elapsed / drip.dripSpeed);
       if (length <= 0) {
         continue;
       }

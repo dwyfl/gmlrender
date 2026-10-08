@@ -30,7 +30,9 @@ export async function matchImageSnapshot(
   { threshold = 0.1 }: { threshold?: number } = {},
 ): Promise<MatchResult | null> {
   const buf =
-    data instanceof ArrayBuffer ? Buffer.from(data) : Buffer.from(await data.arrayBuffer());
+    data instanceof ArrayBuffer
+      ? Buffer.from(data)
+      : Buffer.from(await data.arrayBuffer());
   const rendered = PNG.sync.read(buf);
 
   if (!existsSync(snapshotPath)) {
@@ -44,7 +46,10 @@ export async function matchImageSnapshot(
 
   const reference = PNG.sync.read(readFileSync(snapshotPath));
 
-  if (rendered.width !== reference.width || rendered.height !== reference.height) {
+  if (
+    rendered.width !== reference.width ||
+    rendered.height !== reference.height
+  ) {
     throw new Error(
       `Image dimensions differ: rendered ${rendered.width}×${rendered.height}, ` +
         `reference ${reference.width}×${reference.height}. ` +
@@ -54,9 +59,16 @@ export async function matchImageSnapshot(
 
   const { width, height } = reference;
   const diff = new PNG({ width, height });
-  const mismatchedPixels = pixelmatch(reference.data, rendered.data, diff.data, width, height, {
-    threshold,
-  });
+  const mismatchedPixels = pixelmatch(
+    reference.data,
+    rendered.data,
+    diff.data,
+    width,
+    height,
+    {
+      threshold,
+    },
+  );
 
   return {
     mismatchedPixels,

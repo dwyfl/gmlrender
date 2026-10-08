@@ -5,7 +5,10 @@ export class RenderState {
   clientEnvironment: ClientEnvironment;
   animationState: GMLAnimationState;
 
-  constructor(clientEnvironment: ClientEnvironment, animationState: GMLAnimationState) {
+  constructor(
+    clientEnvironment: ClientEnvironment,
+    animationState: GMLAnimationState,
+  ) {
     this.clientEnvironment = clientEnvironment;
     this.animationState = animationState;
   }
@@ -34,7 +37,11 @@ export class RenderState {
       : undefined;
   }
 
-  getPointRenderLimit(tagIndex: number, drawingIndex: number, strokeIndex: number) {
+  getPointRenderLimit(
+    tagIndex: number,
+    drawingIndex: number,
+    strokeIndex: number,
+  ) {
     const { frame } = this.animationState;
     return frame &&
       tagIndex === frame.tag &&

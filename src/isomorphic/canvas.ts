@@ -31,7 +31,11 @@ export function createCanvas(...args: [string] | [number, number]): GMLCanvas {
   if (typeof args[0] === "string") {
     return getCanvasById(args[0]);
   }
-  if (args.length < 2 || typeof args[0] !== "number" || typeof args[1] !== "number") {
+  if (
+    args.length < 2 ||
+    typeof args[0] !== "number" ||
+    typeof args[1] !== "number"
+  ) {
     throw new Error(`Bad canvas dimensions: ${args[0]}, ${args[1]}`);
   }
   if (typeof document === "undefined") {

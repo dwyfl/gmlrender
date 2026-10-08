@@ -1,6 +1,12 @@
 import { describe, test, expect, beforeEach, afterEach } from "vite-plus/test";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,7 +85,10 @@ describe("CLI", () => {
   });
 
   test("exits with non-zero when the input file does not exist", () => {
-    const result = run([join(tmpDir, "no-such-file.xml"), join(tmpDir, "out.png")]);
+    const result = run([
+      join(tmpDir, "no-such-file.xml"),
+      join(tmpDir, "out.png"),
+    ]);
     expect(result.status).not.toBe(0);
   });
 });

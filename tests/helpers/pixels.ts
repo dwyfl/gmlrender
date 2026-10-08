@@ -18,9 +18,13 @@ export interface PixelReader {
   _png: PNG;
 }
 
-export async function pixelReaderfromDataURL(data: Blob | ArrayBuffer): Promise<PixelReader> {
+export async function pixelReaderfromDataURL(
+  data: Blob | ArrayBuffer,
+): Promise<PixelReader> {
   const buf =
-    data instanceof ArrayBuffer ? Buffer.from(data) : Buffer.from(await data.arrayBuffer());
+    data instanceof ArrayBuffer
+      ? Buffer.from(data)
+      : Buffer.from(await data.arrayBuffer());
   const png = PNG.sync.read(buf);
   return {
     width: png.width,
@@ -53,6 +57,8 @@ export async function pixelReaderfromDataURL(data: Blob | ArrayBuffer): Promise<
   };
 }
 
-export const isWhite = (px: Pixel): boolean => px.r > 200 && px.g > 200 && px.b > 200 && px.a > 200;
+export const isWhite = (px: Pixel): boolean =>
+  px.r > 200 && px.g > 200 && px.b > 200 && px.a > 200;
 
-export const isDark = (px: Pixel): boolean => px.r < 50 && px.g < 50 && px.b < 50 && px.a > 200;
+export const isDark = (px: Pixel): boolean =>
+  px.r < 50 && px.g < 50 && px.b < 50 && px.a > 200;

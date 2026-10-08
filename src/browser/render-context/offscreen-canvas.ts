@@ -18,7 +18,9 @@ export class RenderContextOffscreenCanvas extends RenderContextCanvas2D<Offscree
     super(canvas, ctx);
   }
 
-  async renderToDataURL(options: RenderImageOptions = { type: "jpeg" }): Promise<string> {
+  async renderToDataURL(
+    options: RenderImageOptions = { type: "jpeg" },
+  ): Promise<string> {
     // toDataURL() is not native for OffscreenCanvas
     const blob = await this.renderToBlob(options);
     const buffer = await blob.arrayBuffer();
@@ -31,7 +33,9 @@ export class RenderContextOffscreenCanvas extends RenderContextCanvas2D<Offscree
     return `data:${blob.type};base64,${btoa(binary)}`;
   }
 
-  renderToBlob({ type, quality }: RenderImageOptions = { type: "jpeg" }): Promise<Blob> {
+  renderToBlob(
+    { type, quality }: RenderImageOptions = { type: "jpeg" },
+  ): Promise<Blob> {
     return this.canvas.convertToBlob({ type: `image/${type}`, quality });
   }
 }

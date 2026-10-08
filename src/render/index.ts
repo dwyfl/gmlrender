@@ -54,8 +54,16 @@ export class GMLRenderer {
     return this.renderItems.find(({ item }) => item.type === type);
   }
 
-  addRenderItem(item: RenderItem, index: number | null = null, visible: boolean = true) {
-    this.renderItems.splice(index === null ? this.renderItems.length : index, 0, { item, visible });
+  addRenderItem(
+    item: RenderItem,
+    index: number | null = null,
+    visible: boolean = true,
+  ) {
+    this.renderItems.splice(
+      index === null ? this.renderItems.length : index,
+      0,
+      { item, visible },
+    );
   }
 
   addRenderItems(items: RenderItem[]) {

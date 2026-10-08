@@ -56,7 +56,9 @@ export class TagEnvironment extends Environment {
 
   private getClientDefaults(tag: GMLTag) {
     const clientName = tag.getClientName();
-    return DEFAULT_CLIENT_ENVS.find((env) => env.clientNames.includes(clientName));
+    return DEFAULT_CLIENT_ENVS.find((env) =>
+      env.clientNames.includes(clientName),
+    );
   }
 
   private getTransformFromEnvironment(up?: vec3, rotation?: vec3): mat3 {

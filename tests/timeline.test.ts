@@ -34,7 +34,8 @@ describe("GMLTimeline", () => {
   });
 
   it("fills missing timestamps using fps", () => {
-    const timeline = new GMLTimeline(new GML(xmlWithoutTimes)).timelines[0] ?? [];
+    const timeline =
+      new GMLTimeline(new GML(xmlWithoutTimes)).timelines[0] ?? [];
     expect(timeline.length).toBe(2);
     assertClose(timeline[0]?.t ?? -1, 0);
     assertClose(timeline[1]?.t ?? -1, 1 / 60);
@@ -59,7 +60,8 @@ describe("GMLTimeline", () => {
 
   it("keeps advancing custom fps frames across strokes", () => {
     const timeline =
-      new GMLTimeline(new GML(xmlTwoStrokes), { useCustomFps: true, fps: 10 }).timelines[0] ?? [];
+      new GMLTimeline(new GML(xmlTwoStrokes), { useCustomFps: true, fps: 10 })
+        .timelines[0] ?? [];
     expect(timeline.map((frame) => frame.t)).toEqual([0, 0.1]);
   });
 

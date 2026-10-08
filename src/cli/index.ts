@@ -26,11 +26,15 @@ program
   .option("-h, --height <size>", "force image height", parseSize, 768)
   .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
-    new Option("-f, --format <format>", "output format").choices(["png", "jpg"]).default("png"),
+    new Option("-f, --format <format>", "output format")
+      .choices(["png", "jpg"])
+      .default("png"),
   )
   .optionsGroup("Effect options")
   .option("--drips", "enable drip effect (experimental)")
-  .option("--drip-factor <value>", "drip factor 0-1 (default 0.2)", (v) => parseFloat(v))
+  .option("--drip-factor <value>", "drip factor 0-1 (default 0.2)", (v) =>
+    parseFloat(v),
+  )
   .parse(process.argv);
 
 const options = program.opts();
@@ -63,7 +67,9 @@ for (const file of files) {
       } else {
         // out can be both file/directory
         if (fs.existsSync(out)) {
-          outFile = fs.lstatSync(out).isDirectory() ? path.join(out, gmlFileExt) : out;
+          outFile = fs.lstatSync(out).isDirectory()
+            ? path.join(out, gmlFileExt)
+            : out;
         } else {
           if (!fs.existsSync(path.dirname(out))) {
             throw new Error(`Cannot write "${out}", directory does not exist.`);

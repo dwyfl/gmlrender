@@ -1,4 +1,11 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from "vite-plus/test";
+import {
+  describe,
+  test,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+} from "vite-plus/test";
 import { createGMLView, createGMLImage } from "../src/server/index.ts";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -9,11 +16,25 @@ import { matchImageSnapshot } from "./helpers/snapshots.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const example000 = readFileSync(join(__dirname, "./data/example000.xml"), "utf8");
-const example001 = readFileSync(join(__dirname, "./data/example001.xml"), "utf8");
-const exampleBrush = readFileSync(join(__dirname, "./data/example-brush.xml"), "utf8");
+const example000 = readFileSync(
+  join(__dirname, "./data/example000.xml"),
+  "utf8",
+);
+const example001 = readFileSync(
+  join(__dirname, "./data/example001.xml"),
+  "utf8",
+);
+const exampleBrush = readFileSync(
+  join(__dirname, "./data/example-brush.xml"),
+  "utf8",
+);
 
-const size = { type: "node-canvas", width: 320, height: 240, format: "png" } as const;
+const size = {
+  type: "node-canvas",
+  width: 320,
+  height: 240,
+  format: "png",
+} as const;
 
 const isRed = (px: { r: number; g: number; b: number; a: number }) =>
   px.r > 200 && px.g < 60 && px.b < 60 && px.a > 200;
@@ -97,7 +118,10 @@ describe("Preview: image snapshots", () => {
       join(__dirname, "snapshots/empty-document.png"),
     );
     if (result) {
-      expect(result.mismatchedPixels, `${result.mismatchedPixels} pixels differ`).toBe(0);
+      expect(
+        result.mismatchedPixels,
+        `${result.mismatchedPixels} pixels differ`,
+      ).toBe(0);
     }
   });
 
@@ -112,7 +136,10 @@ describe("Preview: image snapshots", () => {
       join(__dirname, "snapshots/basic-tag.png"),
     );
     if (result) {
-      expect(result.mismatchedPixels, `${result.mismatchedPixels} pixels differ`).toBe(0);
+      expect(
+        result.mismatchedPixels,
+        `${result.mismatchedPixels} pixels differ`,
+      ).toBe(0);
     }
   });
 });
@@ -132,7 +159,9 @@ describe("createGMLImage options", () => {
   test("brushSizeMultiplier scales the default line width", async () => {
     const [normal, thick] = await Promise.all([
       createGMLImage(example001, size).then(pixelReaderfromDataURL),
-      createGMLImage(example001, { ...size, brushSizeMultiplier: 3 }).then(pixelReaderfromDataURL),
+      createGMLImage(example001, { ...size, brushSizeMultiplier: 3 }).then(
+        pixelReaderfromDataURL,
+      ),
     ]);
     expect(thick.count(isDark)).toBeGreaterThan(normal.count(isDark) * 2);
   });
@@ -153,7 +182,9 @@ describe("createGMLImage options", () => {
       <stroke><pt><x>0.1</x><y>0.1</y></pt><pt><x>0.4</x><y>0.1</y></pt><pt><x>0.4</x><y>0.4</y></pt></stroke>
       <stroke><pt><x>0.6</x><y>0.6</y></pt><pt><x>0.9</x><y>0.9</y></pt></stroke>
     </drawing></tag></gml>`;
-    const pixels = await pixelReaderfromDataURL(await createGMLImage(gml, size));
+    const pixels = await pixelReaderfromDataURL(
+      await createGMLImage(gml, size),
+    );
     let darkInLowerRight = 0;
     for (let y = 150; y < 240; y++) {
       for (let x = 200; x < 320; x++) {
@@ -169,7 +200,9 @@ describe("createGMLImage options", () => {
 // ---------------------------------------------------------------------------
 describe("Degenerate documents", () => {
   test("a document without any <tag> renders without throwing", async () => {
-    await expect(createGMLImage("<gml></gml>", size)).resolves.toBeInstanceOf(ArrayBuffer);
+    await expect(createGMLImage("<gml></gml>", size)).resolves.toBeInstanceOf(
+      ArrayBuffer,
+    );
   });
 
   test("a zero-duration document has finite time and position", () => {
@@ -208,7 +241,9 @@ function createCountingView(gml = SHORT_GML) {
 
 describe("Playback lifecycle", () => {
   beforeEach(() => {
-    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance", "Date"] });
+    vi.useFakeTimers({
+      toFake: ["setTimeout", "clearTimeout", "performance", "Date"],
+    });
   });
   afterEach(() => {
     vi.useRealTimers();

@@ -26,8 +26,16 @@ export class RenderHelper {
     clientEnv: ClientEnvironment,
     point: Point3D,
   ): Point3D {
-    const screenBounds = vec3.fromValues(clientEnv.screenBounds[0], clientEnv.screenBounds[0], 0);
-    const screenCenter = vec3.fromValues(clientEnv.screenCenter[0], clientEnv.screenCenter[1], 0);
+    const screenBounds = vec3.fromValues(
+      clientEnv.screenBounds[0],
+      clientEnv.screenBounds[0],
+      0,
+    );
+    const screenCenter = vec3.fromValues(
+      clientEnv.screenCenter[0],
+      clientEnv.screenCenter[1],
+      0,
+    );
     const p1 = vec3.create();
     const p2 = vec3.fromValues(
       point.x - 0.5,

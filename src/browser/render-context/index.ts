@@ -1,4 +1,7 @@
-import type { RenderContextBase, RenderContextDimensions } from "../../render/context.ts";
+import type {
+  RenderContextBase,
+  RenderContextDimensions,
+} from "../../render/context.ts";
 import { RenderContextHtmlCanvas } from "./html-canvas.ts";
 import { RenderContextOffscreenCanvas } from "./offscreen-canvas.ts";
 
@@ -20,7 +23,10 @@ export type BrowserRenderContextOptions =
 export type BrowserRenderContextType = BrowserRenderContextOptions["type"];
 
 export class BrowserRenderContext {
-  static createRenderContext(this: void, options: BrowserRenderContextOptions): RenderContextBase {
+  static createRenderContext(
+    this: void,
+    options: BrowserRenderContextOptions,
+  ): RenderContextBase {
     switch (options.type) {
       case "html-canvas":
         return options.canvas
@@ -29,8 +35,9 @@ export class BrowserRenderContext {
       case "offscreen-canvas":
         return new RenderContextOffscreenCanvas(options.width, options.height);
       default:
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        throw new Error(`Invalid render context type "${(options as { type: unknown }).type}"`);
+        throw new Error(
+          `Invalid render context type "${String((options as { type: unknown }).type)}"`,
+        );
     }
   }
 }

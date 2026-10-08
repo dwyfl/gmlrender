@@ -91,7 +91,9 @@ describe("RenderItemDrips — drip point selection", () => {
     itemMax.setOptions({ dripFactor: 1 });
     itemMax.render(ctxMax, state);
 
-    expect(ctxMax.only("lineTo").length).toBeGreaterThan(ctxDefault.only("lineTo").length);
+    expect(ctxMax.only("lineTo").length).toBeGreaterThan(
+      ctxDefault.only("lineTo").length,
+    );
   });
 
   test("renders nothing before any points have been drawn (time=0)", () => {
@@ -174,7 +176,12 @@ describe("RenderItemDrips — drip direction", () => {
 
 describe("renderStatic — drips option", () => {
   test("drips are off by default", async () => {
-    const size = { type: "node-canvas", width: 320, height: 240, format: "png" } as const;
+    const size = {
+      type: "node-canvas",
+      width: 320,
+      height: 240,
+      format: "png",
+    } as const;
     const [blobDefault, blobOff, blobOn] = await Promise.all([
       createGMLImage(example002, size),
       createGMLImage(example002, { ...size, drips: false }),
@@ -194,7 +201,8 @@ describe("renderStatic — drips option", () => {
   });
 
   test("drips: true renders more ink than drips: false", async () => {
-    const { pixelReaderfromDataURL, isDark } = await import("./helpers/pixels.ts");
+    const { pixelReaderfromDataURL, isDark } =
+      await import("./helpers/pixels.ts");
 
     const [blobOff, blobOn] = await Promise.all([
       createGMLImage(example002, {
@@ -223,7 +231,8 @@ describe("renderStatic — drips option", () => {
 
   test("dripFactor is forwarded to the render item", async () => {
     // dripFactor=1 should produce more ink than dripFactor=0.2 (default)
-    const { pixelReaderfromDataURL, isDark } = await import("./helpers/pixels.ts");
+    const { pixelReaderfromDataURL, isDark } =
+      await import("./helpers/pixels.ts");
 
     const [blobLow, blobHigh] = await Promise.all([
       createGMLImage(example002, {

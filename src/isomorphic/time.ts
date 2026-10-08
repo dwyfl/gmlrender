@@ -9,7 +9,9 @@ const FALLBACK_FRAME_MS = 16;
 // otherwise fall back to timers (Node.js, Deno, shared/service workers).
 // Timer handles are converted with unary plus: Node.js returns a Timeout object (with
 // Symbol.toPrimitive), other runtimes return a number.
-export const GML_requestAnimationFrame: (callback: (time: number) => void) => number =
+export const GML_requestAnimationFrame: (
+  callback: (time: number) => void,
+) => number =
   typeof globalThis.requestAnimationFrame === "function"
     ? globalThis.requestAnimationFrame.bind(globalThis)
     : (callback: (time: number) => void) =>

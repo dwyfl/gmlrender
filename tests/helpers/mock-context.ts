@@ -1,4 +1,7 @@
-import { RenderContextBase, type RenderImageOptions } from "../../src/render/context.ts";
+import {
+  RenderContextBase,
+  type RenderImageOptions,
+} from "../../src/render/context.ts";
 import type { RenderProps } from "../../src/render/props/index.ts";
 
 // Discriminated union of every canvas API call the render pipeline can make.
@@ -78,6 +81,8 @@ export class MockContext extends RenderContextBase {
 
   /** Return all calls of a given type with full type narrowing. */
   only<T extends Call["type"]>(type: T): Extract<Call, { type: T }>[] {
-    return this.calls.filter((c): c is Extract<Call, { type: T }> => c.type === type);
+    return this.calls.filter(
+      (c): c is Extract<Call, { type: T }> => c.type === type,
+    );
   }
 }

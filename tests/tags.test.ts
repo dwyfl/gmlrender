@@ -15,7 +15,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const example001 = readFileSync(join(__dirname, "data/example001.xml"), "utf8");
-const exampleBrush = readFileSync(join(__dirname, "data/example-brush.xml"), "utf8");
+const exampleBrush = readFileSync(
+  join(__dirname, "data/example-brush.xml"),
+  "utf8",
+);
 
 function makeStateAtFrame(
   gml: GML,
@@ -111,10 +114,13 @@ describe("RenderItemTags", () => {
     const secondMoveTo = ctx.calls.findLastIndex((c) => c.type === "moveTo");
     const lineWidthAtSecondStroke = ctx.calls
       .slice(0, secondMoveTo)
-      .findLast((c) => c.type === "setRenderProps" && c.props.lineWidth !== undefined);
+      .findLast(
+        (c) => c.type === "setRenderProps" && c.props.lineWidth !== undefined,
+      );
     expect(ctx.only("moveTo")).toHaveLength(2);
     expect(
-      lineWidthAtSecondStroke?.type === "setRenderProps" && lineWidthAtSecondStroke.props.lineWidth,
+      lineWidthAtSecondStroke?.type === "setRenderProps" &&
+        lineWidthAtSecondStroke.props.lineWidth,
     ).toBe(10);
   });
 
@@ -125,7 +131,10 @@ describe("RenderItemTags", () => {
     const { timelines } = new GMLTimeline(gml);
     const lastFrame = timelines[0][timelines[0].length - 1];
 
-    new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame, 1024, 768));
+    new RenderItemTags(gml).render(
+      ctx,
+      makeStateAtFrame(gml, lastFrame, 1024, 768),
+    );
 
     const setProps = ctx.only("setRenderProps");
     expect(setProps[0]?.props.lineWidth).toBe(4);

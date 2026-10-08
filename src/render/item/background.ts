@@ -17,7 +17,9 @@ export class RenderItemBackground extends RenderItem {
   constructor(gml: GML, color?: string) {
     super(gml);
     this.p = vec3.create();
-    this.renderProps = new BackgroundRenderProps(color ? { fillStyle: color } : undefined);
+    this.renderProps = new BackgroundRenderProps(
+      color ? { fillStyle: color } : undefined,
+    );
     this.tagEnvironments.forEach((env) => {
       env.setOffsetValues(0, 0); // Don't offset the background
     });
@@ -33,7 +35,11 @@ export class RenderItemBackground extends RenderItem {
 
   render(renderContext: RenderContextBase, renderState: RenderState) {
     this.gml.getTags().forEach((_, index) => {
-      this.initRenderEnvironments(renderContext, renderState, this.getTagEnvironment(index));
+      this.initRenderEnvironments(
+        renderContext,
+        renderState,
+        this.getTagEnvironment(index),
+      );
       this.renderBackground(renderContext);
     });
   }

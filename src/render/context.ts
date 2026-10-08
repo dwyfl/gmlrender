@@ -1,6 +1,6 @@
 import { type RenderProps } from "./props/index.ts";
 
-export type RenderImageFormat = "jpeg" | "png" | "webp";
+export type RenderImageFormat = "jpeg" | "png";
 
 export interface RenderContextDimensions {
   width: number;
@@ -32,7 +32,9 @@ export abstract class RenderContextBase {
   abstract renderToBlob(options?: RenderImageOptions): Promise<Blob>;
   abstract renderToDataURL(options?: RenderImageOptions): Promise<string>;
 
-  async renderToArrayBuffer(options?: RenderImageOptions): Promise<ArrayBuffer> {
+  async renderToArrayBuffer(
+    options?: RenderImageOptions,
+  ): Promise<ArrayBuffer> {
     return await (await this.renderToBlob(options)).arrayBuffer();
   }
 }

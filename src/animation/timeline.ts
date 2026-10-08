@@ -43,7 +43,10 @@ export class GMLTimeline {
   useCustomFps: boolean;
   fps: number;
 
-  constructor(gml?: GML, { fps, useCustomFps }: Partial<GMLTimelineOptions> = {}) {
+  constructor(
+    gml?: GML,
+    { fps, useCustomFps }: Partial<GMLTimelineOptions> = {},
+  ) {
     this.useCustomFps = useCustomFps ?? false;
     this.fps = fps ?? 60;
     if (gml) {
@@ -58,7 +61,10 @@ export class GMLTimeline {
     });
   }
 
-  private static getFramesForGml(gml: GML, options: GMLTimelineOptions): GMLTagTimeline[] {
+  private static getFramesForGml(
+    gml: GML,
+    options: GMLTimelineOptions,
+  ): GMLTagTimeline[] {
     /**
      * @TODO: Use worker thread to precalculate timelines (per tag)?
      */
@@ -85,7 +91,11 @@ export class GMLTimeline {
       tag
         .getDrawings()
         ?.flatMap((drawing, index) =>
-          GMLTimeline.getFramesForDrawing(drawing, { ...context, drawing: index }, options),
+          GMLTimeline.getFramesForDrawing(
+            drawing,
+            { ...context, drawing: index },
+            options,
+          ),
         ) ?? []
     );
   }
@@ -97,7 +107,11 @@ export class GMLTimeline {
     return drawing
       .getStrokes()
       .flatMap((stroke, index) =>
-        GMLTimeline.getFramesForStroke(stroke, { ...context, stroke: index }, options),
+        GMLTimeline.getFramesForStroke(
+          stroke,
+          { ...context, stroke: index },
+          options,
+        ),
       );
   }
 

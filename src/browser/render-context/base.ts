@@ -7,7 +7,10 @@ export abstract class RenderContextCanvas2D<
   canvas: TCanvas;
   protected ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
-  constructor(canvas: TCanvas, ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  constructor(
+    canvas: TCanvas,
+    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  ) {
     super();
     this.canvas = canvas;
     this.ctx = ctx;

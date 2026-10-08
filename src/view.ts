@@ -6,7 +6,11 @@ import {
   GML_cancelAnimationFrame,
   GML_time,
 } from "./isomorphic/time.ts";
-import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
+import {
+  RenderItemBackground,
+  RenderItemTags,
+  RenderItemDrips,
+} from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
 import { clamp } from "./util.ts";
 
@@ -88,14 +92,32 @@ export class GMLView extends EventTarget {
   private _initAnimation(gml: GML) {
     if (this._animation) {
       this._animation.unload();
-      this._animation.removeEventListener(GMLAnimation.EVENT_START, this._animationEventHandler);
-      this._animation.removeEventListener(GMLAnimation.EVENT_RESTART, this._animationEventHandler);
-      this._animation.removeEventListener(GMLAnimation.EVENT_STOP, this._animationEventHandler);
+      this._animation.removeEventListener(
+        GMLAnimation.EVENT_START,
+        this._animationEventHandler,
+      );
+      this._animation.removeEventListener(
+        GMLAnimation.EVENT_RESTART,
+        this._animationEventHandler,
+      );
+      this._animation.removeEventListener(
+        GMLAnimation.EVENT_STOP,
+        this._animationEventHandler,
+      );
     }
     const animation = new GMLAnimation(gml);
-    animation.addEventListener(GMLAnimation.EVENT_START, this._animationEventHandler);
-    animation.addEventListener(GMLAnimation.EVENT_RESTART, this._animationEventHandler);
-    animation.addEventListener(GMLAnimation.EVENT_STOP, this._animationEventHandler);
+    animation.addEventListener(
+      GMLAnimation.EVENT_START,
+      this._animationEventHandler,
+    );
+    animation.addEventListener(
+      GMLAnimation.EVENT_RESTART,
+      this._animationEventHandler,
+    );
+    animation.addEventListener(
+      GMLAnimation.EVENT_STOP,
+      this._animationEventHandler,
+    );
     return animation;
   }
 
@@ -181,7 +203,11 @@ export class GMLView extends EventTarget {
   }
 
   setTime(value: number, relative = false) {
-    const time = clamp(relative ? this.animation.time + value : value, 0, this.animation.totalTime);
+    const time = clamp(
+      relative ? this.animation.time + value : value,
+      0,
+      this.animation.totalTime,
+    );
     this.animation.setFrame(this.animation.getFrameIndex(time), time);
   }
 
