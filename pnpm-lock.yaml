@@ -17,24 +17,12 @@ importers:
 
   .:
     dependencies:
-      canvas:
-        specifier: ^3.2.3
-        version: 3.2.3
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
       gl-matrix:
         specifier: ^3.4.4
         version: 3.4.4
       gmljs:
         specifier: 3.0.0-beta.4
         version: 3.0.0-beta.4
-      mediabunny:
-        specifier: ^1.61.3
-        version: 1.61.3
-      skia-canvas:
-        specifier: ^3.0.8
-        version: 3.0.8
     devDependencies:
       '@types/node':
         specifier: ^26
@@ -45,12 +33,21 @@ importers:
       bumpp:
         specifier: ^12.3.0
         version: 12.3.0
+      canvas:
+        specifier: ^3.2.3
+        version: 3.2.3
+      mediabunny:
+        specifier: ^1.61.3
+        version: 1.61.3
       pixelmatch:
         specifier: ^8.0.0
         version: 8.0.0
       pngjs:
         specifier: ^7.0.0
         version: 7.0.0
+      skia-canvas:
+        specifier: ^3.0.8
+        version: 3.0.8
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -902,10 +899,6 @@ packages:
 
   chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
-
-  commander@15.0.0:
-    resolution: {integrity: sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==}
-    engines: {node: '>=22.12.0'}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -1925,8 +1918,6 @@ snapshots:
   chai@6.3.0: {}
 
   chownr@1.1.4: {}
-
-  commander@15.0.0: {}
 
   convert-source-map@2.0.0: {}
 

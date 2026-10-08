@@ -71,8 +71,14 @@ describe("GMLView.getRenderItem", () => {
 });
 
 describe("package.json", () => {
-  test("does not export the CLI as an importable module", () => {
-    expect(Object.keys(packageJson.exports)).not.toContain("./cli");
-    expect(packageJson.bin.gmlrender).toBe("./dist/cli/index.mjs");
+  test("native and video backends are optional peer dependencies", () => {
+    const pkg: {
+      dependencies: Record<string, string>;
+      peerDependenciesMeta: Record<string, { optional: boolean }>;
+    } = packageJson;
+    for (const name of ["canvas", "skia-canvas", "mediabunny"]) {
+      expect(pkg.dependencies).not.toHaveProperty(name);
+      expect(pkg.peerDependenciesMeta[name]?.optional).toBe(true);
+    }
   });
 });

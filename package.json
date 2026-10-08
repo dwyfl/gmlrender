@@ -12,16 +12,11 @@
     "type": "git",
     "url": "git+https://github.com/dwyfl/gmlrender.git"
   },
-  "bin": {
-    "gmlrender": "./dist/cli/index.mjs"
-  },
   "files": [
     "dist"
   ],
   "type": "module",
-  "sideEffects": [
-    "./dist/cli/index.mjs"
-  ],
+  "sideEffects": false,
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -44,21 +39,36 @@
     "prepare": "vp config"
   },
   "dependencies": {
-    "canvas": "^3.2.3",
-    "commander": "^15.0.0",
     "gl-matrix": "^3.4.4",
-    "gmljs": "3.0.0-beta.4",
-    "mediabunny": "^1.61.3",
-    "skia-canvas": "^3.0.8"
+    "gmljs": "3.0.0-beta.4"
   },
   "devDependencies": {
     "@types/node": "^26",
     "@types/pngjs": "^6.0.5",
     "bumpp": "^12.3.0",
+    "canvas": "^3.2.3",
+    "mediabunny": "^1.61.3",
     "pixelmatch": "^8.0.0",
     "pngjs": "^7.0.0",
+    "skia-canvas": "^3.0.8",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "canvas": "^3.2.3",
+    "mediabunny": "^1.61.3",
+    "skia-canvas": "^3.0.8"
+  },
+  "peerDependenciesMeta": {
+    "canvas": {
+      "optional": true
+    },
+    "mediabunny": {
+      "optional": true
+    },
+    "skia-canvas": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20"

@@ -1,27 +1,27 @@
 # gmlrender
 
-- It renders [GML (Graffiti Markup Language)](https://en.wikipedia.org/wiki/Graffiti_Markup_Language) documents to images (PNG, JPG).
-- It's a JavaScript library with full TypeScript support.
-- It's a CLI tool.
+- It renders [GML (Graffiti Markup Language)](https://en.wikipedia.org/wiki/Graffiti_Markup_Language) documents to images (PNG, JPG), animations and videos.
+- It's a JavaScript library with full TypeScript support, for Node.js and browsers.
 - It's open source.
+
+Looking for the command line tool? See [gmlrender-cli](https://github.com/dwyfl/gmlrender-cli).
 
 ## Installation
 
-Install `gmlrender` via npm.
+Install `gmlrender` together with the rendering backend you use. The backends are optional
+peer dependencies, so you only install what you need.
 
-```
-npm install gmlrender
-```
+| Environment                                                           | Install                             |
+| --------------------------------------------------------------------- | ----------------------------------- |
+| Browser                                                               | `npm install gmlrender`             |
+| Browser, rendering video (`gmlrender/video`)                          | `npm install gmlrender mediabunny`  |
+| Node.js with [node-canvas](https://github.com/Automattic/node-canvas) | `npm install gmlrender canvas`      |
+| Node.js with [skia-canvas](https://github.com/samizdatco/skia-canvas) | `npm install gmlrender skia-canvas` |
 
-Install it globally to use it on the command line.
+`canvas` and `skia-canvas` download native binaries in an install script. With pnpm 10 or
+later, allow them to run with `pnpm approve-builds`.
 
-```
-npm install -g gmlrender
-```
-
-## Example
-
-Rendering images with `gmlrender` is simple.
+## Examples
 
 ### Node.js
 
@@ -31,7 +31,7 @@ import { createGMLImage } from "gmlrender/server";
 
 const gml = readFileSync("tag.gml", "utf8");
 const image = await createGMLImage(gml, {
-  type: "node-canvas",
+  type: "node-canvas", // or "skia-canvas"
   width: 1024,
   height: 768,
   background: "#eee",
@@ -41,33 +41,29 @@ const image = await createGMLImage(gml, {
 writeFileSync("tag.png", Buffer.from(image));
 ```
 
-## CLI
+### Browser
 
-Using `gmlrender` on the command line is simple.
+```typescript
+import { createGMLView } from "gmlrender/browser";
 
+const view = createGMLView(gml, {
+  type: "html-canvas",
+  canvas: document.querySelector("canvas")!,
+  width: 800,
+  height: 600,
+  drips: true,
+});
+view.start();
 ```
-$ Usage: gmlrender [options] <file> ...
 
-Render GML documents to images.
+### Video (browser)
 
-Arguments:
-  file                         GML document file(s)
+```typescript
+import { renderToVideo } from "gmlrender/video";
 
-Options:
-  -V, --version                output the version number
-  -o, --out <path>             target file or directory
-  -w, --width <size>           force image width (default: 1024)
-  -h, --height <size>          force image height (default: 768)
-  -b, --background <hexcolor>  background color (default: "white")
-  -f, --format <format>        output format (choices: "png", "jpg", default: "png")
-  --help                       print help text
-
-Effect options
-  --drips                      enable drip effect (experimental)
-  --drip-factor <value>        drip factor 0-1 (default 0.2)
-
-$ gmlrender ~/nyc/zephyr.gml
-✅ Rendered 1024x768 png file: ~/nyc/zephyr.png
-$ gmlrender ~/nyc/cope2.gml -w 1920 -h 1080 --format jpg --background #aaddff
-✅ Rendered 1920x1080 jpg file: ~/nyc/cope2.jpg
+const mp4 = await renderToVideo(gml, {
+  width: 1280,
+  height: 720,
+  format: "mp4",
+});
 ```

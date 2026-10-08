@@ -13,7 +13,6 @@ export default defineConfig({
     },
     entry: {
       index: "src/index.ts",
-      "cli/index": "src/cli/index.ts",
       browser: "src/browser/index.ts",
       server: "src/server/index.ts",
       // Separate entry, so mediabunny (an optional peer) is only resolved when used.
@@ -23,8 +22,6 @@ export default defineConfig({
       generator: "tsgo",
     },
     exports: {
-      // The CLI is only meant to be run through `bin`; importing it would execute it.
-      exclude: ["cli/index"],
       // main/types fallbacks for consumers on moduleResolution "node10".
       legacy: true,
     },
