@@ -64,10 +64,10 @@ export class RenderContextNodeCanvas extends RenderContextBase {
   }
 
   clear(color?: string) {
-    if (color === undefined) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    } else {
-      this.ctx.lineWidth = 0;
+    // Always erase first: painting a (semi-)transparent color over the previous frame
+    // would leave it visible.
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (color !== undefined) {
       this.ctx.fillStyle = color;
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }

@@ -65,6 +65,8 @@ export class GMLView extends EventTarget {
   private _renderer: GMLRenderer;
   private _animation: GMLAnimation;
   private _animationRequest: number | null = null;
+  /** Explicit clear color; undefined means "follow the background". */
+  private _clearColor: string | undefined;
 
   constructor(gml: GML | string, renderer: GMLRenderer) {
     super();
@@ -267,6 +269,7 @@ export class GMLView extends EventTarget {
    */
   setRenderOptions({
     background,
+    clearColor,
     color,
     brushSizeMultiplier,
     drips,
@@ -274,6 +277,9 @@ export class GMLView extends EventTarget {
   }: Partial<RenderOptions>) {
     if (background !== undefined) {
       this.setRenderItemProps("background", { fillStyle: background });
+    }
+    if (clearColor !== undefined) {
+      this._clearColor = clearColor;
     }
     if (color !== undefined) {
       // Tags and drips are drawn with stroke(), so the color must go to strokeStyle.
@@ -400,7 +406,20 @@ export class GMLView extends EventTarget {
   }
 
   draw() {
-    this._renderer.render(this._animation.getState());
+    this._renderer.render(this._animation.getState(), this._getClearColor());
+  }
+
+  /**
+   * The explicit clear color, or else the background color (when the background is shown).
+   */
+  private _getClearColor(): string | undefined {
+    if (this._clearColor !== undefined) {
+      return this._clearColor;
+    }
+    const background = this.getRenderItem("background");
+    return background?.visible
+      ? background.item.getRenderProps().fillStyle
+      : undefined;
   }
 
   /**

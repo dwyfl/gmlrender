@@ -74,9 +74,12 @@ export class GMLRenderer {
     this.renderItems.splice(index, 1);
   }
 
-  render(state: GMLAnimationState) {
+  /**
+   * Draws a frame. The canvas is first cleared, then filled with `clearColor` if given.
+   */
+  render(state: GMLAnimationState, clearColor?: string) {
     this.renderState.animationState = state;
-    this.renderContext.clear();
+    this.renderContext.clear(clearColor);
     this.renderItems.forEach((renderItem) => {
       if (renderItem.visible) {
         renderItem.item.render(this.renderContext, this.renderState);

@@ -27,6 +27,7 @@ export abstract class RenderContextBase {
   abstract lineTo(x: number, y: number): void;
   abstract fill(): void;
   abstract stroke(): void;
+  /** Erases the whole canvas, then fills it with `color` if one is given. */
   abstract clear(color?: string): void;
   abstract setRenderProps(props: Partial<RenderProps>): void;
   abstract renderToBlob(options?: RenderImageOptions): Promise<Blob>;

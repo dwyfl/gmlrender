@@ -429,3 +429,76 @@ describe("GMLView.setRenderOptions", () => {
     expect(pixels.count(isDark)).toBe(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Background vs. clear color (area outside the document)
+// ---------------------------------------------------------------------------
+describe("clearColor", () => {
+  // A 480×320 (3:2) document on a 320×240 (4:3) canvas: the document fills
+  // 320×213, leaving ~13px bars at the top and bottom.
+  const WIDE_GML = `<gml><tag><environment><screenbounds><x>480</x><y>320</y></screenbounds></environment>
+    <drawing><stroke><pt><x>0.4</x><y>0.4</y><t>0</t></pt><pt><x>0.6</x><y>0.4</y><t>1</t></pt></stroke></drawing></tag></gml>`;
+  const BAR = [160, 3] as const;
+  const DOCUMENT = [20, 120] as const;
+
+  const isGreen = (px: { r: number; g: number; b: number; a: number }) =>
+    px.r < 60 && px.g > 200 && px.b < 60 && px.a > 200;
+
+  test("defaults to the background color, so the whole image is filled", async () => {
+    const pixels = await pixelReaderfromDataURL(
+      await createGMLImage(WIDE_GML, { ...size, background: "#ff0000" }),
+    );
+    expect(isRed(pixels.at(...BAR))).toBe(true);
+    expect(isRed(pixels.at(...DOCUMENT))).toBe(true);
+  });
+
+  test('"transparent" keeps the area outside the document transparent', async () => {
+    const pixels = await pixelReaderfromDataURL(
+      await createGMLImage(WIDE_GML, {
+        ...size,
+        background: "#ff0000",
+        clearColor: "transparent",
+      }),
+    );
+    expect(pixels.at(...BAR).a).toBe(0);
+    expect(isRed(pixels.at(...DOCUMENT))).toBe(true);
+  });
+
+  test("can differ from the background color", async () => {
+    const pixels = await pixelReaderfromDataURL(
+      await createGMLImage(WIDE_GML, {
+        ...size,
+        background: "#ff0000",
+        clearColor: "#00ff00",
+      }),
+    );
+    expect(isGreen(pixels.at(...BAR))).toBe(true);
+    expect(isRed(pixels.at(...DOCUMENT))).toBe(true);
+  });
+
+  test("a hidden background leaves the canvas transparent", async () => {
+    const view = createGMLView(WIDE_GML, size);
+    view.setRenderItemVisible("background", false);
+    view.draw();
+    const pixels = await pixelReaderfromDataURL(
+      await view.renderContext.renderToArrayBuffer({ type: "png" }),
+    );
+    expect(pixels.at(...BAR).a).toBe(0);
+    expect(pixels.at(...DOCUMENT).a).toBe(0);
+  });
+
+  test("a semi-transparent clear color does not build up over frames", async () => {
+    const view = createGMLView(WIDE_GML, {
+      ...size,
+      clearColor: "rgba(0, 0, 0, 0.5)",
+    });
+    view.draw();
+    view.draw();
+    view.draw();
+    const pixels = await pixelReaderfromDataURL(
+      await view.renderContext.renderToArrayBuffer({ type: "png" }),
+    );
+    expect(pixels.at(...BAR).a).toBeGreaterThan(120);
+    expect(pixels.at(...BAR).a).toBeLessThan(135);
+  });
+});
