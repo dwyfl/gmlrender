@@ -67,9 +67,14 @@ export class GMLView extends EventTarget {
   }
 
   setGml(gml: GML | string) {
+    const wasPlaying = this.isPlaying;
+    this._cancelAnimationFrame();
     this._gml = this._initGml(gml);
     this._animation = this._initAnimation(this._gml);
     this._initRenderer(this._initRenderItems(this._gml));
+    if (wasPlaying) {
+      this.start();
+    }
   }
 
   private _initGml(document: GML | string) {
@@ -96,6 +101,12 @@ export class GMLView extends EventTarget {
       [GMLAnimation.EVENT_RESTART]: GMLView.EVENT_RESTART,
       [GMLAnimation.EVENT_STOP]: GMLView.EVENT_STOP,
     }[event.type];
+    if (event.type === GMLAnimation.EVENT_STOP && this._animationRequest !== null) {
+      // The animation stopped by itself (end reached without looping): draw the final frame
+      // and end the draw loop.
+      this._cancelAnimationFrame();
+      this.draw();
+    }
     if (eventType) {
       this.dispatchEvent(new CustomEvent(eventType, { detail: event.detail }));
     }
@@ -168,18 +179,17 @@ export class GMLView extends EventTarget {
 
   setPosition(value: number, relative = false) {
     const position = relative ? this.currentPosition + value : value;
-    const time = this.animation.totalTime * clamp(position, 0, 1);
-    const index = this.animation.getFrameIndex(time);
-    this.animation.setFrame(index, time);
+    this.setTime(this.animation.totalTime * clamp(position, 0, 1));
   }
 
   setTime(value: number, relative = false) {
-    this.setPosition((relative ? this.animation.time + value : value) / this.animation.totalTime);
+    const time = clamp(relative ? this.animation.time + value : value, 0, this.animation.totalTime);
+    this.animation.setFrame(this.animation.getFrameIndex(time), time);
   }
 
   get currentPosition() {
     const { time: currentTime, totalTime } = this.animation;
-    return currentTime / totalTime;
+    return totalTime > 0 ? currentTime / totalTime : 0;
   }
 
   get currentTime() {
@@ -208,17 +218,20 @@ export class GMLView extends EventTarget {
 
   restart() {
     this._animation.setFrame(0, 0);
-    this._animation.start();
+    this.start();
   }
 
   start() {
+    this._cancelAnimationFrame();
     this._animation.start();
-    this._requestAnimationFrame();
+    if (this._animation.isPlaying) {
+      this._requestAnimationFrame();
+    }
   }
 
   stop() {
-    this._animation.stop();
     this._cancelAnimationFrame();
+    this._animation.stop();
   }
 
   unload() {
@@ -265,7 +278,7 @@ export class GMLView extends EventTarget {
   }
 
   private _cancelAnimationFrame() {
-    if (this._animationRequest) {
+    if (this._animationRequest !== null) {
       GML_cancelAnimationFrame(this._animationRequest);
       this._animationRequest = null;
     }

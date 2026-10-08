@@ -18,6 +18,8 @@ export interface GMLAnimationState {
   totalTime: number;
 }
 
+const EMPTY_TIMELINE: GMLTagTimeline = [];
+
 export type GMLAnimationEvent =
   | typeof GMLAnimation.EVENT_START
   | typeof GMLAnimation.EVENT_STOP
@@ -94,13 +96,15 @@ export class GMLAnimation extends EventTarget {
   }
 
   private get timeline(): GMLTagTimeline {
-    return this.timelines[this._tag];
+    // A document without any <tag> has no timelines at all.
+    return this.timelines[this._tag] ?? EMPTY_TIMELINE;
   }
 
   unload() {
     this._tag = 0;
     this._frame = 0;
     this._time = 0;
+    this._isPlaying = false;
     this.cancelRestart();
     this.cancelAnimation();
   }
@@ -291,7 +295,11 @@ export class GMLAnimation extends EventTarget {
       this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }));
     }
     if (this._frame >= this.lastFrameIndex) {
-      this.scheduleRestart();
+      if (this._loop) {
+        this.scheduleRestart();
+      } else {
+        this.stop();
+      }
     } else if (this._isPlaying) {
       this.requestAnimationFrame();
     }

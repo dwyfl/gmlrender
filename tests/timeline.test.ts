@@ -49,6 +49,28 @@ describe("GMLTimeline", () => {
     assertClose(timeline?.[1]?.t ?? -1, 0.1);
   });
 
+  it("keeps advancing time across strokes and drawings without timestamps", () => {
+    const xml =
+      "<gml><tag><drawing><stroke><pt><x>0</x><y>0</y></pt><pt><x>1</x><y>0</y></pt></stroke><stroke><pt><x>0</x><y>1</y></pt><pt><x>1</x><y>1</y></pt></stroke></drawing><drawing><stroke><pt><x>0.5</x><y>0.5</y></pt></stroke></drawing></tag></gml>";
+    const timeline = new GMLTimeline(new GML(xml)).timelines[0] ?? [];
+    expect(timeline.length).toBe(5);
+    timeline.forEach((frame, i) => assertClose(frame.t, i / 60));
+  });
+
+  it("keeps advancing custom fps frames across strokes", () => {
+    const timeline =
+      new GMLTimeline(new GML(xmlTwoStrokes), { useCustomFps: true, fps: 10 }).timelines[0] ?? [];
+    expect(timeline.map((frame) => frame.t)).toEqual([0, 0.1]);
+  });
+
+  it("starts a new timeline for each tag", () => {
+    const xml =
+      "<gml><tag><drawing><stroke><pt><x>0</x><y>0</y></pt><pt><x>1</x><y>0</y></pt></stroke></drawing></tag><tag><drawing><stroke><pt><x>0</x><y>0</y></pt></stroke></drawing></tag></gml>";
+    const timelines = new GMLTimeline(new GML(xml)).timelines;
+    expect(timelines.length).toBe(2);
+    expect(timelines[1]?.[0]?.t).toBe(0);
+  });
+
   it("tracks tag, drawing, stroke, and point indices", () => {
     const timeline = new GMLTimeline(new GML(xmlTwoStrokes)).timelines[0] ?? [];
     expect(timeline.length).toBe(2);

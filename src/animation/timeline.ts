@@ -18,10 +18,13 @@ export type GMLTagTimelineFrame = {
  */
 export type GMLTagTimeline = GMLTagTimelineFrame[];
 
-type GMLTimelineFrameContext = {
+type GMLTimelineCursor = {
   currentFrame: number; // Index of the current frame
-  currentTimeOffset: number; // Timestamp of the current frame
   previousTimeOffset: number | undefined; // Timestamp of the previous frame
+};
+
+type GMLTimelineFrameContext = {
+  cursor: GMLTimelineCursor; // Shared by all strokes of a tag, so time keeps advancing across strokes
   tag: number; // Index of the tag
   drawing: number; // Index of the drawing
   stroke: number; // Index of the stroke
@@ -59,17 +62,18 @@ export class GMLTimeline {
     /**
      * @TODO: Use worker thread to precalculate timelines (per tag)?
      */
-    const context: GMLTimelineFrameContext = {
-      currentFrame: 0,
-      currentTimeOffset: 0,
-      previousTimeOffset: undefined,
-      tag: 0,
-      drawing: 0,
-      stroke: 0,
-    };
-    return gml
-      .getTags()
-      .map((tag, index) => GMLTimeline.getFramesForTag(tag, { ...context, tag: index }, options));
+    return gml.getTags().map((tag, index) =>
+      GMLTimeline.getFramesForTag(
+        tag,
+        {
+          cursor: { currentFrame: 0, previousTimeOffset: undefined },
+          tag: index,
+          drawing: 0,
+          stroke: 0,
+        },
+        options,
+      ),
+    );
   }
 
   private static getFramesForTag(
@@ -102,16 +106,17 @@ export class GMLTimeline {
     context: GMLTimelineFrameContext,
     { useCustomFps, fps }: GMLTimelineOptions,
   ) {
+    const { cursor } = context;
     const FPS_SECONDS = 1 / fps;
     let previousPoint: GMLPoint | undefined;
 
     return (stroke.getPoints()?.map((point, index, arr) => {
-      const previousTimeOffset = context.previousTimeOffset ?? -FPS_SECONDS;
+      const previousTimeOffset = cursor.previousTimeOffset ?? -FPS_SECONDS;
       const currentTimeOffset = useCustomFps
-        ? context.currentFrame * FPS_SECONDS
+        ? cursor.currentFrame * FPS_SECONDS
         : (point.getT() ?? previousTimeOffset + FPS_SECONDS);
       const nextTimeOffset = useCustomFps
-        ? (context.currentFrame + 1) * FPS_SECONDS
+        ? (cursor.currentFrame + 1) * FPS_SECONDS
         : (arr[index + 1]?.getT() ?? currentTimeOffset + FPS_SECONDS);
 
       const p1 = previousPoint ?? point;
@@ -138,9 +143,9 @@ export class GMLTimeline {
       // Store previous point
       previousPoint = point;
 
-      // Update context
-      context.previousTimeOffset = currentTimeOffset;
-      context.currentFrame++;
+      // Advance cursor
+      cursor.previousTimeOffset = currentTimeOffset;
+      cursor.currentFrame++;
 
       return result;
     }) ?? []) satisfies GMLTagTimelineFrame[];

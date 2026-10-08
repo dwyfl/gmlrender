@@ -38,7 +38,9 @@ export function renderStatic(
     view.setRenderItemProps("background", { fillStyle: background });
   }
   if (color) {
-    view.setRenderItemProps("tags", { fillStyle: color });
+    // Tags and drips are drawn with stroke(), so the color must go to strokeStyle.
+    view.setRenderItemProps("tags", { strokeStyle: color });
+    view.setRenderItemProps("drips", { strokeStyle: color });
   }
   if (brushSize) {
     view.setRenderItemProps("tags", { lineWidth: brushSize });

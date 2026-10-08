@@ -1,11 +1,19 @@
 #!/usr/bin/env node
-import { program, Option } from "commander";
+import { program, Option, InvalidArgumentError } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import packageJson from "../../package.json" with { type: "json" };
 import { createGMLView, createGMLImage } from "../server/index.ts";
 import { renderToWebp } from "../render/video.ts";
 import type { RenderItemDrips } from "../render/item/index.ts";
+
+function parseSize(value: string): number {
+  const size = Number(value);
+  if (!Number.isInteger(size) || size <= 0) {
+    throw new InvalidArgumentError("Must be a positive integer.");
+  }
+  return size;
+}
 
 program
   .name("gmlrender")
@@ -16,8 +24,8 @@ program
   .helpOption("--help", "print help text")
   .argument("<file...>", "GML document file(s)")
   .option("-o, --out <path>", "target file or directory")
-  .option("-w, --width <size>", "force image width", (v) => parseInt(v, 10), 1024)
-  .option("-h, --height <size>", "force image height", (v) => parseInt(v, 10), 768)
+  .option("-w, --width <size>", "force image width", parseSize, 1024)
+  .option("-h, --height <size>", "force image height", parseSize, 768)
   .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
     new Option("-f, --format <format>", "output format")

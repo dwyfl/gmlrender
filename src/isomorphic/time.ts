@@ -3,23 +3,22 @@ export const GML_time =
     ? () => performance.now()
     : () => Date.now();
 
-let timeLastFrame = 0;
+const FALLBACK_FRAME_MS = 16;
 
+// Use the native requestAnimationFrame wherever it exists (windows and dedicated workers),
+// otherwise fall back to timers (Node.js, Deno, shared/service workers).
+// Timer handles are converted with unary plus: Node.js returns a Timeout object (with
+// Symbol.toPrimitive), other runtimes return a number.
 export const GML_requestAnimationFrame: (callback: (time: number) => void) => number =
-  typeof window === "undefined"
-    ? (callback: (time: number) => void) => {
-        const timeCurrent = GML_time();
-        const timeToCallback = Math.max(0, 16 - (timeCurrent - timeLastFrame));
-        timeLastFrame = timeCurrent + timeToCallback;
-        const timeout = setTimeout(() => callback(timeCurrent + timeToCallback), timeToCallback);
-        return timeout[Symbol.toPrimitive]();
-      }
-    : window.requestAnimationFrame.bind(window);
+  typeof globalThis.requestAnimationFrame === "function"
+    ? globalThis.requestAnimationFrame.bind(globalThis)
+    : (callback: (time: number) => void) =>
+        +setTimeout(() => callback(GML_time()), FALLBACK_FRAME_MS);
 
 export const GML_cancelAnimationFrame: (handle: number) => void =
-  typeof window === "undefined"
-    ? (id: number) => clearTimeout(id)
-    : window.cancelAnimationFrame.bind(window);
+  typeof globalThis.cancelAnimationFrame === "function"
+    ? globalThis.cancelAnimationFrame.bind(globalThis)
+    : (id: number) => clearTimeout(id);
 
 export const GML_setTimeout = <Args extends unknown[]>(
   callback: (...args: Args) => void,

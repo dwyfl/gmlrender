@@ -95,16 +95,27 @@ describe("RenderItemTags", () => {
   });
 
   test("stroke without a brush tag inherits the width from the preceding stroke", () => {
-    const gml = new GML(exampleBrush);
+    // Brush width 10 differs from the default line width (4), so inheritance is observable.
+    const gml =
+      new GML(`<gml><tag><environment><screenbounds><x>320</x><y>240</y></screenbounds></environment><drawing>
+      <stroke><brush><width>10</width></brush><pt><x>0.1</x><y>0.1</y><t>0</t></pt><pt><x>0.9</x><y>0.9</y><t>1</t></pt></stroke>
+      <stroke><pt><x>0.2</x><y>0.2</y><t>2</t></pt><pt><x>0.8</x><y>0.8</y><t>3</t></pt></stroke>
+    </drawing></tag></gml>`);
     const ctx = new MockContext();
     const { timelines } = new GMLTimeline(gml);
     const lastFrame = timelines[0][timelines[0].length - 1];
 
     new RenderItemTags(gml).render(ctx, makeStateAtFrame(gml, lastFrame));
 
-    const setProps = ctx.only("setRenderProps");
-    // Second stroke has no brush tag → inherits width=4.0 from first stroke
-    expect(setProps[1]?.props.lineWidth).toBe(4);
+    // Find the line width in effect when the second stroke starts (its moveTo).
+    const secondMoveTo = ctx.calls.findLastIndex((c) => c.type === "moveTo");
+    const lineWidthAtSecondStroke = ctx.calls
+      .slice(0, secondMoveTo)
+      .findLast((c) => c.type === "setRenderProps" && c.props.lineWidth !== undefined);
+    expect(ctx.only("moveTo")).toHaveLength(2);
+    expect(
+      lineWidthAtSecondStroke?.type === "setRenderProps" && lineWidthAtSecondStroke.props.lineWidth,
+    ).toBe(10);
   });
 
   test("falls back to DEFAULT_LINE_WIDTH (4) when no brush has been declared", () => {

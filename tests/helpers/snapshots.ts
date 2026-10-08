@@ -14,7 +14,8 @@ export interface MatchResult {
  * Compare a rendered Blob against a reference PNG stored on disk.
  *
  * - If the reference file does not exist, it is created and `null` is returned
- *   (the test passes automatically on first run).
+ *   (the test passes automatically on first run). On CI (`CI` env var set) a missing
+ *   reference is an error instead, so a deleted snapshot cannot hide a regression.
  * - If the reference exists, pixelmatch compares pixel-by-pixel and the result
  *   is returned for the caller to assert against.
  *
@@ -33,6 +34,9 @@ export async function matchImageSnapshot(
   const rendered = PNG.sync.read(buf);
 
   if (!existsSync(snapshotPath)) {
+    if (process.env.CI) {
+      throw new Error(`Missing reference snapshot: ${snapshotPath}`);
+    }
     mkdirSync(dirname(snapshotPath), { recursive: true });
     writeFileSync(snapshotPath, PNG.sync.write(rendered));
     return null; // first run — reference created, nothing to compare yet

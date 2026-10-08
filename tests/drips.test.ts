@@ -174,26 +174,39 @@ describe("RenderItemDrips — drip direction", () => {
 
 describe("renderStatic — drips option", () => {
   test("drips are off by default", async () => {
-    // A render without drips should produce fewer dark pixels than one with drips
-    const [blobOff, blobOn] = await Promise.all([
-      createGMLImage(example002, "node-canvas", 320, 240, { format: "png" }),
-      createGMLImage(example002, "node-canvas", 320, 240, {
+    const size = { type: "node-canvas", width: 320, height: 240, format: "png" } as const;
+    const [blobDefault, blobOff, blobOn] = await Promise.all([
+      createGMLImage(example002, size),
+      createGMLImage(example002, { ...size, drips: false }),
+      createGMLImage(example002, {
+        type: "node-canvas",
+        width: 320,
+        height: 240,
         drips: true,
         dripFactor: 1,
         format: "png",
       }),
     ]);
 
-    // The two blobs must differ — drips add ink to the image
-    expect(Buffer.from(blobOff)).not.toEqual(Buffer.from(blobOn));
+    // The default render matches an explicit drips: false, and differs from drips: true
+    expect(Buffer.from(blobDefault).equals(Buffer.from(blobOff))).toBe(true);
+    expect(Buffer.from(blobDefault).equals(Buffer.from(blobOn))).toBe(false);
   });
 
   test("drips: true renders more ink than drips: false", async () => {
     const { pixelReaderfromDataURL, isDark } = await import("./helpers/pixels.ts");
 
     const [blobOff, blobOn] = await Promise.all([
-      createGMLImage(example002, "node-canvas", 320, 240, { format: "png" }),
-      createGMLImage(example002, "node-canvas", 320, 240, {
+      createGMLImage(example002, {
+        type: "node-canvas",
+        width: 320,
+        height: 240,
+        format: "png",
+      }),
+      createGMLImage(example002, {
+        type: "node-canvas",
+        width: 320,
+        height: 240,
         drips: true,
         dripFactor: 1,
         format: "png",
@@ -213,12 +226,18 @@ describe("renderStatic — drips option", () => {
     const { pixelReaderfromDataURL, isDark } = await import("./helpers/pixels.ts");
 
     const [blobLow, blobHigh] = await Promise.all([
-      createGMLImage(example002, "node-canvas", 320, 240, {
+      createGMLImage(example002, {
+        type: "node-canvas",
+        width: 320,
+        height: 240,
         drips: true,
         dripFactor: 0.2,
         format: "png",
       }),
-      createGMLImage(example002, "node-canvas", 320, 240, {
+      createGMLImage(example002, {
+        type: "node-canvas",
+        width: 320,
+        height: 240,
         drips: true,
         dripFactor: 1,
         format: "png",
@@ -230,6 +249,6 @@ describe("renderStatic — drips option", () => {
       pixelReaderfromDataURL(blobHigh),
     ]);
 
-    expect(pixHigh.count(isDark)).toBeGreaterThanOrEqual(pixLow.count(isDark));
+    expect(pixHigh.count(isDark)).toBeGreaterThan(pixLow.count(isDark));
   });
 });
