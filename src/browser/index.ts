@@ -6,7 +6,6 @@ import { type RenderStaticOptions } from "../static.ts";
 import { createGMLImageFactory, createGMLViewFactory } from "../factory.ts";
 
 export * from "./render-context/index.ts";
-export * from "./render-to-video.ts";
 
 export type BrowserRenderStaticOptions = Partial<RenderStaticOptions> &
   BrowserRenderContextOptions;

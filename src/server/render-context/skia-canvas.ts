@@ -1,4 +1,5 @@
-import { Canvas, type CanvasRenderingContext2D } from "skia-canvas";
+import type { Canvas, CanvasRenderingContext2D } from "skia-canvas";
+import { requireOptional } from "../require-optional.ts";
 import {
   RenderContextBase,
   type RenderImageOptions,
@@ -14,6 +15,10 @@ export class RenderContextSkiaCanvas extends RenderContextBase {
 
   constructor(width: number, height: number) {
     super();
+    const { Canvas } = requireOptional<typeof import("skia-canvas")>(
+      "skia-canvas",
+      'The "skia-canvas" render context',
+    );
     this.canvas = new Canvas(width, height);
     this.ctx = this.canvas.getContext("2d");
   }

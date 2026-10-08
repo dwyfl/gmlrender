@@ -5,6 +5,7 @@ import {
 } from "../src/render/props/index.ts";
 import { RenderContextSkiaCanvas } from "../src/server/render-context/skia-canvas.ts";
 import { RenderContextNodeCanvas } from "../src/server/render-context/node-canvas.ts";
+import { requireOptional } from "../src/server/require-optional.ts";
 
 describe("applyRenderProps", () => {
   test("ignores unknown keys, invalid values and __proto__", () => {
@@ -43,5 +44,29 @@ describe("RenderContextSkiaCanvas", () => {
     const bytes = Buffer.from(await blob.arrayBuffer());
     expect(bytes.toString("hex").startsWith(magic)).toBe(true);
     expect(blob.type).toBe(`image/${type}`);
+  });
+});
+
+describe("requireOptional", () => {
+  test("loads an installed package", () => {
+    const canvas = requireOptional<typeof import("canvas")>("canvas", "Test");
+    expect(typeof canvas.createCanvas).toBe("function");
+  });
+
+  test("explains how to install a missing package", () => {
+    let error: unknown;
+    try {
+      requireOptional("gmlrender-missing-package", 'The "test" render context');
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toContain(
+      'The "test" render context requires the optional "gmlrender-missing-package" package',
+    );
+    expect((error as Error).message).toContain(
+      "npm install gmlrender-missing-package",
+    );
+    expect((error as Error).cause).toBeInstanceOf(Error);
   });
 });

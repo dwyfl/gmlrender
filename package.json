@@ -29,6 +29,7 @@
     ".": "./dist/index.mjs",
     "./browser": "./dist/browser.mjs",
     "./server": "./dist/server.mjs",
+    "./video": "./dist/video.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

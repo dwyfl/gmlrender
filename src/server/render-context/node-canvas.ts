@@ -1,8 +1,5 @@
-import {
-  createCanvas,
-  type Canvas,
-  type CanvasRenderingContext2D,
-} from "canvas";
+import type { Canvas, CanvasRenderingContext2D } from "canvas";
+import { requireOptional } from "../require-optional.ts";
 import {
   RenderContextBase,
   type RenderImageOptions,
@@ -18,6 +15,10 @@ export class RenderContextNodeCanvas extends RenderContextBase {
 
   constructor(width: number, height: number) {
     super();
+    const { createCanvas } = requireOptional<typeof import("canvas")>(
+      "canvas",
+      'The "node-canvas" render context',
+    );
     this.canvas = createCanvas(width, height);
     this.ctx = this.canvas.getContext("2d");
   }

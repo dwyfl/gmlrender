@@ -16,6 +16,8 @@ export default defineConfig({
       "cli/index": "src/cli/index.ts",
       browser: "src/browser/index.ts",
       server: "src/server/index.ts",
+      // Separate entry, so mediabunny (an optional peer) is only resolved when used.
+      video: "src/browser/render-to-video.ts",
     },
     dts: {
       generator: "tsgo",
