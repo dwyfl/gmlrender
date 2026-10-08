@@ -16,6 +16,7 @@ import {
   type RenderItemTypeKey,
 } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
+import type { RenderOptions } from "./render/options.ts";
 import { clamp } from "./util.ts";
 
 export type GMLViewEvent =
@@ -258,6 +259,36 @@ export class GMLView extends EventTarget {
       return undefined;
     }
     return entry;
+  }
+
+  /**
+   * Applies appearance options to the built-in render items. Options that are left out keep
+   * their current value; `drips: false` hides the drips.
+   */
+  setRenderOptions({
+    background,
+    color,
+    brushSizeMultiplier,
+    drips,
+    dripFactor,
+  }: Partial<RenderOptions>) {
+    if (background !== undefined) {
+      this.setRenderItemProps("background", { fillStyle: background });
+    }
+    if (color !== undefined) {
+      // Tags and drips are drawn with stroke(), so the color must go to strokeStyle.
+      this.setRenderItemProps("tags", { strokeStyle: color });
+      this.setRenderItemProps("drips", { strokeStyle: color });
+    }
+    if (brushSizeMultiplier !== undefined) {
+      this.getRenderItem("tags")?.item.setOptions({ brushSizeMultiplier });
+    }
+    if (drips !== undefined) {
+      this.setRenderItemVisible("drips", drips);
+    }
+    if (dripFactor !== undefined) {
+      this.getRenderItem("drips")?.item.setOptions({ dripFactor });
+    }
   }
 
   setRenderItemProps(type: string, props: Partial<RenderProps>) {

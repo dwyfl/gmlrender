@@ -10,6 +10,7 @@ export {
 } from "./render/context.ts";
 export type { RenderProps } from "./render/props/index.ts";
 export type { RenderStaticOptions } from "./static.ts";
+export type { RenderOptions } from "./render/options.ts";
 export type { GMLAnimationState } from "./animation/animation.ts";
 export type {
   GMLTagTimeline,

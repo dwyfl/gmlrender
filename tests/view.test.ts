@@ -376,3 +376,56 @@ describe("Render item settings", () => {
     ).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// GMLView.setRenderOptions
+// ---------------------------------------------------------------------------
+describe("GMLView.setRenderOptions", () => {
+  test("applies each option to the built-in render items", () => {
+    const view = createGMLView(example001, size);
+    view.setRenderOptions({
+      background: "#123456",
+      color: "#ff0000",
+      brushSizeMultiplier: 2,
+      drips: true,
+      dripFactor: 0.6,
+    });
+    const background = view.getRenderItem("background");
+    const tags = view.getRenderItem("tags");
+    const drips = view.getRenderItem("drips");
+    expect(background?.item.getRenderProps().fillStyle).toBe("#123456");
+    expect(tags?.item.getRenderProps().strokeStyle).toBe("#ff0000");
+    expect(drips?.item.getRenderProps().strokeStyle).toBe("#ff0000");
+    expect(tags?.item.getOptions().brushSizeMultiplier).toBe(2);
+    expect(drips?.visible).toBe(true);
+    expect(drips?.item.getOptions().dripFactor).toBe(0.6);
+  });
+
+  test("leaves options that are not given unchanged", () => {
+    const view = createGMLView(example001, size);
+    view.setRenderOptions({ color: "#ff0000", drips: true });
+    view.setRenderOptions({ brushSizeMultiplier: 2 });
+    expect(view.getRenderItem("tags")?.item.getRenderProps().strokeStyle).toBe(
+      "#ff0000",
+    );
+    expect(view.getRenderItem("drips")?.visible).toBe(true);
+  });
+
+  test("drips: false hides the drips again", () => {
+    const view = createGMLView(example001, size);
+    view.setRenderOptions({ drips: true });
+    view.setRenderOptions({ drips: false });
+    expect(view.getRenderItem("drips")?.visible).toBe(false);
+  });
+
+  test("createGMLView accepts render options", async () => {
+    const view = createGMLView(example001, { ...size, color: "#ff0000" });
+    view.setPosition(1);
+    view.draw();
+    const pixels = await pixelReaderfromDataURL(
+      await view.renderContext.renderToArrayBuffer({ type: "png" }),
+    );
+    expect(pixels.count(isRed)).toBeGreaterThan(100);
+    expect(pixels.count(isDark)).toBe(0);
+  });
+});

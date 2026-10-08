@@ -11,6 +11,7 @@ import { createCanvas } from "canvas";
 
 // mediabunny needs WebCodecs, which Node.js lacks: record what renderToVideo does instead.
 const mocks = vi.hoisted(() => ({
+  canvas: null as import("canvas").Canvas | null,
   timestamps: [] as number[],
   failAtFrame: -1,
   canceled: false,
@@ -40,6 +41,9 @@ vi.mock("mediabunny", () => {
     }
   }
   class CanvasSource {
+    constructor(canvas: import("canvas").Canvas) {
+      mocks.canvas = canvas;
+    }
     async add(timestamp: number) {
       if (mocks.timestamps.length === mocks.failAtFrame) {
         throw new Error("encoder failed");
@@ -93,6 +97,30 @@ describe("renderToVideo", () => {
     expect(video).toBeInstanceOf(Uint8Array);
     expect(mocks.timestamps).toHaveLength(10);
     expect(mocks.timestamps[1]).toBeCloseTo(0.1);
+  });
+
+  test("applies render options to the video frames", async () => {
+    await renderToVideo(GML_1S, {
+      fps: 10,
+      width: 100,
+      height: 100,
+      background: "#0000ff",
+      color: "#ff0000",
+      // The default 4px line is well under 1px at this size.
+      brushSizeMultiplier: 10,
+    });
+    // The last drawn frame is still on the canvas.
+    const { data } = mocks
+      .canvas!.getContext("2d")
+      .getImageData(0, 0, 100, 100);
+    let red = 0;
+    let blue = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i]! > 200 && data[i + 1]! < 60 && data[i + 2]! < 60) red++;
+      if (data[i]! < 60 && data[i + 1]! < 60 && data[i + 2]! > 200) blue++;
+    }
+    expect(red).toBeGreaterThan(20);
+    expect(blue).toBeGreaterThan(1000);
   });
 
   test("encodes one frame for a zero-duration document", async () => {

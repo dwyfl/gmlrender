@@ -16,14 +16,14 @@ import { GMLView } from "../view.ts";
 import { GMLRenderer } from "../render/index.ts";
 import { RenderContextOffscreenCanvas } from "./render-context/offscreen-canvas.ts";
 import { GML } from "gmljs";
+import type { RenderOptions } from "../render/options.ts";
 
 export type GMLVideoCodec = "avc" | "hevc" | "vp8" | "vp9" | "av1";
 export type GMLVideoContainerFormat = "mp4" | "webm" | "mkv";
 
-export interface GMLVideoRenderOptions {
+export interface GMLVideoRenderOptions extends Partial<RenderOptions> {
   width?: number;
   height?: number;
-  background?: string;
   fps?: number;
   codec?: GMLVideoCodec;
   /** Bits per second, or one of mediabunny's QUALITY_* constants. */
@@ -46,7 +46,6 @@ export async function renderToVideo(
   const {
     width = 640,
     height = 480,
-    background,
     fps = 30,
     codec = "avc",
     bitrate = QUALITY_HIGH,
@@ -77,9 +76,7 @@ export async function renderToVideo(
   output.addVideoTrack(canvasSource, { frameRate: fps });
 
   const view = new GMLView(gml, new GMLRenderer(ctx));
-  if (background) {
-    view.setRenderItemProps("background", { fillStyle: background });
-  }
+  view.setRenderOptions(options ?? {});
 
   try {
     await output.start();

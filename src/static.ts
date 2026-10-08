@@ -2,17 +2,13 @@ import { GML } from "gmljs";
 import { GMLView } from "./view.ts";
 import { GMLRenderer } from "./render/index.ts";
 import type { RenderContextBase, RenderImageFormat } from "./render/context.ts";
-import { RenderItemDrips, RenderItemTags } from "./render/item/index.ts";
+import type { RenderOptions } from "./render/options.ts";
 
-export interface RenderStaticOptions {
+export interface RenderStaticOptions extends RenderOptions {
+  /** Animation position to render, 0–1 (default 1: the finished drawing). */
   position: number;
+  /** Encoder quality for lossy formats, 0–1. */
   quality: number;
-  background: string;
-  color: string;
-  /** Multiplies every stroke's line width; brush widths from the GML document are kept. */
-  brushSizeMultiplier: number;
-  drips: boolean;
-  dripFactor: number;
   format: RenderImageFormat;
 }
 
@@ -21,44 +17,11 @@ export function renderStatic(
   context: RenderContextBase,
   options: Partial<RenderStaticOptions> = {},
 ): Promise<ArrayBuffer> {
-  const {
-    format = "jpeg",
-    position = 1,
-    quality,
-    background,
-    color,
-    brushSizeMultiplier,
-    drips,
-    dripFactor,
-  } = options;
+  const { format = "jpeg", position = 1, quality } = options;
 
-  const gmlInstance = typeof gml === "string" ? new GML(gml) : gml;
-  const view = new GMLView(gmlInstance, new GMLRenderer(context));
-
-  if (background) {
-    view.setRenderItemProps("background", { fillStyle: background });
-  }
-  if (color) {
-    // Tags and drips are drawn with stroke(), so the color must go to strokeStyle.
-    view.setRenderItemProps("tags", { strokeStyle: color });
-    view.setRenderItemProps("drips", { strokeStyle: color });
-  }
-  if (brushSizeMultiplier !== undefined) {
-    const tags = view.getRenderItem("tags")?.item;
-    if (tags instanceof RenderItemTags) {
-      tags.setOptions({ brushSizeMultiplier });
-    }
-  }
-
-  if (drips) {
-    view.setRenderItemVisible("drips", true);
-    const dripsItem = view.getRenderItem("drips")?.item;
-    if (dripFactor !== undefined && dripsItem instanceof RenderItemDrips) {
-      dripsItem.setOptions({ dripFactor });
-    }
-  }
-
-  view.setPosition(position ?? 1);
+  const view = new GMLView(gml, new GMLRenderer(context));
+  view.setRenderOptions(options);
+  view.setPosition(position);
   view.draw();
 
   return context.renderToArrayBuffer({ type: format, quality });
