@@ -1,12 +1,6 @@
 import { GML } from "gmljs";
 import { type GMLTagTimeline, type GMLTagTimelineFrame, GMLTimeline } from "./timeline.ts";
-import {
-  GML_cancelAnimationFrame,
-  GML_clearTimeout,
-  GML_requestAnimationFrame,
-  GML_setTimeout,
-  GML_time,
-} from "../isomorphic/time.ts";
+import { GML_time } from "../isomorphic/time.ts";
 import { clamp } from "../util.ts";
 
 export interface GMLAnimationState {
@@ -26,6 +20,10 @@ export type GMLAnimationEvent =
   | typeof GMLAnimation.EVENT_UPDATE
   | typeof GMLAnimation.EVENT_RESTART;
 
+/**
+ * Playback state machine for a GML document. It does not schedule anything itself:
+ * the owner (GMLView) drives it by calling tick() from its frame loop.
+ */
 export class GMLAnimation extends EventTarget {
   private static readonly DEFAULT_RESTART_DELAY = 1000;
 
@@ -64,8 +62,7 @@ export class GMLAnimation extends EventTarget {
 
   private timelines: GMLTagTimeline[] = [];
   private lastStepTime: number;
-  private restartTimeout: number | null;
-  private animationRequest: number | null;
+  private restartAt: number | null; // Timestamp at which a looping animation restarts
 
   // State
   private _tag: number;
@@ -82,8 +79,7 @@ export class GMLAnimation extends EventTarget {
     super();
     this.timelines = new GMLTimeline(gml).timelines;
     this.lastStepTime = 0;
-    this.restartTimeout = null;
-    this.animationRequest = null;
+    this.restartAt = null;
     // State vars
     this._tag = 0;
     this._frame = 0;
@@ -105,8 +101,7 @@ export class GMLAnimation extends EventTarget {
     this._frame = 0;
     this._time = 0;
     this._isPlaying = false;
-    this.cancelRestart();
-    this.cancelAnimation();
+    this.restartAt = null;
   }
 
   getState() {
@@ -221,87 +216,64 @@ export class GMLAnimation extends EventTarget {
     this._speed = clamp(value, 0.01, 100);
   }
 
-  start() {
+  start(now: number = GML_time()) {
     if (this.isEmpty) {
       return;
     }
-    this.cancelRestart();
-    this.cancelAnimation();
+    this.restartAt = null;
     if (this._frame === this.lastFrameIndex) {
       this._frame = 0;
       this._time = 0;
     }
     this._isPlaying = true;
-    this.lastStepTime = GML_time();
-    this.requestAnimationFrame();
+    this.lastStepTime = now;
     this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_START, { detail: this.getState() }));
   }
 
   stop() {
-    this.cancelRestart();
-    this.cancelAnimation();
+    this.restartAt = null;
     this._isPlaying = false;
     this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_STOP, { detail: this.getState() }));
   }
 
-  private requestAnimationFrame() {
-    this.animationRequest = GML_requestAnimationFrame(this.step.bind(this));
-  }
-
-  private scheduleRestart(delay?: number) {
-    this.cancelRestart();
-    this.cancelAnimation();
-    this.restartTimeout = GML_setTimeout(() => {
+  /**
+   * Advances playback to `now` (milliseconds, same clock as GML_time()).
+   */
+  tick(now: number) {
+    if (!this._isPlaying) {
+      return;
+    }
+    if (this.restartAt !== null) {
+      if (now < this.restartAt) {
+        return;
+      }
+      this.restartAt = null;
       this._frame = 0;
       this._time = 0;
-      this.lastStepTime = GML_time();
-      this.requestAnimationFrame();
-      this.dispatchEvent(
-        new CustomEvent(GMLAnimation.EVENT_RESTART, {
-          detail: this.getState(),
-        }),
-      );
-    }, delay ?? this._restartDelay);
-  }
-
-  private cancelRestart() {
-    if (this.restartTimeout) {
-      GML_clearTimeout(this.restartTimeout);
-      this.restartTimeout = null;
+      this.lastStepTime = now;
+      this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_RESTART, { detail: this.getState() }));
+      return;
     }
-  }
-
-  private cancelAnimation() {
-    if (this.animationRequest) {
-      GML_cancelAnimationFrame(this.animationRequest);
-      this.animationRequest = null;
-    }
-  }
-
-  private step(time: number) {
-    let shouldUpdate = false;
-    const deltaTime = time - this.lastStepTime;
+    // A frame timestamp can precede the time playback was started.
+    const deltaTime = Math.max(0, now - this.lastStepTime);
     const lastIndex = this.lastFrameIndex;
-    let nextTime;
-    this.lastStepTime = time;
+    let shouldUpdate = false;
+    this.lastStepTime = now;
     this._time += deltaTime * 0.001 * this._speed;
     while (this._frame < lastIndex) {
-      nextTime = this.getFrameTime(this._frame + 1);
-      if (this._time < nextTime) break;
+      if (this._time < this.getFrameTime(this._frame + 1)) break;
       this._frame++;
       shouldUpdate = true;
     }
     if (shouldUpdate) {
       this.dispatchEvent(new CustomEvent(GMLAnimation.EVENT_UPDATE, { detail: this.getState() }));
     }
-    if (this._frame >= this.lastFrameIndex) {
+    if (this._frame >= lastIndex) {
       if (this._loop) {
-        this.scheduleRestart();
+        this.restartAt = now + this._restartDelay;
       } else {
         this.stop();
       }
-    } else if (this._isPlaying) {
-      this.requestAnimationFrame();
     }
   }
 }

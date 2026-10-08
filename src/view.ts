@@ -1,7 +1,11 @@
 import { GML } from "gmljs";
 import { GMLRenderer } from "./render/index.ts";
 import { GMLAnimation, type GMLAnimationState } from "./animation/animation.ts";
-import { GML_requestAnimationFrame, GML_cancelAnimationFrame } from "./isomorphic/time.ts";
+import {
+  GML_requestAnimationFrame,
+  GML_cancelAnimationFrame,
+  GML_time,
+} from "./isomorphic/time.ts";
 import { RenderItemBackground, RenderItemTags, RenderItemDrips } from "./render/item/index.ts";
 import type { RenderProps } from "./render/props/index.ts";
 import { clamp } from "./util.ts";
@@ -101,12 +105,6 @@ export class GMLView extends EventTarget {
       [GMLAnimation.EVENT_RESTART]: GMLView.EVENT_RESTART,
       [GMLAnimation.EVENT_STOP]: GMLView.EVENT_STOP,
     }[event.type];
-    if (event.type === GMLAnimation.EVENT_STOP && this._animationRequest !== null) {
-      // The animation stopped by itself (end reached without looping): draw the final frame
-      // and end the draw loop.
-      this._cancelAnimationFrame();
-      this.draw();
-    }
     if (eventType) {
       this.dispatchEvent(new CustomEvent(eventType, { detail: event.detail }));
     }
@@ -223,7 +221,7 @@ export class GMLView extends EventTarget {
 
   start() {
     this._cancelAnimationFrame();
-    this._animation.start();
+    this._animation.start(GML_time());
     if (this._animation.isPlaying) {
       this._requestAnimationFrame();
     }
@@ -270,10 +268,18 @@ export class GMLView extends EventTarget {
     this._renderer.render(this._animation.getState());
   }
 
+  /**
+   * The view's single frame loop: advance the animation, then draw. The loop ends by itself
+   * when the animation stops playing (e.g. at the end of a non-looping animation).
+   */
   private _requestAnimationFrame() {
-    this._animationRequest = GML_requestAnimationFrame(() => {
+    this._animationRequest = GML_requestAnimationFrame((time) => {
+      this._animationRequest = null;
+      this._animation.tick(time);
       this.draw();
-      this._requestAnimationFrame();
+      if (this._animation.isPlaying) {
+        this._requestAnimationFrame();
+      }
     });
   }
 

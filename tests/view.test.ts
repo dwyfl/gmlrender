@@ -281,6 +281,16 @@ describe("Playback lifecycle", () => {
     vi.useRealTimers();
   });
 
+  test("playback runs a single frame loop", () => {
+    const { view } = createCountingView();
+    view.start();
+    expect(vi.getTimerCount()).toBe(1);
+    vi.advanceTimersByTime(500);
+    expect(vi.getTimerCount()).toBe(1);
+    view.stop();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   test("calling start() twice does not leak a draw loop", () => {
     const { view, counter } = createCountingView();
     view.start();

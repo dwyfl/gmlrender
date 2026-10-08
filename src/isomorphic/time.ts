@@ -19,16 +19,3 @@ export const GML_cancelAnimationFrame: (handle: number) => void =
   typeof globalThis.cancelAnimationFrame === "function"
     ? globalThis.cancelAnimationFrame.bind(globalThis)
     : (id: number) => clearTimeout(id);
-
-export const GML_setTimeout = <Args extends unknown[]>(
-  callback: (...args: Args) => void,
-  ms: number = 0,
-  ...args: Args
-): number => {
-  ms = Math.max(0, Math.min(ms, 2_147_483_647));
-  const cb = (...args: Args) => callback(...args);
-  const timer = setTimeout(cb, ms, ...args);
-  return +timer;
-};
-
-export const GML_clearTimeout = clearTimeout;
