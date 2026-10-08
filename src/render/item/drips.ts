@@ -148,11 +148,12 @@ export class RenderItemDrips extends RenderItem {
 
   /**
    * Returns the drip direction vector (in GML virtual space) for a given tag.
-   * Drips flow along the environment's up vector: GML's y axis points down on screen, so
-   * the default up vector (0, 1, 0) makes drips run downwards.
+   * Drips flow opposite to the tag's up vector, i.e. downwards on screen.
    */
   private _getDripDirection(tagIndex: number): vec3 {
-    return this.getTagEnvironment(tagIndex).getUpVector();
+    const direction = this.getTagEnvironment(tagIndex).getUpVector();
+    vec3.normalize(direction, direction);
+    return vec3.negate(direction, direction);
   }
 
   /**

@@ -14,17 +14,21 @@ const DEFAULT_CLIENT_ENVS = [
   },
 ];
 
+/**
+ * GML's y axis points down on screen, so "up" on screen is (0, -1, 0).
+ */
+const SCREEN_UP = [0, -1, 0] as const;
+
 export class TagEnvironment extends Environment {
-  private tag: GMLTag;
+  private upVector: vec3;
 
   constructor(tag: GMLTag) {
     super();
-    this.tag = tag;
+    this.upVector = vec3.fromValues(...SCREEN_UP);
     this._initFromTag(tag);
   }
 
   private _initFromTag(tag: GMLTag) {
-    this.tag = tag;
     const defaultEnv = this.getClientDefaults(tag);
     const tagEnv = tag.getEnvironment();
     const screenBounds = tagEnv?.getScreenBounds() ?? defaultEnv?.screenBounds;
@@ -35,23 +39,17 @@ export class TagEnvironment extends Environment {
     if (offset) {
       this.setOffset(offset);
     }
-    const up = tagEnv?.getUp() ?? defaultEnv?.up;
-    const rotation = tagEnv?.getRotation();
-    if (up || rotation) {
-      this.setTransform(this.getTransformFromEnvironment(up, rotation));
-    }
+    // The <rotation> element is very vaguely specified in the spec; it is ignored for now.
+    this.upVector = this.getEffectiveUp(tagEnv?.getUp(), defaultEnv?.up);
+    this.setTransform(TagEnvironment.getUpTransform(this.upVector));
   }
 
+  /**
+   * The direction that is "up" for this tag, in GML space. The tag transform rotates it to
+   * point up on screen.
+   */
   getUpVector(): vec3 {
-    const tagEnvUp = this.tag.getEnvironment()?.getUp();
-    if (tagEnvUp) {
-      const [x, y, z] = tagEnvUp;
-      if (Math.abs(x) + Math.abs(y) + Math.abs(z) > 0) {
-        return vec3.fromValues(tagEnvUp[0], tagEnvUp[1], tagEnvUp[2]);
-      }
-    }
-    const defaultUp = this.getClientDefaults(this.tag)?.up ?? [0, 1, 0];
-    return vec3.fromValues(defaultUp[0], defaultUp[1], defaultUp[2]);
+    return vec3.clone(this.upVector);
   }
 
   private getClientDefaults(tag: GMLTag) {
@@ -61,54 +59,33 @@ export class TagEnvironment extends Environment {
     );
   }
 
-  private getTransformFromEnvironment(up?: vec3, rotation?: vec3): mat3 {
-    const m = mat3.create();
-    if (up) {
-      const upTransform = this.getUpTransform(up);
-      mat3.multiply(m, m, upTransform);
+  /**
+   * The tag's <up> if it has a direction in the drawing plane, otherwise the client's
+   * default, otherwise screen up (no rotation). Some documents have (0,0,0) as up vector.
+   */
+  private getEffectiveUp(tagUp?: number[], clientUp?: number[]): vec3 {
+    for (const up of [tagUp, clientUp]) {
+      if (up && (up[0] !== 0 || up[1] !== 0)) {
+        return vec3.fromValues(up[0], up[1], up[2] ?? 0);
+      }
     }
-    if (rotation) {
-      // This property is very vaguely specified in the spec.
-      // Ignore it for now.
-    }
-    return m;
+    return vec3.fromValues(...SCREEN_UP);
   }
 
-  private getUpTransform([x, y, z]: vec3) {
-    const m = mat3.create();
-    // Some GML documents have (0,0,0) as up vector
-    if (Math.abs(x) + Math.abs(y) + Math.abs(z) === 0) {
-      return m;
+  /**
+   * Rotation in the drawing plane that turns `up` to point up on screen. The z component is
+   * ignored, and the vector does not need to be normalized.
+   */
+  private static getUpTransform([x, y]: vec3): mat3 {
+    const length = Math.hypot(x, y);
+    if (length === 0) {
+      return mat3.create();
     }
-    // GMLRender uses (0,1,0) as up vector.
-    // Find angle between this and up vector and create rotation matrix.
-    const a = vec3.fromValues(x, y, z);
-    const b = vec3.fromValues(0, 1, 0);
-    const r = this.getRotationMatrixToAlignVectors(a, b);
-    mat3.copy(m, r);
-    return m;
-  }
-
-  private getRotationMatrixToAlignVectors(a: vec3, b: vec3): mat3 {
-    // Z coordinate is currently ignored.
-    const m = mat3.create();
-    const alen = vec3.length(a);
-    if (alen > 1.0) vec3.scale(a, a, 1 / alen);
-    const blen = vec3.length(b);
-    if (blen > 1.0) vec3.scale(b, b, 1 / blen);
-    const abdot = vec3.dot(a, b);
-    if (abdot === 1 || abdot === -1 || alen === 0 || blen === 0) return m;
-    const v = vec3.create();
-    vec3.cross(v, a, b);
-    // Skew-symmetric cross-product matrix of v
-    const s = vec3.length(v);
-    const f = s !== 0 ? (1 - abdot) / (s * s) : 0;
-    const vx2 = mat3.create();
-    const vx = mat3.fromValues(0, -v[2], v[1], v[2], 0, -v[0], -v[1], v[0], 0);
-    mat3.multiply(vx2, vx, vx);
-    mat3.multiplyScalar(vx2, vx2, f);
-    mat3.add(m, m, vx);
-    mat3.add(m, m, vx2);
-    return m;
+    // The rotation maps the unit vector u = (x, y) to (0, -1):
+    // cos = u · (0, -1), sin = u × (0, -1) (z component).
+    // `|| 0` turns -0 into 0, so axis-aligned vectors give exact matrices.
+    const cos = -y / length || 0;
+    const sin = -x / length || 0;
+    return mat3.fromValues(cos, sin, 0, -sin || 0, cos, 0, 0, 0, 1);
   }
 }

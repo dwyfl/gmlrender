@@ -151,6 +151,30 @@ describe("RenderItemDrips — determinism", () => {
 // ---------------------------------------------------------------------------
 
 describe("RenderItemDrips — drip direction", () => {
+  test.each([
+    ["Fat Tag with up (1,0,0)", example002],
+    [
+      "TouchTag-style up (0,-1,0)",
+      `<gml><tag><environment><up><x>0</x><y>-1</y><z>0</z></up></environment><drawing>
+        <stroke><pt><x>0.2</x><y>0.2</y><t>0</t></pt><pt><x>0.5</x><y>0.6</y><t>1</t></pt><pt><x>0.8</x><y>0.3</y><t>2</t></pt></stroke>
+      </drawing></tag></gml>`,
+    ],
+  ])("drips flow downward on screen for %s", (_, xml) => {
+    const gml = new GML(xml);
+    const ctx = new MockContext();
+    const item = new RenderItemDrips(gml);
+    item.setOptions({ dripFactor: 1 });
+    item.render(ctx, makeStateAtEnd(gml));
+
+    const moves = ctx.only("moveTo");
+    const lines = ctx.only("lineTo");
+    expect(moves.length).toBeGreaterThan(0);
+    for (let i = 0; i < moves.length; i++) {
+      expect(lines[i]!.y).toBeGreaterThan(moves[i]!.y);
+      expect(lines[i]!.x).toBeCloseTo(moves[i]!.x);
+    }
+  });
+
   test("drips flow downward (end y > start y) for GML without an up vector", () => {
     // example001 has no <up> element → drip direction defaults to [0,1,0] in GML
     // space, which projects to a positive-y displacement in screen space (downward).
