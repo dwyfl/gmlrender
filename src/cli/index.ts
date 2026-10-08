@@ -84,7 +84,7 @@ for (const file of files) {
 
     let data: Uint8Array | Buffer;
     if (format === "webp") {
-      const view = createGMLView(document, "node-canvas", width, height);
+      const view = createGMLView(document, { type: "node-canvas", width, height });
       view.setRenderItemProps("background", { fillStyle: background });
       if (drips) {
         view.setRenderItemVisible("drips", true);
@@ -95,11 +95,14 @@ for (const file of files) {
       }
       data = await renderToWebp(view, { fps, lossless });
     } else {
-      const image = await createGMLImage(document, "node-canvas", width, height, {
+      const image = await createGMLImage(document, {
+        type: "node-canvas",
+        width,
+        height,
         background,
         drips: drips ?? false,
         dripFactor,
-        format,
+        format: format === "jpg" ? "jpeg" : "png",
       });
       data = Buffer.from(image);
     }

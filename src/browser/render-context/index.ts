@@ -20,34 +20,17 @@ export type BrowserRenderContextOptions =
 export type BrowserRenderContextType = BrowserRenderContextOptions["type"];
 
 export class BrowserRenderContext {
-  static createRenderContext(this: void, options: BrowserRenderContextOptions): RenderContextBase;
-  static createRenderContext(
-    this: void,
-    type: BrowserRenderContextType,
-    width: number,
-    height: number,
-  ): RenderContextBase;
-  static createRenderContext(
-    this: void,
-    optionsOrType: BrowserRenderContextType | BrowserRenderContextOptions,
-    width?: number,
-    height?: number,
-  ): RenderContextBase {
-    const type = typeof optionsOrType === "string" ? optionsOrType : optionsOrType.type;
-    const w = typeof optionsOrType === "string" ? width! : optionsOrType.width;
-    const h = typeof optionsOrType === "string" ? height! : optionsOrType.height;
-    switch (type) {
+  static createRenderContext(this: void, options: BrowserRenderContextOptions): RenderContextBase {
+    switch (options.type) {
       case "html-canvas":
-        return typeof optionsOrType !== "string" &&
-          optionsOrType.type === "html-canvas" &&
-          optionsOrType.canvas
-          ? new RenderContextHtmlCanvas(optionsOrType.canvas)
-          : new RenderContextHtmlCanvas(w, h);
+        return options.canvas
+          ? new RenderContextHtmlCanvas(options.canvas)
+          : new RenderContextHtmlCanvas(options.width, options.height);
       case "offscreen-canvas":
-        return new RenderContextOffscreenCanvas(w, h);
+        return new RenderContextOffscreenCanvas(options.width, options.height);
       default:
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        throw new Error(`Invalid render context type "${type}"`);
+        throw new Error(`Invalid render context type "${(options as { type: unknown }).type}"`);
     }
   }
 }

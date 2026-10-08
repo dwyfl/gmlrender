@@ -5,7 +5,12 @@ import { ForegroundRenderProps } from "../props/foreground.ts";
 import { RenderState } from "../state.ts";
 import { RenderContextBase } from "../context.ts";
 
+export interface TagsOptions {
+  brushSizeMultiplier: number;
+}
+
 export class RenderItemTags extends RenderItem {
+  private options: TagsOptions = { brushSizeMultiplier: 1 };
   private p1: vec3;
   private p2: vec3;
 
@@ -18,6 +23,21 @@ export class RenderItemTags extends RenderItem {
 
   get type() {
     return "tags";
+  }
+
+  setOptions(options: Partial<TagsOptions>) {
+    const { brushSizeMultiplier } = options;
+    if (
+      brushSizeMultiplier !== undefined &&
+      Number.isFinite(brushSizeMultiplier) &&
+      brushSizeMultiplier > 0
+    ) {
+      this.options.brushSizeMultiplier = brushSizeMultiplier;
+    }
+  }
+
+  protected override getLineWidth(width: number, renderState: RenderState) {
+    return super.getLineWidth(width, renderState) * this.options.brushSizeMultiplier;
   }
 
   render(renderContext: RenderContextBase, renderState: RenderState) {
@@ -66,8 +86,7 @@ export class RenderItemTags extends RenderItem {
     const brushWidth = stroke?.getBrush()?.getWidth();
 
     if (typeof brushWidth === "number") {
-      const lineWidth = brushWidth * this.contentScale * renderState.clientEnvironment.scale;
-      renderContext.setRenderProps({ lineWidth });
+      renderContext.setRenderProps({ lineWidth: this.getLineWidth(brushWidth, renderState) });
     }
 
     if (points.length === 0 || pointLimit < 0 || !stroke || !stroke.isDrawing()) {

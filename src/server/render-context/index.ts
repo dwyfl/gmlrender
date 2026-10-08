@@ -19,30 +19,15 @@ export type ServerRenderContextOptions =
 export type ServerRenderContextType = ServerRenderContextOptions["type"];
 
 export class ServerRenderContext {
-  static createRenderContext(this: void, options: ServerRenderContextOptions): RenderContextBase;
-  static createRenderContext(
-    this: void,
-    type: ServerRenderContextType,
-    width: number,
-    height: number,
-  ): RenderContextBase;
-  static createRenderContext(
-    this: void,
-    optionsOrType: ServerRenderContextType | ServerRenderContextOptions,
-    width?: number,
-    height?: number,
-  ): RenderContextBase {
-    const type = typeof optionsOrType === "string" ? optionsOrType : optionsOrType.type;
-    const w = typeof optionsOrType === "string" ? width! : optionsOrType.width;
-    const h = typeof optionsOrType === "string" ? height! : optionsOrType.height;
-    switch (type) {
+  static createRenderContext(this: void, options: ServerRenderContextOptions): RenderContextBase {
+    switch (options.type) {
       case "node-canvas":
-        return new RenderContextNodeCanvas(w, h);
+        return new RenderContextNodeCanvas(options.width, options.height);
       case "skia-canvas":
-        return new RenderContextSkiaCanvas(w, h);
+        return new RenderContextSkiaCanvas(options.width, options.height);
       default:
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        throw new Error(`Invalid render context type "${type}"`);
+        throw new Error(`Invalid render context type "${(options as { type: unknown }).type}"`);
     }
   }
 }

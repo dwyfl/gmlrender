@@ -2,14 +2,15 @@ import { GML } from "gmljs";
 import { GMLView } from "./view.ts";
 import { GMLRenderer } from "./render/index.ts";
 import type { RenderContextBase, RenderImageFormat } from "./render/context.ts";
-import type { RenderItemDrips } from "./render/item/drips.ts";
+import { RenderItemDrips, RenderItemTags } from "./render/item/index.ts";
 
 export interface RenderStaticOptions {
   position: number;
   quality: number;
   background: string;
   color: string;
-  brushSize: number;
+  /** Multiplies every stroke's line width; brush widths from the GML document are kept. */
+  brushSizeMultiplier: number;
   drips: boolean;
   dripFactor: number;
   format: RenderImageFormat;
@@ -26,7 +27,7 @@ export function renderStatic(
     quality,
     background,
     color,
-    brushSize,
+    brushSizeMultiplier,
     drips,
     dripFactor,
   } = options;
@@ -42,15 +43,18 @@ export function renderStatic(
     view.setRenderItemProps("tags", { strokeStyle: color });
     view.setRenderItemProps("drips", { strokeStyle: color });
   }
-  if (brushSize) {
-    view.setRenderItemProps("tags", { lineWidth: brushSize });
+  if (brushSizeMultiplier !== undefined) {
+    const tags = view.getRenderItem("tags")?.item;
+    if (tags instanceof RenderItemTags) {
+      tags.setOptions({ brushSizeMultiplier });
+    }
   }
 
   if (drips) {
     view.setRenderItemVisible("drips", true);
-    if (dripFactor !== undefined) {
-      const drips = view.getRenderItem("drips")?.item as RenderItemDrips;
-      drips.setOptions({ dripFactor });
+    const dripsItem = view.getRenderItem("drips")?.item;
+    if (dripFactor !== undefined && dripsItem instanceof RenderItemDrips) {
+      dripsItem.setOptions({ dripFactor });
     }
   }
 

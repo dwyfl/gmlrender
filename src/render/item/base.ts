@@ -71,8 +71,15 @@ export abstract class RenderItem {
     const renderProps = this.getRenderProps();
     renderContext.setRenderProps({
       ...renderProps,
-      lineWidth: renderProps.lineWidth * this.contentScale * renderState.clientEnvironment.scale,
+      lineWidth: this.getLineWidth(renderProps.lineWidth, renderState),
     });
+  }
+
+  /**
+   * Converts a line width in GML/brush units to a canvas line width.
+   */
+  protected getLineWidth(width: number, renderState: RenderState) {
+    return width * this.contentScale * renderState.clientEnvironment.scale;
   }
 
   projectPoint(p: vec3, point: ReadonlyVec3) {

@@ -14,6 +14,7 @@ const __dirname = dirname(__filename);
 
 const example000 = readFileSync(join(__dirname, "./data/example000.xml"), "utf8");
 const example001 = readFileSync(join(__dirname, "./data/example001.xml"), "utf8");
+const exampleBrush = readFileSync(join(__dirname, "./data/example-brush.xml"), "utf8");
 
 const size = { type: "node-canvas", width: 320, height: 240, format: "png" } as const;
 
@@ -137,9 +138,12 @@ function isValidWebP(data: Uint8Array): boolean {
 
 describe("renderToVideo", () => {
   test("returns valid animated WebP bytes", async () => {
-    const result = await renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
-      fps: 5,
-    });
+    const result = await renderToWebp(
+      createGMLView(example001, { type: "node-canvas", width: 160, height: 120 }),
+      {
+        fps: 5,
+      },
+    );
 
     expect(result).toBeInstanceOf(Uint8Array);
     expect(isValidWebP(result)).toBe(true);
@@ -147,9 +151,12 @@ describe("renderToVideo", () => {
 
   test("frame count matches fps × animation duration", async () => {
     const fps = 5;
-    const result = await renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
-      fps,
-    });
+    const result = await renderToWebp(
+      createGMLView(example001, { type: "node-canvas", width: 160, height: 120 }),
+      {
+        fps,
+      },
+    );
 
     const frames = await decodeAnimation(result, true);
     expect(frames).toHaveLength(Math.ceil(EXAMPLE001_TOTAL_TIME * fps));
@@ -157,19 +164,25 @@ describe("renderToVideo", () => {
 
   test("frame duration matches 1000 / fps", async () => {
     const fps = 5;
-    const result = await renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
-      fps,
-    });
+    const result = await renderToWebp(
+      createGMLView(example001, { type: "node-canvas", width: 160, height: 120 }),
+      {
+        fps,
+      },
+    );
 
     const frames = await decodeAnimation(result, true);
     expect(frames![0].duration).toBe(Math.round(1000 / fps)); // 200 ms
   });
 
   test("last frame matches the fully-drawn animation snapshot", async () => {
-    const result = await renderToWebp(createGMLView(example001, "node-canvas", 320, 240), {
-      fps: 30,
-      lossless: true,
-    });
+    const result = await renderToWebp(
+      createGMLView(example001, { type: "node-canvas", width: 320, height: 240 }),
+      {
+        fps: 30,
+        lossless: true,
+      },
+    );
 
     const frames = await decodeAnimation(result, true);
     const lastFrame = frames![frames!.length - 1];
@@ -188,11 +201,11 @@ describe("renderToVideo", () => {
 
   test("lossless encoding produces different output than lossy", async () => {
     const [lossy, lossless] = await Promise.all([
-      renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
+      renderToWebp(createGMLView(example001, { type: "node-canvas", width: 160, height: 120 }), {
         fps: 3,
         lossless: false,
       }),
-      renderToWebp(createGMLView(example001, "node-canvas", 160, 120), {
+      renderToWebp(createGMLView(example001, { type: "node-canvas", width: 160, height: 120 }), {
         fps: 3,
         lossless: true,
       }),
@@ -212,6 +225,24 @@ describe("createGMLImage options", () => {
     );
     expect(pixels.count(isRed)).toBeGreaterThan(100);
     expect(pixels.count(isDark)).toBe(0);
+  });
+
+  test("brushSizeMultiplier scales the default line width", async () => {
+    const [normal, thick] = await Promise.all([
+      createGMLImage(example001, size).then(pixelReaderfromDataURL),
+      createGMLImage(example001, { ...size, brushSizeMultiplier: 3 }).then(pixelReaderfromDataURL),
+    ]);
+    expect(thick.count(isDark)).toBeGreaterThan(normal.count(isDark) * 2);
+  });
+
+  test("brushSizeMultiplier scales brush widths from the document", async () => {
+    const [normal, thick] = await Promise.all([
+      createGMLImage(exampleBrush, size).then(pixelReaderfromDataURL),
+      createGMLImage(exampleBrush, { ...size, brushSizeMultiplier: 3 }).then(
+        pixelReaderfromDataURL,
+      ),
+    ]);
+    expect(thick.count(isDark)).toBeGreaterThan(normal.count(isDark) * 2);
   });
 
   test("position 1 draws every stroke of a document without timestamps", async () => {
