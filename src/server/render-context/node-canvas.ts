@@ -84,9 +84,4 @@ export class RenderContextNodeCanvas extends RenderContextBase {
         : this.canvas.toBuffer("image/jpeg", { quality });
     return Promise.resolve(new Blob([new Uint8Array(buffer)], { type: `image/${type}` }));
   }
-
-  override async renderToRawPixels(): Promise<Uint8Array> {
-    const { data } = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    return new Uint8Array(data.buffer);
-  }
 }

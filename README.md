@@ -1,6 +1,6 @@
 # gmlrender
 
-- It renders [GML (Graffiti Markup Language)](https://en.wikipedia.org/wiki/Graffiti_Markup_Language) documents to images (PNG, JPG) or animations (WebP).
+- It renders [GML (Graffiti Markup Language)](https://en.wikipedia.org/wiki/Graffiti_Markup_Language) documents to images (PNG, JPG).
 - It's a JavaScript library with full TypeScript support.
 - It's a CLI tool.
 - It's open source.
@@ -48,7 +48,7 @@ Using `gmlrender` on the command line is simple.
 ```
 $ Usage: gmlrender [options] <file> ...
 
-Render GML documents to images or animated WebP.
+Render GML documents to images.
 
 Arguments:
   file                         GML document file(s)
@@ -59,15 +59,15 @@ Options:
   -w, --width <size>           force image width (default: 1024)
   -h, --height <size>          force image height (default: 768)
   -b, --background <hexcolor>  background color (default: "white")
-  -f, --format <format>        output format (choices: "png", "jpg", "webp", default: "png")
+  -f, --format <format>        output format (choices: "png", "jpg", default: "png")
   --help                       print help text
 
-Video options
-  --fps <fps>                  frames per second (default: 30)
-  --lossless                   use lossless WebP encoding
+Effect options
+  --drips                      enable drip effect (experimental)
+  --drip-factor <value>        drip factor 0-1 (default 0.2)
 
 $ gmlrender ~/nyc/zephyr.gml
 ✅ Rendered 1024x768 png file: ~/nyc/zephyr.png
 $ gmlrender ~/nyc/cope2.gml -w 1920 -h 1080 --format jpg --background #aaddff
-✅ Rendered 1920x1080 jpg file: ~/nyc/cope2.png
+✅ Rendered 1920x1080 jpg file: ~/nyc/cope2.jpg
 ```

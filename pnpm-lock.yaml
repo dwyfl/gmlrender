@@ -13,11 +13,6 @@ catalogs:
 overrides:
   vite@*: npm:@voidzero-dev/vite-plus-core@1.1.0
 
-patchedDependencies:
-  wasm-webp:
-    hash: 3de29440f26c2439f6cbe62ef036304b0d5180221847b971b6ae4483349b54b1
-    path: patches/wasm-webp.patch
-
 importers:
 
   .:
@@ -40,9 +35,6 @@ importers:
       skia-canvas:
         specifier: ^3.0.8
         version: 3.0.8
-      wasm-webp:
-        specifier: ^0.1.0
-        version: 0.1.0(patch_hash=3de29440f26c2439f6cbe62ef036304b0d5180221847b971b6ae4483349b54b1)
     devDependencies:
       '@types/node':
         specifier: ^26
@@ -1392,9 +1384,6 @@ packages:
       jsdom:
         optional: true
 
-  wasm-webp@0.1.0:
-    resolution: {integrity: sha512-Z1Sop+mLKogzDK3vJzSPfSxRF1yj/zbmn+XJuU9+7fvarxcuGhGkeLBqJr5H8LdgWuAwEKuZelCzx7ujztfhVQ==}
-
   why-is-node-running@3.2.1:
     resolution: {integrity: sha512-Tb2FUhB4vUsGQlfSquQLYkApkuPAFQXGFzxWKHHumVz2dK+X1RUm/HnID4+TfIGYJ1kTcwOaCk/buYCEJr6YjQ==}
     engines: {node: '>=20.11'}
@@ -2425,8 +2414,6 @@ snapshots:
       '@vitest/ui': 5.0.3(vitest@5.0.3)
     transitivePeerDependencies:
       - msw
-
-  wasm-webp@0.1.0(patch_hash=3de29440f26c2439f6cbe62ef036304b0d5180221847b971b6ae4483349b54b1): {}
 
   why-is-node-running@3.2.1: {}
 

@@ -3,9 +3,7 @@ import { program, Option, InvalidArgumentError } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import packageJson from "../../package.json" with { type: "json" };
-import { createGMLView, createGMLImage } from "../server/index.ts";
-import { renderToWebp } from "../render/video.ts";
-import type { RenderItemDrips } from "../render/item/index.ts";
+import { createGMLImage } from "../server/index.ts";
 
 function parseSize(value: string): number {
   const size = Number(value);
@@ -17,7 +15,7 @@ function parseSize(value: string): number {
 
 program
   .name("gmlrender")
-  .description("Render GML documents to images or video.")
+  .description("Render GML documents to images.")
   .usage("[options] <file> ...")
   .version(packageJson.version)
   .showHelpAfterError()
@@ -28,20 +26,15 @@ program
   .option("-h, --height <size>", "force image height", parseSize, 768)
   .option("-b, --background <hexcolor>", "background color", "white")
   .addOption(
-    new Option("-f, --format <format>", "output format")
-      .choices(["png", "jpg", "webp"])
-      .default("png"),
+    new Option("-f, --format <format>", "output format").choices(["png", "jpg"]).default("png"),
   )
-  .optionsGroup("Video options")
-  .option("--fps <fps>", "frames per second", (v) => parseInt(v, 10), 30)
-  .option("--lossless", "use lossless WebP encoding")
   .optionsGroup("Effect options")
   .option("--drips", "enable drip effect (experimental)")
   .option("--drip-factor <value>", "drip factor 0-1 (default 0.2)", (v) => parseFloat(v))
   .parse(process.argv);
 
 const options = program.opts();
-const { format, width, height, out, fps, lossless, background, drips, dripFactor } = options;
+const { format, width, height, out, background, drips, dripFactor } = options;
 const files = program.args;
 
 if (out && !fs.existsSync(out) && files.length > 1) {
@@ -82,35 +75,19 @@ for (const file of files) {
 
     const document = fs.readFileSync(file, "utf8");
 
-    let data: Uint8Array | Buffer;
-    if (format === "webp") {
-      const view = createGMLView(document, { type: "node-canvas", width, height });
-      view.setRenderItemProps("background", { fillStyle: background });
-      if (drips) {
-        view.setRenderItemVisible("drips", true);
-        if (dripFactor !== undefined) {
-          const drips = view.getRenderItem("drips")?.item as RenderItemDrips;
-          drips.setOptions({ dripFactor });
-        }
-      }
-      data = await renderToWebp(view, { fps, lossless });
-    } else {
-      const image = await createGMLImage(document, {
-        type: "node-canvas",
-        width,
-        height,
-        background,
-        drips: drips ?? false,
-        dripFactor,
-        format: format === "jpg" ? "jpeg" : "png",
-      });
-      data = Buffer.from(image);
-    }
+    const image = await createGMLImage(document, {
+      type: "node-canvas",
+      width,
+      height,
+      background,
+      drips: drips ?? false,
+      dripFactor,
+      format: format === "jpg" ? "jpeg" : "png",
+    });
 
-    fs.writeFileSync(outFile, data);
+    fs.writeFileSync(outFile, Buffer.from(image));
 
-    const label = format === "webp" ? `${fps}fps webp` : `${format}`;
-    console.log(`✅ Rendered ${width}x${height} ${label} file: ${outFile}`);
+    console.log(`✅ Rendered ${width}x${height} ${format} file: ${outFile}`);
   } catch (err) {
     hasError = true;
     console.error(

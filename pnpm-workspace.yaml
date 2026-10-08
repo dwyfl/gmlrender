@@ -11,5 +11,3 @@ peerDependencyRules:
 onlyBuiltDependencies:
   - canvas
   - skia-canvas
-patchedDependencies:
-  wasm-webp: patches/wasm-webp.patch
