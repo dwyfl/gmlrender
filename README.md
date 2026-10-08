@@ -51,7 +51,6 @@ const view = createGMLView(gml, {
   canvas: document.querySelector("canvas")!,
   width: 800,
   height: 600,
-  drips: true,
 });
 view.start();
 ```
