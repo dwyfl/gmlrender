@@ -17,7 +17,7 @@ export interface RenderStaticOptions {
 }
 
 export function renderStatic(
-  doc: string | GML,
+  gml: string | GML,
   context: RenderContextBase,
   options: Partial<RenderStaticOptions> = {},
 ): Promise<ArrayBuffer> {
@@ -32,8 +32,8 @@ export function renderStatic(
     dripFactor,
   } = options;
 
-  const gml = typeof doc === "string" ? new GML(doc) : doc;
-  const view = new GMLView(gml, new GMLRenderer(context));
+  const gmlInstance = typeof gml === "string" ? new GML(gml) : gml;
+  const view = new GMLView(gmlInstance, new GMLRenderer(context));
 
   if (background) {
     view.setRenderItemProps("background", { fillStyle: background });
