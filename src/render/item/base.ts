@@ -3,7 +3,11 @@ import {
   type ClientEnvironment,
   TagEnvironment,
 } from "../../environment/index.ts";
-import { BaseRenderProps, type RenderProps } from "../props/index.ts";
+import {
+  BaseRenderProps,
+  applyRenderProps,
+  type RenderProps,
+} from "../props/index.ts";
 import { GML } from "gmljs";
 import { RenderState } from "../state.ts";
 import { RenderContextBase } from "../context.ts";
@@ -41,10 +45,7 @@ export abstract class RenderItem {
   }
 
   setRenderProps(props: Partial<RenderProps>) {
-    for (const [key, value] of Object.entries(props)) {
-      // @ts-expect-error this is fine
-      this.renderProps[key] = value;
-    }
+    applyRenderProps(this.renderProps, props);
   }
 
   getTagEnvironment(tagIndex: number) {

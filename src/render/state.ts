@@ -50,4 +50,23 @@ export class RenderState {
       ? frame.point
       : undefined;
   }
+
+  /**
+   * Timeline times of the segment currently being drawn: from the current frame's point to
+   * the next point of the same stroke. Undefined at the end of a stroke.
+   */
+  getCurrentSegmentTimes(): [number, number] | undefined {
+    const { frame, frameIndex, timeline } = this.animationState;
+    const next = timeline[frameIndex + 1];
+    if (
+      !frame ||
+      !next ||
+      next.tag !== frame.tag ||
+      next.drawing !== frame.drawing ||
+      next.stroke !== frame.stroke
+    ) {
+      return undefined;
+    }
+    return [frame.t, next.t];
+  }
 }

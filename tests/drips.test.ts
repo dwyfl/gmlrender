@@ -261,3 +261,51 @@ describe("renderStatic — drips option", () => {
     expect(pixHigh.count(isDark)).toBeGreaterThan(pixLow.count(isDark));
   });
 });
+
+// ---------------------------------------------------------------------------
+// Edge cases
+// ---------------------------------------------------------------------------
+
+describe("RenderItemDrips — edge cases", () => {
+  test("dripSpeed 0 draws drips at full length without NaN coordinates", () => {
+    const gml = new GML(example001);
+    const { timelines } = new GMLTimeline(gml);
+    const timeline = timelines[0] ?? [];
+    const lastFrame = timeline[timeline.length - 1];
+    const ctx = new MockContext();
+    const item = new RenderItemDrips(gml);
+    item.setOptions({ dripFactor: 1, dripSpeed: 0 });
+    // time == the last drip's start time: elapsed is 0 for that drip
+    item.render(ctx, makeState(gml, lastFrame, lastFrame?.t ?? 0));
+
+    const coords = [...ctx.only("moveTo"), ...ctx.only("lineTo")];
+    expect(ctx.only("lineTo").length).toBeGreaterThan(0);
+    for (const { x, y } of coords) {
+      expect(Number.isFinite(x) && Number.isFinite(y)).toBe(true);
+    }
+  });
+
+  test("strokes one path per tag, so each tag uses its own line width", () => {
+    const tag =
+      "<tag><drawing><stroke><pt><x>0.2</x><y>0.2</y><t>0</t></pt><pt><x>0.8</x><y>0.2</y><t>1</t></pt></stroke></drawing></tag>";
+    const gml = new GML(`<gml>${tag}${tag}</gml>`);
+    const { timelines } = new GMLTimeline(gml);
+    const timeline = timelines[1] ?? [];
+    const lastFrame = timeline[timeline.length - 1];
+    const state = new RenderState(new ClientEnvironment(320, 240), {
+      timeline,
+      frame: lastFrame,
+      frameIndex: timeline.length - 1,
+      time: 100,
+      totalFrames: timeline.length,
+      totalTime: lastFrame?.t ?? 0,
+    });
+    const ctx = new MockContext();
+    const item = new RenderItemDrips(gml);
+    item.setOptions({ dripFactor: 1 });
+    item.render(ctx, state);
+
+    expect(ctx.only("beginPath")).toHaveLength(2);
+    expect(ctx.only("stroke")).toHaveLength(2);
+  });
+});

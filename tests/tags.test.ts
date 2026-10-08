@@ -156,3 +156,33 @@ describe("RenderItemTags", () => {
     expect(setProps[1]?.props.lineWidth).toBe(8);
   });
 });
+
+describe("RenderItemTags — partial segments", () => {
+  test("interpolates the current segment for documents without timestamps", () => {
+    const gml = new GML(
+      "<gml><tag><drawing><stroke><pt><x>0.1</x><y>0.5</y></pt><pt><x>0.9</x><y>0.5</y></pt></stroke></drawing></tag></gml>",
+    );
+    const { timelines } = new GMLTimeline(gml);
+    const timeline = timelines[0] ?? [];
+    const [first, second] = timeline;
+    const state = new RenderState(new ClientEnvironment(320, 240), {
+      timeline,
+      frame: first,
+      frameIndex: 0,
+      // Halfway between the first and second point (1/60 s apart).
+      time: ((first?.t ?? 0) + (second?.t ?? 0)) / 2,
+      totalFrames: timeline.length,
+      totalTime: second?.t ?? 0,
+    });
+
+    const ctx = new MockContext();
+    new RenderItemTags(gml).render(ctx, state);
+
+    const [start] = ctx.only("moveTo");
+    const [partial] = ctx.only("lineTo");
+    expect(partial).toBeDefined();
+    expect(partial!.x).toBeGreaterThan(start!.x);
+    // The full segment would end at x ≈ 0.9 × 320 = 288; halfway is ≈ 160.
+    expect(partial!.x).toBeCloseTo(160, 0);
+  });
+});

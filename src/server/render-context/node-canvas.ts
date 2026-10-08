@@ -7,7 +7,10 @@ import {
   RenderContextBase,
   type RenderImageOptions,
 } from "../../render/context.ts";
-import { type RenderProps } from "../../render/props/index.ts";
+import {
+  applyRenderProps,
+  type RenderProps,
+} from "../../render/props/index.ts";
 
 export class RenderContextNodeCanvas extends RenderContextBase {
   private canvas: Canvas;
@@ -70,10 +73,7 @@ export class RenderContextNodeCanvas extends RenderContextBase {
   }
 
   setRenderProps(props: Partial<RenderProps>) {
-    Object.entries(props).forEach(([key, value]) => {
-      // @ts-expect-error TODO: validate
-      this.ctx[key] = value;
-    });
+    applyRenderProps(this.ctx, props);
   }
 
   renderToDataURL(

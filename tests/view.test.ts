@@ -6,7 +6,13 @@ import {
   beforeEach,
   afterEach,
 } from "vite-plus/test";
-import { createGMLView, createGMLImage } from "../src/server/index.ts";
+import {
+  createGMLView,
+  createGMLImage,
+  ServerRenderContext,
+} from "../src/server/index.ts";
+import { GMLRenderer } from "../src/render/index.ts";
+import type { GMLView } from "../src/view.ts";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -322,5 +328,51 @@ describe("Playback lifecycle", () => {
     const drawsAtStop = counter.draws;
     vi.advanceTimersByTime(500);
     expect(counter.draws).toBe(drawsAtStop);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Render settings survive rebuilding the render items
+// ---------------------------------------------------------------------------
+describe("Render item settings", () => {
+  function customize(view: GMLView) {
+    view.setRenderItemProps("background", { fillStyle: "#ff0000" });
+    view.setRenderItemProps("tags", { strokeStyle: "#00ff00" });
+    view.getRenderItem("tags")?.item.setOptions({ brushSizeMultiplier: 3 });
+    view.setRenderItemVisible("drips", true);
+    view.getRenderItem("drips")?.item.setOptions({ dripFactor: 0.7 });
+  }
+
+  function expectCustomized(view: GMLView) {
+    const background = view.getRenderItem("background");
+    const tags = view.getRenderItem("tags");
+    const drips = view.getRenderItem("drips");
+    expect(background?.item.getRenderProps().fillStyle).toBe("#ff0000");
+    expect(tags?.item.getRenderProps().strokeStyle).toBe("#00ff00");
+    expect(tags?.item.getOptions().brushSizeMultiplier).toBe(3);
+    expect(drips?.visible).toBe(true);
+    expect(drips?.item.getOptions().dripFactor).toBe(0.7);
+  }
+
+  test("survive setGml()", () => {
+    const view = createGMLView(example000, size);
+    customize(view);
+    view.setGml(example001);
+    expectCustomized(view);
+  });
+
+  test("survive setRenderer()", () => {
+    const view = createGMLView(example001, size);
+    customize(view);
+    view.setRenderer(
+      new GMLRenderer(ServerRenderContext.createRenderContext(size)),
+    );
+    expectCustomized(view);
+  });
+
+  test("a new view starts with drips hidden", () => {
+    expect(
+      createGMLView(example001, size).getRenderItem("drips")?.visible,
+    ).toBe(false);
   });
 });

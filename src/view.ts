@@ -81,9 +81,11 @@ export class GMLView extends EventTarget {
   setGml(gml: GML | string) {
     const wasPlaying = this.isPlaying;
     this._cancelAnimationFrame();
+    const settings = this._getRenderItemSettings();
     this._gml = this._initGml(gml);
     this._animation = this._initAnimation(this._gml);
     this._initRenderer(this._initRenderItems(this._gml));
+    this._applyRenderItemSettings(settings);
     if (wasPlaying) {
       this.start();
     }
@@ -154,6 +156,55 @@ export class GMLView extends EventTarget {
     this.setRenderItemVisible("drips", false); // drips are opt-in for now
   }
 
+  /**
+   * Captures the user-facing settings of the built-in render items (props, visibility and
+   * options), so they survive rebuilding the items in setGml() and setRenderer().
+   */
+  private _getRenderItemSettings() {
+    const background = this.getRenderItem("background");
+    const tags = this.getRenderItem("tags");
+    const drips = this.getRenderItem("drips");
+    return {
+      background: background && {
+        visible: background.visible,
+        props: background.item.getRenderProps(),
+      },
+      tags: tags && {
+        visible: tags.visible,
+        props: tags.item.getRenderProps(),
+        options: tags.item.getOptions(),
+      },
+      drips: drips && {
+        visible: drips.visible,
+        props: drips.item.getRenderProps(),
+        options: drips.item.getOptions(),
+      },
+    };
+  }
+
+  private _applyRenderItemSettings({
+    background,
+    tags,
+    drips,
+  }: ReturnType<GMLView["_getRenderItemSettings"]>) {
+    for (const [type, settings] of [
+      ["background", background],
+      ["tags", tags],
+      ["drips", drips],
+    ] as const) {
+      if (settings) {
+        this.setRenderItemVisible(type, settings.visible);
+        this.setRenderItemProps(type, settings.props);
+      }
+    }
+    if (tags) {
+      this.getRenderItem("tags")?.item.setOptions(tags.options);
+    }
+    if (drips) {
+      this.getRenderItem("drips")?.item.setOptions(drips.options);
+    }
+  }
+
   private _initRenderItems(gml: GML) {
     const renderItemBackground = new RenderItemBackground(gml);
     const renderItemTags = new RenderItemTags(gml);
@@ -166,8 +217,10 @@ export class GMLView extends EventTarget {
   }
 
   setRenderer(renderer: GMLRenderer) {
+    const settings = this._getRenderItemSettings();
     this._renderer = renderer;
     this._initRenderer(this._initRenderItems(this._gml));
+    this._applyRenderItemSettings(settings);
   }
 
   get renderer() {

@@ -86,7 +86,6 @@ export class TagEnvironment extends Environment {
     const b = vec3.fromValues(0, 1, 0);
     const r = this.getRotationMatrixToAlignVectors(a, b);
     mat3.copy(m, r);
-    mat3.str(m);
     return m;
   }
 

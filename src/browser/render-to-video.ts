@@ -10,6 +10,7 @@ import {
   BufferTarget,
   CanvasSource,
   QUALITY_HIGH,
+  type Quality,
 } from "mediabunny";
 import { GMLView } from "../view.ts";
 import { GMLRenderer } from "../render/index.ts";
@@ -25,8 +26,11 @@ export interface GMLVideoRenderOptions {
   background?: string;
   fps?: number;
   codec?: GMLVideoCodec;
-  bitrate?: number;
+  /** Bits per second, or one of mediabunny's QUALITY_* constants. */
+  bitrate?: number | Quality;
   format?: GMLVideoContainerFormat;
+  /** Aborts rendering; the returned promise rejects with the signal's reason. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -36,7 +40,7 @@ export interface GMLVideoRenderOptions {
  * @returns A Uint8Array containing the encoded video bytes.
  */
 export async function renderToVideo(
-  gml: GML,
+  gml: string | GML,
   options?: GMLVideoRenderOptions,
 ): Promise<Uint8Array> {
   const {
@@ -47,7 +51,13 @@ export async function renderToVideo(
     codec = "avc",
     bitrate = QUALITY_HIGH,
     format = "mp4",
+    signal,
   } = options ?? {};
+
+  if (!Number.isFinite(fps) || fps <= 0) {
+    throw new RangeError(`fps must be a positive number, got ${fps}`);
+  }
+  signal?.throwIfAborted();
 
   const ctx = new RenderContextOffscreenCanvas(width, height);
 
@@ -71,21 +81,31 @@ export async function renderToVideo(
     view.setRenderItemProps("background", { fillStyle: background });
   }
 
-  await output.start();
+  try {
+    await output.start();
 
-  const { totalTime } = view.state;
-  const frameDuration = 1 / fps;
-  const frameCount = Math.ceil(totalTime * fps);
+    const { totalTime } = view.state;
+    const frameDuration = 1 / fps;
+    // Zero-duration documents (e.g. a single point) still produce one frame.
+    const frameCount = Math.max(1, Math.ceil(totalTime * fps));
 
-  for (let i = 0; i < frameCount; i++) {
-    const timestamp = i * frameDuration;
-    const animTime = i === frameCount - 1 ? totalTime : timestamp;
-    view.setTime(animTime);
-    view.draw();
-    await canvasSource.add(timestamp, frameDuration);
+    for (let i = 0; i < frameCount; i++) {
+      signal?.throwIfAborted();
+      const timestamp = i * frameDuration;
+      const animTime = i === frameCount - 1 ? totalTime : timestamp;
+      view.setTime(animTime);
+      view.draw();
+      await canvasSource.add(timestamp, frameDuration);
+    }
+
+    await output.finalize();
+  } catch (error) {
+    // Release the encoder; the output is unusable after a failure.
+    if (output.state !== "canceled" && output.state !== "finalized") {
+      await output.cancel();
+    }
+    throw error;
   }
-
-  await output.finalize();
 
   const { buffer } = output.target;
   if (!buffer) {

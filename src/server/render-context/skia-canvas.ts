@@ -3,7 +3,10 @@ import {
   RenderContextBase,
   type RenderImageOptions,
 } from "../../render/context.ts";
-import { type RenderProps } from "../../render/props/index.ts";
+import {
+  applyRenderProps,
+  type RenderProps,
+} from "../../render/props/index.ts";
 
 export class RenderContextSkiaCanvas extends RenderContextBase {
   private canvas: Canvas;
@@ -66,10 +69,7 @@ export class RenderContextSkiaCanvas extends RenderContextBase {
   }
 
   setRenderProps(props: Partial<RenderProps>) {
-    Object.entries(props).forEach(([key, value]) => {
-      // @ts-expect-error TODO: validate
-      this.ctx[key] = value;
-    });
+    applyRenderProps(this.ctx, props);
   }
 
   renderToDataURL(
@@ -81,10 +81,9 @@ export class RenderContextSkiaCanvas extends RenderContextBase {
   renderToBlob(
     { type, quality }: RenderImageOptions = { type: "jpeg" },
   ): Promise<Blob> {
-    const dataURL = this.canvas.toDataURL(type, quality);
-    const [header, data] = dataURL.split(",");
-    const mimeType = header.match(/:(.*?);/)?.[1] ?? `image/${type}`;
-    const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
-    return Promise.resolve(new Blob([bytes], { type: mimeType }));
+    const buffer = this.canvas.toBufferSync(type, { quality });
+    return Promise.resolve(
+      new Blob([new Uint8Array(buffer)], { type: `image/${type}` }),
+    );
   }
 }

@@ -25,6 +25,10 @@ export class RenderItemTags extends RenderItem {
     return "tags";
   }
 
+  getOptions(): TagsOptions {
+    return { ...this.options };
+  }
+
   setOptions(options: Partial<TagsOptions>) {
     const { brushSizeMultiplier } = options;
     if (
@@ -127,12 +131,14 @@ export class RenderItemTags extends RenderItem {
         renderContext.lineTo(p1[0], p1[1]);
       }
       if (i == pointLimit && i < points.length - 1 && time > 0) {
-        this.projectPoint(p2, points[i + 1].getXYZ());
-        const t1 = points[i].getT();
-        const t2 = points[i + 1].getT();
-        if (t1 === undefined || t2 === undefined || t2 <= t1) {
+        // Use timeline times rather than the points' <t> values, so documents without
+        // timestamps (or with a custom fps timeline) interpolate too.
+        const segment = renderState.getCurrentSegmentTimes();
+        if (!segment || segment[1] <= segment[0]) {
           continue;
         }
+        const [t1, t2] = segment;
+        this.projectPoint(p2, points[i + 1].getXYZ());
         const tt = Math.min(Math.max(time, t1), t2);
         const dt = t1 >= t2 ? 0 : (tt - t1) / (t2 - t1);
         const dx = p1[0] + (p2[0] - p1[0]) * dt;

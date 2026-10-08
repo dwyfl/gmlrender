@@ -114,6 +114,10 @@ export class RenderItemDrips extends RenderItem {
     return "drips";
   }
 
+  getOptions(): DripOptions {
+    return { ...this.options };
+  }
+
   setOptions(options: Partial<DripOptions>) {
     if (options.dripFactor !== undefined && !isNaN(options.dripFactor)) {
       this.options.dripFactor = Math.min(1, Math.max(0, options.dripFactor));
@@ -144,7 +148,8 @@ export class RenderItemDrips extends RenderItem {
 
   /**
    * Returns the drip direction vector (in GML virtual space) for a given tag.
-   * Drips flow opposite to the environment's up vector.
+   * Drips flow along the environment's up vector: GML's y axis points down on screen, so
+   * the default up vector (0, 1, 0) makes drips run downwards.
    */
   private _getDripDirection(tagIndex: number): vec3 {
     return this.getTagEnvironment(tagIndex).getUpVector();
@@ -277,8 +282,6 @@ export class RenderItemDrips extends RenderItem {
       return;
     }
 
-    renderContext.beginPath();
-
     const { p1, p2, _startVec: start, _endVec: end } = this;
     const { frame, time } = renderState;
     let tagIndex = null;
@@ -289,19 +292,26 @@ export class RenderItemDrips extends RenderItem {
       }
 
       const elapsed = time - drip.t;
-      const length =
-        drip.dripLength * this.options.dripEasing(elapsed / drip.dripSpeed);
+      // dripSpeed 0 means drips appear at full length immediately.
+      const progress = drip.dripSpeed > 0 ? elapsed / drip.dripSpeed : 1;
+      const length = drip.dripLength * this.options.dripEasing(progress);
       if (length <= 0) {
         continue;
       }
 
       if (tagIndex !== drip.tagIndex) {
+        // One path per tag: line width depends on the tag's environment, and only the
+        // values in effect when stroke() is called apply to a path.
+        if (tagIndex !== null) {
+          renderContext.stroke();
+        }
         tagIndex = drip.tagIndex;
         this.initRenderEnvironments(
           renderContext,
           renderState,
           this.getTagEnvironment(drip.tagIndex),
         );
+        renderContext.beginPath();
       }
 
       const dripDir = this._getDripDirection(drip.tagIndex);
@@ -321,6 +331,8 @@ export class RenderItemDrips extends RenderItem {
       renderContext.lineTo(p2[0], p2[1]);
     }
 
-    renderContext.stroke();
+    if (tagIndex !== null) {
+      renderContext.stroke();
+    }
   }
 }

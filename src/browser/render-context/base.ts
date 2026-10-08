@@ -1,5 +1,8 @@
 import { RenderContextBase } from "../../render/context.ts";
-import { type RenderProps } from "../../render/props/index.ts";
+import {
+  applyRenderProps,
+  type RenderProps,
+} from "../../render/props/index.ts";
 
 export abstract class RenderContextCanvas2D<
   TCanvas extends { width: number; height: number },
@@ -67,9 +70,6 @@ export abstract class RenderContextCanvas2D<
   }
 
   setRenderProps(props: Partial<RenderProps>) {
-    Object.entries(props).forEach(([key, value]) => {
-      // @ts-expect-error
-      this.ctx[key] = value;
-    });
+    applyRenderProps(this.ctx, props);
   }
 }

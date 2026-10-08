@@ -41,6 +41,22 @@ export function isRenderProp<T extends keyof RenderProps>(
   }
 }
 
+/**
+ * Copies the valid render props from `props` onto `target` (a render props object or a
+ * canvas 2D context). Unknown keys and invalid values are ignored, so untrusted input cannot
+ * set arbitrary properties (such as `__proto__`) on the target.
+ */
+export function applyRenderProps(
+  target: Record<keyof RenderProps, unknown>,
+  props: Partial<RenderProps>,
+) {
+  for (const [key, value] of Object.entries(props)) {
+    if (isRenderPropType(key) && isRenderProp(key, value)) {
+      target[key] = value;
+    }
+  }
+}
+
 export class BaseRenderProps {
   fillStyle: RenderFillStyle;
   strokeStyle: RenderStrokeStyle;
