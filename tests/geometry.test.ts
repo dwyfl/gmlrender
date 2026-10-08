@@ -216,6 +216,31 @@ describe("View controls", () => {
     expect(to!.x - from!.x).toBeCloseTo(160, 2);
   });
 
+  test.each([
+    // [rotation, expected end of the 80px stroke from the center (160, 120)]
+    ["90°", Math.PI / 2, [160, 200]],
+    ["45°", Math.PI / 4, [160 + 80 * Math.SQRT1_2, 120 + 80 * Math.SQRT1_2]],
+    ["-90°", -Math.PI / 2, [160, 40]],
+  ] as const)(
+    "setRotation(%s) rotates rigidly around the center",
+    (_, rotation, [x, y]) => {
+      const [from, to] = render(xml, 320, 240, (view) =>
+        view.setRotation(rotation),
+      ).stroke;
+      expect(from!.x).toBeCloseTo(160, 2);
+      expect(from!.y).toBeCloseTo(120, 2);
+      expect(to!.x).toBeCloseTo(x, 2);
+      expect(to!.y).toBeCloseTo(y, 2);
+    },
+  );
+
+  test("setRotation(90°) turns the 320×240 document area into 240×320", () => {
+    const { document } = render(xml, 320, 240, (view) =>
+      view.setRotation(Math.PI / 2),
+    );
+    expectRect(document, [40, -40, 280, 280]);
+  });
+
   test("setOffset() moves the drawing in pixels", () => {
     const { stroke, document } = render(xml, 320, 240, (view) =>
       view.setOffset(10, -5),

@@ -110,10 +110,11 @@ export abstract class RenderItem {
     vec3.transformMat3(p, p, this.tagEnvironment.getTransform());
     // Note: Tag environment offset describes physical position in world space,
     // not rendering offset. It is not applied here.
-    // Apply user transform
-    vec3.transformMat3(p, p, this.clientEnvironment.getTransform());
-    // Transform to screen space
+    // Transform to screen space (relative to the center)
     vec3.mul(p, p, this.clientScreenBounds);
+    // Apply user transform (rotation and scale) in screen space, so it stays rigid. In
+    // document space, the non-uniform scale above would stretch rotated drawings.
+    vec3.transformMat3(p, p, this.clientEnvironment.getTransform());
     // Offset to center in screen space
     vec3.add(p, p, this.clientEnvironment.getScreenCenter());
     // Apply client offset
