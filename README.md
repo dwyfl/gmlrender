@@ -4,8 +4,6 @@
 - It's a JavaScript library with full TypeScript support, for Node.js and browsers.
 - It's open source.
 
-Looking for the command line tool? See [gmlrender-cli](https://github.com/dwyfl/gmlrender-cli).
-
 ## Installation
 
 Install `gmlrender` together with the rendering backend you use. The backends are optional
@@ -90,3 +88,7 @@ const view = createGMLView(gml, {
 });
 for (const warning of view.gml.warnings) console.warn(warning.message);
 ```
+
+## Made with gmlrender
+
+![KATSU tag rendered with gmlrender](docs/katsu.webp)
